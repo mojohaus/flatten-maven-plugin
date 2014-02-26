@@ -175,27 +175,35 @@ public class ConsumerMojo extends AbstractMojo {
     getLog().info("Generating consumer POM of project " + this.project.getId() + "...");
 
     Model consumerPom = createConsumerPom();
-    writePom(consumerPom);
+    writePom(consumerPom, this.consumerPomFile);
 
     if (isUpdatePomFile()) {
       this.project.setFile(this.consumerPomFile);
     }
   }
 
-  protected void writePom(Model consumerPom) throws MojoExecutionException {
+  /**
+   * Writes the given POM {@link Model} to the given {@link File}.
+   * 
+   * @param pom the {@link Model} of the POM to write.
+   * @param pomFile the {@link File} where to write the given POM will be written to.
+   *        {@link File#getParentFile() Parent directories} are {@link File#mkdirs() created} automatically.
+   * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
+   */
+  protected void writePom(Model pom, File pomFile) throws MojoExecutionException {
 
-    File parentFile = this.consumerPomFile.getParentFile();
+    File parentFile = pomFile.getParentFile();
     if (!parentFile.exists()) {
       boolean success = parentFile.mkdirs();
       if (!success) {
-        throw new MojoExecutionException("Failed to create directory " + this.consumerPomFile.getParent());
+        throw new MojoExecutionException("Failed to create directory " + pomFile.getParent());
       }
     }
     MavenXpp3Writer pomWriter = new MavenXpp3Writer();
     Writer writer = null;
     try {
       writer = new FileWriter(this.consumerPomFile);
-      pomWriter.write(writer, consumerPom);
+      pomWriter.write(writer, pom);
     } catch (IOException e) {
       throw new MojoExecutionException("Failed to write consumer POM to " + this.consumerPomFile, e);
     } finally {
@@ -212,6 +220,8 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
+   * This method creates the consumer POM what is the main task of this plugin.
+   * 
    * @return the {@link Model} of the consumer POM.
    */
   protected Model createConsumerPom() {
@@ -326,22 +336,42 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
-   * TODO: javadoc
+   * Creates the {@link List} of {@link Dependency dependencies} for the consumer POM. These are all resolved
+   * {@link Dependency dependencies} except for those added from {@link Profile profiles}.
    * 
-   * @return
+   * @return the {@link List} of {@link Dependency dependencies}.
    */
   protected List<Dependency> createConsumerDependencies() {
 
-    List<Dependency> projectDependencies = this.project.getDependencies();
-    List<Dependency> consumerDependencies = new ArrayList<Dependency>(projectDependencies.size());
+    List<Dependency> consumerDependencies = new ArrayList<Dependency>(this.project.getDependencies().size());
+    createConsumerDependenciesRecursive(this.project, consumerDependencies);
+    getLog().info("Resolved " + consumerDependencies.size() + " dependency/-ies for consumer POM.");
+    return consumerDependencies;
+  }
+
+  /**
+   * Collects the resolved {@link Dependency dependencies} from the given <code>currentProject</code> and all
+   * its {@link MavenProject#getParent() parents} recursively.
+   * 
+   * @param currentProject is the current {@link MavenProject} to process.
+   * @param consumerDependencies is the {@link List} where to add the collected {@link Dependency
+   *        dependencies}.
+   */
+  protected void createConsumerDependenciesRecursive(MavenProject currentProject, List<Dependency> consumerDependencies) {
+
+    getLog().info("Resolving dependencies of " + currentProject.getId());
+    // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
+    List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
     for (Dependency projectDependency : projectDependencies) {
       Dependency consumerDependency = createConsumerDependency(projectDependency);
       if (consumerDependency != null) {
         consumerDependencies.add(consumerDependency);
       }
     }
-    getLog().info("Resolved " + consumerDependencies.size() + " dependency/-ies for consumer POM.");
-    return consumerDependencies;
+    MavenProject parentProject = currentProject.getParent();
+    if (parentProject != null) {
+      createConsumerDependenciesRecursive(parentProject, consumerDependencies);
+    }
   }
 
   /**
@@ -356,6 +386,17 @@ public class ConsumerMojo extends AbstractMojo {
       // remove test dependencies from consumer POM
       return null;
     }
+    Dependency consumerDependency = new Dependency();
+    consumerDependency.setGroupId(projectDependency.getGroupId());
+    consumerDependency.setArtifactId(projectDependency.getArtifactId());
+    consumerDependency.setVersion(projectDependency.getVersion());
+    consumerDependency.setScope(projectDependency.getScope());
+    consumerDependency.setType(projectDependency.getType());
+    consumerDependency.setClassifier(projectDependency.getClassifier());
+    consumerDependency.setOptional(projectDependency.isOptional());
+    // for completeness, actually system scope is sick for consumers
+    consumerDependency.setSystemPath(projectDependency.getSystemPath());
+    consumerDependency.setExclusions(projectDependency.getExclusions());
     return projectDependency;
   }
 

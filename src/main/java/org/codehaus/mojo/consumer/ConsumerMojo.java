@@ -149,16 +149,14 @@ public class ConsumerMojo extends AbstractMojo {
 
   /**
    * The directory where the generated consumer POM file will be written to.
-   * 
-   * @parameter property="project.build.directory"
    */
+  @Parameter(property = "project.build.directory")
   private File outputDirectory;
 
   /**
    * The filename of the generated consumer POM file.
-   * 
-   * @parameter property="consumerPomFilename" default-value="consumer-pom.xml"
    */
+  @Parameter(property = "consumerPomFilename", defaultValue = "consumer-pom.xml")
   private String consumerPomFilename;
 
   /**

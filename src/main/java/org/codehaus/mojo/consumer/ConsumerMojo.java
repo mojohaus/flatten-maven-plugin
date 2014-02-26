@@ -33,6 +33,8 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -126,20 +128,14 @@ import org.codehaus.plexus.util.StringUtils;
  * </table>
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
- * @goal consumer
- * @requiresProject true
- * @requiresDirectInvocation false
- * @executionStrategy once-per-session
  */
+@Mojo( name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session" )
 public class ConsumerMojo extends AbstractMojo {
 
   /**
    * The Maven Project.
-   * 
-   * @parameter property="project"
-   * @required
-   * @readonly
    */
+  @Parameter( defaultValue = "${project}", readonly = true, required = true )
   private MavenProject project;
 
   /**
@@ -147,16 +143,14 @@ public class ConsumerMojo extends AbstractMojo {
    * default this is only done for projects with packaging other than <code>pom</code>. You may want to also
    * do this for <code>pom</code> packages projects by setting this parameter to <code>true</code> or you can
    * use <code>false</code> in order to only generate the consumer POM but never set it as POM file.
-   * 
-   * @parameter property="updatePomFile"
    */
+  @Parameter( property="updatePomFile" )
   private Boolean updatePomFile;
 
   /**
    * The filename of the generated consumer POM file.
-   * 
-   * @parameter expression="${project.build.directory}/consumer-pom.xml"
    */
+  @Parameter( defaultValue = "${project.build.directory}/consumer-pom.xml" )
   private File consumerPomFile;
 
   /**

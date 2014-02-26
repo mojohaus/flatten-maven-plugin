@@ -32,7 +32,7 @@ import org.apache.maven.model.Dependency;
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-public class Dependencies extends ConsumerMojo {
+public class Dependencies {
 
   /** @see #add(Dependency) */
   private final Map<String, Dependency> key2DependencyMap;

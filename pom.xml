@@ -60,19 +60,22 @@
       <artifactId>maven-project</artifactId>
       <version>${mavenVersion}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>3.2</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
-      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>2.6</version>
         <configuration>
-          <goalPrefix>pom</goalPrefix>
+          <goalPrefix>consumer</goalPrefix>
         </configuration>
       </plugin>
-      -->
       <plugin>
          <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-compiler-plugin</artifactId>

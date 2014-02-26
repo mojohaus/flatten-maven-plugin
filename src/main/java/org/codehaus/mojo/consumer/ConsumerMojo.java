@@ -129,13 +129,13 @@ import org.codehaus.plexus.util.StringUtils;
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-@Mojo( name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session" )
+@Mojo(name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session")
 public class ConsumerMojo extends AbstractMojo {
 
   /**
    * The Maven Project.
    */
-  @Parameter( defaultValue = "${project}", readonly = true, required = true )
+  @Parameter(defaultValue = "${project}", readonly = true, required = true)
   private MavenProject project;
 
   /**
@@ -144,14 +144,22 @@ public class ConsumerMojo extends AbstractMojo {
    * do this for <code>pom</code> packages projects by setting this parameter to <code>true</code> or you can
    * use <code>false</code> in order to only generate the consumer POM but never set it as POM file.
    */
-  @Parameter( property="updatePomFile" )
+  @Parameter(property = "updatePomFile")
   private Boolean updatePomFile;
 
   /**
-   * The filename of the generated consumer POM file.
+   * The directory where the generated consumer POM file will be written to.
+   * 
+   * @parameter property="project.build.directory"
    */
-  @Parameter( defaultValue = "${project.build.directory}/consumer-pom.xml" )
-  private File consumerPomFile;
+  private File outputDirectory;
+
+  /**
+   * The filename of the generated consumer POM file.
+   * 
+   * @parameter property="consumerPomFilename" default-value="consumer-pom.xml"
+   */
+  private String consumerPomFilename;
 
   /**
    * The constructor.
@@ -169,10 +177,11 @@ public class ConsumerMojo extends AbstractMojo {
     getLog().info("Generating consumer POM of project " + this.project.getId() + "...");
 
     Model consumerPom = createConsumerPom();
-    writePom(consumerPom, this.consumerPomFile);
+    File consumerPomFile = new File(this.outputDirectory, this.consumerPomFilename);
+    writePom(consumerPom, consumerPomFile);
 
     if (isUpdatePomFile()) {
-      this.project.setFile(this.consumerPomFile);
+      this.project.setFile(consumerPomFile);
     }
   }
 
@@ -196,10 +205,10 @@ public class ConsumerMojo extends AbstractMojo {
     MavenXpp3Writer pomWriter = new MavenXpp3Writer();
     Writer writer = null;
     try {
-      writer = new FileWriter(this.consumerPomFile);
+      writer = new FileWriter(pomFile);
       pomWriter.write(writer, pom);
     } catch (IOException e) {
-      throw new MojoExecutionException("Failed to write consumer POM to " + this.consumerPomFile, e);
+      throw new MojoExecutionException("Failed to write POM to " + pomFile, e);
     } finally {
       // resource-handling not perfectly solved but we do not want to require java 1.7
       // and this is not a server application.
@@ -378,7 +387,7 @@ public class ConsumerMojo extends AbstractMojo {
    */
   protected void createConsumerDependenciesRecursive(MavenProject currentProject, Dependencies consumerDependencies) {
 
-    getLog().info("Resolving dependencies of " + currentProject.getId());
+    getLog().debug("Resolving dependencies of " + currentProject.getId());
     // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
     List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
     for (Dependency projectDependency : projectDependencies) {

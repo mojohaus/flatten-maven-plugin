@@ -25,6 +25,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -35,6 +37,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -129,7 +132,7 @@ import org.codehaus.plexus.util.StringUtils;
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-@Mojo(name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session")
+@Mojo(name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME)
 public class ConsumerMojo extends AbstractMojo {
 
   /**
@@ -150,7 +153,7 @@ public class ConsumerMojo extends AbstractMojo {
   /**
    * The directory where the generated consumer POM file will be written to.
    */
-  @Parameter(property = "project.build.directory")
+  @Parameter(defaultValue = "${project.build.directory}")
   private File outputDirectory;
 
   /**
@@ -411,18 +414,22 @@ public class ConsumerMojo extends AbstractMojo {
       // remove test dependencies from consumer POM
       return null;
     }
+    String artifactKey = projectDependency.getGroupId() + ":" + projectDependency.getArtifactId();
+    
+    Artifact artifact = (Artifact) project.getArtifactMap().get( artifactKey );
+    
     Dependency consumerDependency = new Dependency();
-    consumerDependency.setGroupId(projectDependency.getGroupId());
-    consumerDependency.setArtifactId(projectDependency.getArtifactId());
-    consumerDependency.setVersion(projectDependency.getVersion());
-    consumerDependency.setScope(projectDependency.getScope());
-    consumerDependency.setType(projectDependency.getType());
-    consumerDependency.setClassifier(projectDependency.getClassifier());
-    consumerDependency.setOptional(projectDependency.isOptional());
+    consumerDependency.setGroupId(artifact.getGroupId());
+    consumerDependency.setArtifactId(artifact.getArtifactId());
+    consumerDependency.setVersion(artifact.getVersion());
+    consumerDependency.setScope(artifact.getScope());
+    consumerDependency.setType(artifact.getType());
+    consumerDependency.setClassifier(artifact.getClassifier());
+    consumerDependency.setOptional(artifact.isOptional());
     // for completeness, actually system scope is sick for consumers
     consumerDependency.setSystemPath(projectDependency.getSystemPath());
     consumerDependency.setExclusions(projectDependency.getExclusions());
-    return projectDependency;
+    return consumerDependency;
   }
 
   /**

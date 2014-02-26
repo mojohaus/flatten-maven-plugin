@@ -260,9 +260,7 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
-   * TODO: javadoc
-   * 
-   * @return
+   * @return the {@link List} of {@link Profile}s for the consumer POM.
    */
   protected List<Profile> createConsumerProfiles() {
 
@@ -278,10 +276,11 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
-   * TODO: javadoc
+   * Creates the reduced {@link Profile} for the consumer POM from the given <code>projectProfile</code>.
    * 
-   * @param projectProfile
-   * @return
+   * @param projectProfile is the actual {@link Profile} from the effective POM.
+   * @return the reduced consumer {@link Profile} or <code>null</code> if the given
+   *         <code>projectProfile</code> is not consumer relevant.
    */
   protected Profile createConsumerProfile(Profile projectProfile) {
 
@@ -308,10 +307,9 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
-   * TODO: javadoc
-   * 
-   * @param projectProfileDependency
-   * @return
+   * @param projectProfileDependency is a {@link Dependency} from a {@link Profile}.
+   * @return the consumer {@link Dependency} or <code>null</code> if the given {@link Dependency} is NOT
+   *         consumer relevant.
    */
   protected Dependency createConsumerProfileDependency(Dependency projectProfileDependency) {
 
@@ -319,10 +317,9 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
-   * TODO: javadoc
-   * 
-   * @param activation
-   * @return
+   * @param activation is the {@link Activation} of a {@link Profile}.
+   * @return <code>true</code> if the given {@link Activation} is consumer relevant, <code>false</code>
+   *         otherwise (if it is triggered by properties, files, or other build-time relevant aspects).
    */
   protected boolean isConsumerRelevant(Activation activation) {
 
@@ -343,10 +340,38 @@ public class ConsumerMojo extends AbstractMojo {
    */
   protected List<Dependency> createConsumerDependencies() {
 
-    List<Dependency> consumerDependencies = new ArrayList<Dependency>(this.project.getDependencies().size());
+    Dependencies consumerDependencies = new Dependencies();
+    // resolve all direct and inherited dependencies...
     createConsumerDependenciesRecursive(this.project, consumerDependencies);
-    getLog().info("Resolved " + consumerDependencies.size() + " dependency/-ies for consumer POM.");
-    return consumerDependencies;
+
+    Model model = this.project.getModel();
+
+    // special dependencies are those that have been added via profiles, etc.
+    Dependencies specialDependencies = new Dependencies();
+    for (Dependency dependency : model.getDependencies()) {
+      if (!consumerDependencies.contains(dependency)) {
+        specialDependencies.add(dependency);
+      }
+    }
+
+    for (Profile profile : model.getProfiles()) {
+      // build-time driven activation (by property or file)?
+      if (!isConsumerRelevant(profile.getActivation())) {
+        List<Dependency> profileDependencies = profile.getDependencies();
+        for (Dependency profileDependency : profileDependencies) {
+          if (specialDependencies.contains(profileDependency)) {
+            // our assumption here is that the profileDependency has been added to effective POM because of
+            // this build-time driven profile. Therefore we need to add it to the consumer POM.
+            // Consumer-time driven profiles will remain in the consumer POM with their dependencies and allow
+            // dynamic dependencies due to OS or JDK.
+            consumerDependencies.add(profileDependency);
+          }
+        }
+      }
+    }
+    List<Dependency> result = consumerDependencies.toList();
+    getLog().debug("Resolved " + result.size() + " dependency/-ies for consumer POM.");
+    return result;
   }
 
   /**
@@ -357,7 +382,7 @@ public class ConsumerMojo extends AbstractMojo {
    * @param consumerDependencies is the {@link List} where to add the collected {@link Dependency
    *        dependencies}.
    */
-  protected void createConsumerDependenciesRecursive(MavenProject currentProject, List<Dependency> consumerDependencies) {
+  protected void createConsumerDependenciesRecursive(MavenProject currentProject, Dependencies consumerDependencies) {
 
     getLog().info("Resolving dependencies of " + currentProject.getId());
     // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
@@ -375,10 +400,9 @@ public class ConsumerMojo extends AbstractMojo {
   }
 
   /**
-   * TODO: javadoc
-   * 
-   * @param projectDependency
-   * @return
+   * @param projectDependency is the project {@link Dependency}.
+   * @return the consumer {@link Dependency} or <code>null</code> if the given {@link Dependency} is NOT
+   *         consumer relevant.
    */
   protected Dependency createConsumerDependency(Dependency projectDependency) {
 

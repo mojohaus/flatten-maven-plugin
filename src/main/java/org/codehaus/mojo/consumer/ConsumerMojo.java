@@ -25,9 +25,9 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
@@ -36,14 +36,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
-import org.codehaus.plexus.interpolation.InterpolationException;
-import org.codehaus.plexus.interpolation.Interpolator;
-import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
-import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
-import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.util.StringUtils;
 
 /**
@@ -134,18 +128,16 @@ import org.codehaus.plexus.util.StringUtils;
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-@Mojo( name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session" )
+@Mojo( name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME )
 public class ConsumerMojo
     extends AbstractMojo
 {
 
-    /** The Maven Project. */
-    @Parameter( property = "project", readonly = true, required = true )
+    /**
+     * The Maven Project.
+     */
+    @Parameter( defaultValue = "${project}", readonly = true, required = true )
     private MavenProject project;
-
-    /** The {@link Settings} with the configuration of the user. */
-    @Parameter( property = "settings", readonly = true, required = true )
-    protected Settings settings;
 
     /**
      * The flag to indicate if the generated consumer POM shall be set as POM file to the current project. By default
@@ -167,9 +159,6 @@ public class ConsumerMojo
      */
     @Parameter( property = "consumerPomFilename", defaultValue = "consumer-pom.xml" )
     private String consumerPomFilename;
-
-    /** @see #getInterpolator() */
-    private Interpolator interpolator;
 
     /**
      * The constructor.
@@ -197,35 +186,6 @@ public class ConsumerMojo
         {
             this.project.setFile( consumerPomFile );
         }
-    }
-
-    /**
-     * @return the interpolator
-     */
-    public Interpolator getInterpolator()
-    {
-
-        if ( this.interpolator == null )
-        {
-            try
-            {
-                StringSearchInterpolator impl = new StringSearchInterpolator();
-                // it would be cool to reuse this code from maven internal code
-                impl.addValueSource( new PropertiesBasedValueSource( this.project.getProperties() ) );
-                impl.addValueSource( new EnvarBasedValueSource() );
-                impl.addValueSource( new PropertiesBasedValueSource( System.getProperties() ) );
-                impl.addValueSource( new PropertiesBasedValueSource( this.project.getProperties() ) );
-                impl.addValueSource( new PrefixedObjectValueSource( "project", this.project ) );
-                impl.addValueSource( new PrefixedObjectValueSource( "pom", this.project ) );
-                impl.addValueSource( new PrefixedObjectValueSource( "settings", this.settings ) );
-                this.interpolator = impl;
-            }
-            catch ( IOException e )
-            {
-                throw new IllegalStateException( e );
-            }
-        }
-        return this.interpolator;
     }
 
     /**
@@ -282,10 +242,8 @@ public class ConsumerMojo
      * This method creates the consumer POM what is the main task of this plugin.
      * 
      * @return the {@link Model} of the consumer POM.
-     * @throws MojoExecutionException if the interpolation fails.
      */
     protected Model createConsumerPom()
-        throws MojoExecutionException
     {
 
         // actually we would need a copy of the 4.0.0 model in a separate package (version_4_0_0 subpackage).
@@ -497,63 +455,32 @@ public class ConsumerMojo
             // remove test dependencies from consumer POM
             return null;
         }
-        Dependency consumerDependency = new Dependency();
-        consumerDependency.setGroupId( interpolate( projectDependency.getGroupId() ) );
-        consumerDependency.setArtifactId( interpolate( projectDependency.getArtifactId() ) );
-        consumerDependency.setVersion( interpolate( projectDependency.getVersion() ) );
-        consumerDependency.setScope( interpolate( projectDependency.getScope() ) );
-        consumerDependency.setType( interpolate( projectDependency.getType() ) );
-        consumerDependency.setClassifier( interpolate( projectDependency.getClassifier() ) );
-        consumerDependency.setOptional( projectDependency.isOptional() );
-        // for completeness, actually system scope is sick for consumers
-        consumerDependency.setSystemPath( interpolate( projectDependency.getSystemPath() ) );
+        String artifactKey = projectDependency.getGroupId() + ":" + projectDependency.getArtifactId();
 
-        // copy and interpolate exclusions
-        List<Exclusion> projectDependencyExclusions = projectDependency.getExclusions();
-        List<Exclusion> consumerDependencyExclusions = new ArrayList<Exclusion>( projectDependencyExclusions.size() );
-        for ( Exclusion projectDependencyExclusion : projectDependencyExclusions )
+        Dependency consumerDependency;
+
+        Artifact artifact = (Artifact) project.getArtifactMap().get( artifactKey );
+
+        if ( artifact != null )
         {
-            Exclusion consumerDependencyExclusion = createConsumerDependencyExclusion( projectDependencyExclusion );
-            if ( consumerDependencyExclusion != null )
-            {
-                consumerDependencyExclusions.add( consumerDependencyExclusion );
-            }
+            consumerDependency = new Dependency();
+            consumerDependency.setGroupId( artifact.getGroupId() );
+            consumerDependency.setArtifactId( artifact.getArtifactId() );
+            consumerDependency.setVersion( artifact.getVersion() );
+            consumerDependency.setScope( artifact.getScope() );
+            consumerDependency.setType( artifact.getType() );
+            consumerDependency.setClassifier( artifact.getClassifier() );
+            consumerDependency.setOptional( artifact.isOptional() );
+            // for completeness, actually system scope is sick for consumers
+            consumerDependency.setSystemPath( projectDependency.getSystemPath() );
+            consumerDependency.setExclusions( projectDependency.getExclusions() );
         }
-        consumerDependency.setExclusions( projectDependencyExclusions );
+        else
+        {
+            // it's a dependency of an inactive profile, which is already interpolated
+            consumerDependency = projectDependency;
+        }
         return consumerDependency;
-    }
-
-    /**
-     * @param projectDependencyExclusion is the {@link Exclusion} of a project dependency.
-     * @return the consumer POM variant.
-     */
-    protected Exclusion createConsumerDependencyExclusion( Exclusion projectDependencyExclusion )
-    {
-        Exclusion consumerDependencyExclusion = new Exclusion();
-        consumerDependencyExclusion.setGroupId( interpolate( projectDependencyExclusion.getGroupId() ) );
-        consumerDependencyExclusion.setArtifactId( interpolate( projectDependencyExclusion.getArtifactId() ) );
-        return consumerDependencyExclusion;
-    }
-
-    /**
-     * @param value the value to interpolate (e.g. "4.3.${minorversion}").
-     * @return the interpolated value (e.g. "4.3.7").
-     */
-    private String interpolate( String value )
-    {
-        if ( StringUtils.isEmpty( value ) )
-        {
-            return value;
-        }
-        try
-        {
-            String interpolated = getInterpolator().interpolate( value );
-            return interpolated;
-        }
-        catch ( InterpolationException e )
-        {
-            throw new IllegalStateException( "Failed to interpolate value:" + value, e );
-        }
     }
 
     /**

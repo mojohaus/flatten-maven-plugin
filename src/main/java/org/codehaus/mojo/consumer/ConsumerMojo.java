@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
@@ -36,9 +37,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
 import org.codehaus.plexus.interpolation.InterpolationException;
 import org.codehaus.plexus.interpolation.Interpolator;
+import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.util.StringUtils;
@@ -136,14 +139,13 @@ public class ConsumerMojo
     extends AbstractMojo
 {
 
-    /**
-     * The Maven Project.
-     */
-    @Parameter( defaultValue = "${project}", readonly = true, required = true )
+    /** The Maven Project. */
+    @Parameter( property = "project", readonly = true, required = true )
     private MavenProject project;
 
-    // @Component
-    // private ModelInterpolator interpolator;
+    /** The {@link Settings} with the configuration of the user. */
+    @Parameter( property = "settings", readonly = true, required = true )
+    protected Settings settings;
 
     /**
      * The flag to indicate if the generated consumer POM shall be set as POM file to the current project. By default
@@ -208,9 +210,14 @@ public class ConsumerMojo
             try
             {
                 StringSearchInterpolator impl = new StringSearchInterpolator();
+                // it would be cool to reuse this code from maven internal code
                 impl.addValueSource( new PropertiesBasedValueSource( this.project.getProperties() ) );
                 impl.addValueSource( new EnvarBasedValueSource() );
-                // TODO hohwille we need to add more value sources...
+                impl.addValueSource( new PropertiesBasedValueSource( System.getProperties() ) );
+                impl.addValueSource( new PropertiesBasedValueSource( this.project.getProperties() ) );
+                impl.addValueSource( new PrefixedObjectValueSource( "project", this.project ) );
+                impl.addValueSource( new PrefixedObjectValueSource( "pom", this.project ) );
+                impl.addValueSource( new PrefixedObjectValueSource( "settings", this.settings ) );
                 this.interpolator = impl;
             }
             catch ( IOException e )
@@ -311,13 +318,6 @@ public class ConsumerMojo
         List<Profile> profiles = createConsumerProfiles();
         model.setProfiles( profiles );
 
-        // try {
-        // this.interpolator.interpolate(model, this.project.getBasedir(),
-        // this.project.getProjectBuilderConfiguration(),
-        // getLog().isDebugEnabled());
-        // } catch (ModelInterpolationException e) {
-        // throw new MojoExecutionException("Interpolation failed", e);
-        // }
         return model;
     }
 
@@ -507,9 +507,32 @@ public class ConsumerMojo
         consumerDependency.setOptional( projectDependency.isOptional() );
         // for completeness, actually system scope is sick for consumers
         consumerDependency.setSystemPath( interpolate( projectDependency.getSystemPath() ) );
-        // TODO: do we need interpolation here as well? Or will we take this from effective POM?
-        consumerDependency.setExclusions( projectDependency.getExclusions() );
+
+        // copy and interpolate exclusions
+        List<Exclusion> projectDependencyExclusions = projectDependency.getExclusions();
+        List<Exclusion> consumerDependencyExclusions = new ArrayList<Exclusion>( projectDependencyExclusions.size() );
+        for ( Exclusion projectDependencyExclusion : projectDependencyExclusions )
+        {
+            Exclusion consumerDependencyExclusion = createConsumerDependencyExclusion( projectDependencyExclusion );
+            if ( consumerDependencyExclusion != null )
+            {
+                consumerDependencyExclusions.add( consumerDependencyExclusion );
+            }
+        }
+        consumerDependency.setExclusions( projectDependencyExclusions );
         return consumerDependency;
+    }
+
+    /**
+     * @param projectDependencyExclusion is the {@link Exclusion} of a project dependency.
+     * @return the consumer POM variant.
+     */
+    protected Exclusion createConsumerDependencyExclusion( Exclusion projectDependencyExclusion )
+    {
+        Exclusion consumerDependencyExclusion = new Exclusion();
+        consumerDependencyExclusion.setGroupId( interpolate( projectDependencyExclusion.getGroupId() ) );
+        consumerDependencyExclusion.setArtifactId( interpolate( projectDependencyExclusion.getArtifactId() ) );
+        return consumerDependencyExclusion;
     }
 
     /**

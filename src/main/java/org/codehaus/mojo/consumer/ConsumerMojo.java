@@ -23,21 +23,36 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Profile;
+import org.apache.maven.model.building.DefaultModelBuilder;
+import org.apache.maven.model.building.DefaultModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuilder;
+import org.apache.maven.model.building.ModelBuildingException;
+import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuildingResult;
+import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.model.profile.ProfileActivationContext;
+import org.apache.maven.model.profile.ProfileInjector;
+import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.mojo.consumer.model.resolution.ConsumerModelResolver;
 import org.codehaus.plexus.util.StringUtils;
 
 /**
@@ -160,6 +175,17 @@ public class ConsumerMojo
     @Parameter( property = "consumerPomFilename", defaultValue = "consumer-pom.xml" )
     private String consumerPomFilename;
 
+    @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
+    private ArtifactRepository localRepository;
+    
+    // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
+    @Component
+    private ArtifactFactory artifactFactory;
+    
+    @Component( role = ModelBuilder.class )
+    private DefaultModelBuilder modelBuilder;
+    
+
     /**
      * The constructor.
      */
@@ -178,7 +204,8 @@ public class ConsumerMojo
 
         getLog().info( "Generating consumer POM of project " + this.project.getId() + "..." );
 
-        Model consumerPom = createConsumerPom();
+        Model consumerPom = createConsumerPom( this.project.getFile() );
+        
         File consumerPomFile = new File( this.outputDirectory, this.consumerPomFilename );
         writePom( consumerPom, consumerPomFile );
 
@@ -242,9 +269,52 @@ public class ConsumerMojo
      * This method creates the consumer POM what is the main task of this plugin.
      * 
      * @return the {@link Model} of the consumer POM.
+     * @throws MojoExecutionException 
      */
-    protected Model createConsumerPom()
+    protected Model createConsumerPom( File pomFile ) throws MojoExecutionException
     {
+        ModelBuildingRequest buildingRequest =
+            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( new ConsumerModelResolver(
+                                                                                                                 localRepository, artifactFactory ) );
+
+        ModelBuildingResult buildingResult;
+        try
+        {
+            modelBuilder.setProfileInjector( new ProfileInjector()
+            {
+                public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
+                                           ModelProblemCollector problems )
+                {
+                    // do nothing
+                }
+            } ).setProfileSelector( new ProfileSelector()
+            {
+                
+                public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
+                                                        ModelProblemCollector problems )
+                {
+                    List<Profile> activeProfiles = new ArrayList<Profile>( profiles.size() );
+
+                    for ( Profile profile : profiles )
+                    {
+                        Activation activation = profile.getActivation();
+                        if ( !isConsumerRelevant( activation ) )
+                        {
+                            activeProfiles.add( profile );
+                        }
+                    }
+                    
+                    return activeProfiles;
+                }
+            } );
+            buildingResult = modelBuilder.build( buildingRequest );
+        }
+        catch ( ModelBuildingException e )
+        {
+            throw new MojoExecutionException( e.getMessage(), e );
+        }
+        
+        Model effectiveModel = buildingResult.getEffectiveModel();
 
         // actually we would need a copy of the 4.0.0 model in a separate package (version_4_0_0 subpackage).
         Model model = new Model();
@@ -253,96 +323,29 @@ public class ConsumerMojo
         model.setModelVersion( "4.0.0" );
 
         // GAV values have to be fixed without variables, etc.
-        model.setGroupId( this.project.getGroupId() );
-        model.setArtifactId( this.project.getArtifactId() );
-        model.setVersion( this.project.getVersion() );
+        model.setGroupId( effectiveModel.getGroupId() );
+        model.setArtifactId( effectiveModel.getArtifactId() );
+        model.setVersion( effectiveModel.getVersion() );
 
         // general attributes also need no dynamics/variables
-        model.setPackaging( this.project.getPackaging() );
-        model.setName( this.project.getName() );
-        model.setDescription( this.project.getDescription() );
-        model.setUrl( this.project.getUrl() );
-        model.setInceptionYear( this.project.getInceptionYear() );
+        model.setPackaging( effectiveModel.getPackaging() );
+        model.setName( effectiveModel.getName() );
+        model.setDescription( effectiveModel.getDescription() );
+        model.setUrl( effectiveModel.getUrl() );
+        model.setInceptionYear( effectiveModel.getInceptionYear() );
 
         // copy by reference - if model changes this code has to explicitly create the new elements
-        model.setLicenses( this.project.getLicenses() );
-        model.setScm( this.project.getScm() );
+        model.setLicenses( effectiveModel.getLicenses() );
+        model.setScm( effectiveModel.getScm() );
 
         // transform dependencies...
-        List<Dependency> dependencies = createConsumerDependencies();
+        List<Dependency> dependencies = createConsumerDependencies( effectiveModel );
         model.setDependencies( dependencies );
 
         // transform profiles...
-        List<Profile> profiles = createConsumerProfiles();
-        model.setProfiles( profiles );
+        model.setProfiles( effectiveModel.getProfiles() );
 
         return model;
-    }
-
-    /**
-     * @return the {@link List} of {@link Profile}s for the consumer POM.
-     */
-    protected List<Profile> createConsumerProfiles()
-    {
-
-        List<Profile> projectProfiles = this.project.getModel().getProfiles();
-        List<Profile> consumerProfiles = new ArrayList<Profile>( projectProfiles.size() );
-        for ( Profile projectProfile : projectProfiles )
-        {
-            Profile consumerProfile = createConsumerProfile( projectProfile );
-            if ( consumerProfile != null )
-            {
-                consumerProfiles.add( consumerProfile );
-            }
-        }
-        return consumerProfiles;
-    }
-
-    /**
-     * Creates the reduced {@link Profile} for the consumer POM from the given <code>projectProfile</code>.
-     * 
-     * @param projectProfile is the actual {@link Profile} from the effective POM.
-     * @return the reduced consumer {@link Profile} or <code>null</code> if the given <code>projectProfile</code> is not
-     *         consumer relevant.
-     */
-    protected Profile createConsumerProfile( Profile projectProfile )
-    {
-
-        Activation activation = projectProfile.getActivation();
-        if ( !isConsumerRelevant( activation ) )
-        {
-            return null;
-        }
-        List<Dependency> projectProfileDependencies = projectProfile.getDependencies();
-        List<Dependency> consumerProfileDependencies = new ArrayList<Dependency>( projectProfileDependencies.size() );
-        for ( Dependency projectProfileDependency : projectProfileDependencies )
-        {
-            Dependency consumerProfileDependency = createConsumerProfileDependency( projectProfileDependency );
-            if ( consumerProfileDependency != null )
-            {
-                consumerProfileDependencies.add( consumerProfileDependency );
-            }
-        }
-        if ( consumerProfileDependencies.size() > 0 )
-        {
-            Profile consumerProfile = new Profile();
-            consumerProfile.setActivation( activation );
-            consumerProfile.setDependencies( consumerProfileDependencies );
-            consumerProfile.setId( projectProfile.getId() );
-            return consumerProfile;
-        }
-        return null;
-    }
-
-    /**
-     * @param projectProfileDependency is a {@link Dependency} from a {@link Profile}.
-     * @return the consumer {@link Dependency} or <code>null</code> if the given {@link Dependency} is NOT consumer
-     *         relevant.
-     */
-    protected Dependency createConsumerProfileDependency( Dependency projectProfileDependency )
-    {
-
-        return createConsumerDependency( projectProfileDependency );
     }
 
     /**
@@ -370,12 +373,12 @@ public class ConsumerMojo
      * 
      * @return the {@link List} of {@link Dependency dependencies}.
      */
-    protected List<Dependency> createConsumerDependencies()
+    protected List<Dependency> createConsumerDependencies( Model effectiveModel )
     {
 
         Dependencies consumerDependencies = new Dependencies();
         // resolve all direct and inherited dependencies...
-        createConsumerDependenciesRecursive( this.project, consumerDependencies );
+        createConsumerDependenciesRecursive( effectiveModel, consumerDependencies );
 
         Model model = this.project.getModel();
 
@@ -421,12 +424,13 @@ public class ConsumerMojo
      * @param currentProject is the current {@link MavenProject} to process.
      * @param consumerDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
-    protected void createConsumerDependenciesRecursive( MavenProject currentProject, Dependencies consumerDependencies )
+    protected void createConsumerDependenciesRecursive( Model effectiveModel, Dependencies consumerDependencies )
     {
 
-        getLog().debug( "Resolving dependencies of " + currentProject.getId() );
+        getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
         // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
-        List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
+//        List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
+        List<Dependency> projectDependencies = effectiveModel.getDependencies();
         for ( Dependency projectDependency : projectDependencies )
         {
             Dependency consumerDependency = createConsumerDependency( projectDependency );
@@ -434,11 +438,6 @@ public class ConsumerMojo
             {
                 consumerDependencies.add( consumerDependency );
             }
-        }
-        MavenProject parentProject = currentProject.getParent();
-        if ( parentProject != null )
-        {
-            createConsumerDependenciesRecursive( parentProject, consumerDependencies );
         }
     }
 

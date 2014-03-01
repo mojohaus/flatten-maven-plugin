@@ -12,7 +12,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.mojo.consumer</groupId>
+      <groupId>org.codehaus.mojo.consumer.its</groupId>
       <artifactId>dep</artifactId>
     </dependency>
   </dependencies>

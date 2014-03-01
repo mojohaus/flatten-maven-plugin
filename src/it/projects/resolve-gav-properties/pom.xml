@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.consumer.its</groupId>
+  <artifactId>resolve-properties</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+    <depGroupId>org.codehaus.mojo.consumer.its</depGroupId>
+    <depArtifactId>dep</depArtifactId>
+    <depVersion>1.1</depVersion>
+    <utilGroupId>org.codehaus.mojo.consumer.its</utilGroupId>
+    <utilArtifactId>util</utilArtifactId>
+    <utilVersion>3.2.1</utilVersion>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>${depGroupId}</groupId>
+      <artifactId>${depArtifactId}</artifactId>
+      <version>${depVersion}</version>
+    </dependency>
+  </dependencies>
+  
+  <profiles>
+    <profile>
+      <activation>
+        <jdk>1.3</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>${utilGroupId}</groupId>
+          <artifactId>${utilArtifactId}</artifactId>
+          <version>${utilVersion}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+</project>

@@ -17,6 +17,45 @@
           <version>1.1</version>
         </dependency>
       </dependencies>
+      <repositories>
+        <repository>
+          <id>repo</id>
+          <url>@repository.proxy.url@</url>
+        </repository>
+      </repositories>
+      
+      <!-- following should be excluded -->
+      <build>
+        <defaultGoal>verify</defaultGoal>
+      </build>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.mojo.consumer.its</groupId>
+            <artifactId>dep</artifactId>
+            <version>3.2.1</version>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+      <distributionManagement>
+        <downloadUrl>http://mojo.codehaus.org/downloads</downloadUrl>
+      </distributionManagement>
+      <modules>
+        <module>module1</module>
+      </modules>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>none</id>
+          <url>@repository.proxy.url@</url>
+        </pluginRepository>
+      </pluginRepositories>
+      <properties>
+        <key>value</key>
+      </properties>
+      <reporting>
+        <outputDirectory>target/site</outputDirectory>
+      </reporting>
+      <reports/>
     </profile>
   </profiles>  
 </project>

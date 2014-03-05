@@ -351,7 +351,12 @@ public class ConsumerMojo
         {
             if ( isConsumerRelevant( profile.getActivation() ) )
             {
-                model.addProfile( profile );
+                Profile strippedProfile = new Profile();
+                strippedProfile.setId( profile.getId() );
+                strippedProfile.setActivation( profile.getActivation() );
+                strippedProfile.setDependencies( profile.getDependencies() );
+                strippedProfile.setRepositories( profile.getRepositories() );
+                model.addProfile( strippedProfile );
             }
         }
 

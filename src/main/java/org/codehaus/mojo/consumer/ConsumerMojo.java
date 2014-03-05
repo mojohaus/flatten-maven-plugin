@@ -177,14 +177,13 @@ public class ConsumerMojo
 
     @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
     private ArtifactRepository localRepository;
-    
+
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
     @Component
     private ArtifactFactory artifactFactory;
-    
+
     @Component( role = ModelBuilder.class )
     private DefaultModelBuilder modelBuilder;
-    
 
     /**
      * The constructor.
@@ -205,7 +204,7 @@ public class ConsumerMojo
         getLog().info( "Generating consumer POM of project " + this.project.getId() + "..." );
 
         Model consumerPom = createConsumerPom( this.project.getFile() );
-        
+
         File consumerPomFile = new File( this.outputDirectory, this.consumerPomFilename );
         writePom( consumerPom, consumerPomFile );
 
@@ -268,28 +267,32 @@ public class ConsumerMojo
     /**
      * This method creates the consumer POM what is the main task of this plugin.
      * 
+     * @param pomFile is the name of the original POM file to read and transform.
      * @return the {@link Model} of the consumer POM.
-     * @throws MojoExecutionException 
+     * @throws MojoExecutionException if anything goes wrong (e.g. POM can not be processed).
      */
-    protected Model createConsumerPom( File pomFile ) throws MojoExecutionException
+    protected Model createConsumerPom( File pomFile )
+        throws MojoExecutionException
     {
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( new ConsumerModelResolver(
-                                                                                                                 localRepository, artifactFactory ) );
+                                                                                                                 this.localRepository,
+                                                                                                                 this.artifactFactory ) );
 
         ModelBuildingResult buildingResult;
         try
         {
-            modelBuilder.setProfileInjector( new ProfileInjector()
+            ProfileInjector profileInjector = new ProfileInjector()
             {
                 public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
                     // do nothing
                 }
-            } ).setProfileSelector( new ProfileSelector()
+            };
+            ProfileSelector profileSelector = new ProfileSelector()
             {
-                
+
                 public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
                                                         ModelProblemCollector problems )
                 {
@@ -303,17 +306,18 @@ public class ConsumerMojo
                             activeProfiles.add( profile );
                         }
                     }
-                    
+
                     return activeProfiles;
                 }
-            } );
-            buildingResult = modelBuilder.build( buildingRequest );
+            };
+            this.modelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
+            buildingResult = this.modelBuilder.build( buildingRequest );
         }
         catch ( ModelBuildingException e )
         {
             throw new MojoExecutionException( e.getMessage(), e );
         }
-        
+
         Model effectiveModel = buildingResult.getEffectiveModel();
 
         // actually we would need a copy of the 4.0.0 model in a separate package (version_4_0_0 subpackage).
@@ -371,6 +375,7 @@ public class ConsumerMojo
      * Creates the {@link List} of {@link Dependency dependencies} for the consumer POM. These are all resolved
      * {@link Dependency dependencies} except for those added from {@link Profile profiles}.
      * 
+     * @param effectiveModel is the effective POM {@link Model} to process.
      * @return the {@link List} of {@link Dependency dependencies}.
      */
     protected List<Dependency> createConsumerDependencies( Model effectiveModel )
@@ -421,7 +426,7 @@ public class ConsumerMojo
      * Collects the resolved {@link Dependency dependencies} from the given <code>currentProject</code> and all its
      * {@link MavenProject#getParent() parents} recursively.
      * 
-     * @param currentProject is the current {@link MavenProject} to process.
+     * @param effectiveModel is the effective POM {@link Model} to process.
      * @param consumerDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
     protected void createConsumerDependenciesRecursive( Model effectiveModel, Dependencies consumerDependencies )
@@ -429,7 +434,7 @@ public class ConsumerMojo
 
         getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
         // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
-//        List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
+        // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
         List<Dependency> projectDependencies = effectiveModel.getDependencies();
         for ( Dependency projectDependency : projectDependencies )
         {
@@ -458,7 +463,7 @@ public class ConsumerMojo
 
         Dependency consumerDependency;
 
-        Artifact artifact = (Artifact) project.getArtifactMap().get( artifactKey );
+        Artifact artifact = this.project.getArtifactMap().get( artifactKey );
 
         if ( artifact != null )
         {

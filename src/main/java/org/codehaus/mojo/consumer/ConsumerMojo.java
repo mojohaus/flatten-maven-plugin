@@ -347,7 +347,13 @@ public class ConsumerMojo
         model.setDependencies( dependencies );
 
         // transform profiles...
-        model.setProfiles( effectiveModel.getProfiles() );
+        for ( Profile profile : effectiveModel.getProfiles() )
+        {
+            if ( isConsumerRelevant( profile.getActivation() ) )
+            {
+                model.addProfile( profile );
+            }
+        }
 
         return model;
     }

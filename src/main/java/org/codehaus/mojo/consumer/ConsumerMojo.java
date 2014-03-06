@@ -471,6 +471,11 @@ public class ConsumerMojo
         // general attributes also need no dynamics/variables
         model.setPackaging( effectiveModel.getPackaging() );
 
+        if ( "maven-plugin".equals( effectiveModel.getPackaging() ) )
+        {
+            model.setPrerequisites( effectiveModel.getPrerequisites() );
+        }
+
         // copy by reference - if model changes this code has to explicitly create the new elements
         model.setLicenses( effectiveModel.getLicenses() );
 

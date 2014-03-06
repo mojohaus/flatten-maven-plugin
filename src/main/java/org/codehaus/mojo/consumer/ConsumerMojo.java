@@ -91,12 +91,7 @@ import org.codehaus.plexus.util.StringUtils;
  * </tr>
  * <tr>
  * <td>
- * {@link Model#getName() name}<br/>
- * {@link Model#getDescription() description}<br/>
- * {@link Model#getUrl() url}<br/>
- * {@link Model#getInceptionYear() inceptionYear}<br/>
  * {@link Model#getLicenses() licenses}<br/>
- * {@link Model#getScm() scm}<br/>
  * </td>
  * <td>resolved</td>
  * <td>copied to the consumer POM but with inheritance from {@link Model#getParent() parent} as well as with all
@@ -124,6 +119,11 @@ import org.codehaus.plexus.util.StringUtils;
  * </tr>
  * <tr>
  * <td>
+ * {@link Model#getName() name}<br/>
+ * {@link Model#getDescription() description}<br/>
+ * {@link Model#getUrl() url}<br/>
+ * {@link Model#getInceptionYear() inceptionYear}<br/>
+ * {@link Model#getScm() scm}<br/>
  * {@link Model#getParent() parent}<br/>
  * {@link Model#getBuild() build}<br/>
  * {@link Model#getDependencyManagement() dependencyManagement}<br/>
@@ -333,14 +333,9 @@ public class ConsumerMojo
 
         // general attributes also need no dynamics/variables
         model.setPackaging( effectiveModel.getPackaging() );
-        model.setName( effectiveModel.getName() );
-        model.setDescription( effectiveModel.getDescription() );
-        model.setUrl( effectiveModel.getUrl() );
-        model.setInceptionYear( effectiveModel.getInceptionYear() );
 
         // copy by reference - if model changes this code has to explicitly create the new elements
         model.setLicenses( effectiveModel.getLicenses() );
-        model.setScm( effectiveModel.getScm() );
 
         // transform dependencies...
         List<Dependency> dependencies = createConsumerDependencies( effectiveModel );

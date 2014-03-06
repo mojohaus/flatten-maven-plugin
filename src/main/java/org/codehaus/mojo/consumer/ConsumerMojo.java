@@ -18,16 +18,19 @@
  */
 package org.codehaus.mojo.consumer;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -56,7 +59,15 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.consumer.model.resolution.ConsumerModelResolver;
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
+import org.codehaus.plexus.util.xml.XmlStreamReader;
+import org.codehaus.plexus.util.xml.pull.MXParser;
+import org.codehaus.plexus.util.xml.pull.XmlPullParser;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.DefaultHandler2;
 
 /**
  * This {@link AbstractMojo MOJO} realizes the goal <code>consumer</code> that generates the consumer POM and
@@ -206,14 +217,89 @@ public class ConsumerMojo
 
         getLog().info( "Generating consumer POM of project " + this.project.getId() + "..." );
 
-        Model consumerPom = createConsumerPom( this.project.getFile() );
+        File originalPomFile = this.project.getFile();
+        Model consumerPom = createConsumerPom( originalPomFile );
+        String headerComment = extractHeaderComment( originalPomFile );
 
         File consumerPomFile = new File( this.outputDirectory, this.consumerPomFilename );
-        writePom( consumerPom, consumerPomFile );
+        writePom( consumerPom, consumerPomFile, headerComment );
 
         if ( isUpdatePomFile() )
         {
             this.project.setFile( consumerPomFile );
+        }
+    }
+
+    /**
+     * This method extracts the XML header comment if available.
+     * 
+     * @param xmlFile is the XML {@link File} to parse.
+     * @return the XML comment between the XML header declaration and the root tag or <code>null</code> if NOT
+     *         available.
+     * @throws MojoExecutionException if anything goes wrong.
+     */
+    protected String extractHeaderComment( File xmlFile )
+        throws MojoExecutionException
+    {
+
+        try
+        {
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            SaxHeaderCommentHandler handler = new SaxHeaderCommentHandler();
+            parser.setProperty( "http://xml.org/sax/properties/lexical-handler", handler );
+            parser.parse( xmlFile, handler );
+            return handler.getHeaderComment();
+        }
+        catch ( Exception e )
+        {
+            throw new MojoExecutionException( "Failed to parse XML from " + xmlFile, e );
+        }
+    }
+
+    /**
+     * This method extracts the XML header comment if available.
+     * 
+     * @param xmlFile is the XML {@link File} to parse.
+     * @return the XML comment between the XML header declaration and the root tag or <code>null</code> if NOT
+     *         available.
+     * @throws MojoExecutionException if anything goes wrong.
+     */
+    protected String extractHeaderCommentUsingXppNotWorking( File xmlFile )
+        throws MojoExecutionException
+    {
+        // Actually StAX would be the standard to use. However, this is what comes with maven...
+        MXParser xpp = new MXParser();
+        XmlStreamReader inStream = null;
+        try
+        {
+            inStream = new XmlStreamReader( xmlFile );
+            xpp.setInput( inStream );
+            int eventType = -1;
+            do
+            {
+                eventType = xpp.next();
+                System.out.println( "XPP Event: " + eventType );
+                if ( eventType == XmlPullParser.COMMENT )
+                {
+                    return xpp.getText();
+                }
+            }
+            while ( eventType != XmlPullParser.START_TAG );
+            // no comment before root tag...
+            return null;
+        }
+        catch ( XmlPullParserException e )
+        {
+            // should never happen as we already parsed the same XML 2 times before...
+            throw new MojoExecutionException( "Failed to parse XML of " + xmlFile, e );
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( "Failed to read " + xmlFile, e );
+        }
+        finally
+        {
+            IOUtil.close( inStream );
         }
     }
 
@@ -223,9 +309,11 @@ public class ConsumerMojo
      * @param pom the {@link Model} of the POM to write.
      * @param pomFile the {@link File} where to write the given POM will be written to. {@link File#getParentFile()
      *            Parent directories} are {@link File#mkdirs() created} automatically.
+     * @param headerComment is the content of a potential XML comment at the top of the XML (after XML declaration and
+     *            before root tag). May be <code>null</code> if not present and to be omitted in target POM.
      * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
      */
-    protected void writePom( Model pom, File pomFile )
+    protected void writePom( Model pom, File pomFile, String headerComment )
         throws MojoExecutionException
     {
 
@@ -238,18 +326,57 @@ public class ConsumerMojo
                 throw new MojoExecutionException( "Failed to create directory " + pomFile.getParent() );
             }
         }
+        // MavenXpp3Writer could internally add the comment but does not expose such feature to API!
+        // Instead we have to write POM XML to String and do post processing on that :(
         MavenXpp3Writer pomWriter = new MavenXpp3Writer();
+        StringWriter stringWriter = new StringWriter( 4096 );
+        try
+        {
+            pomWriter.write( stringWriter, pom );
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( "Internal I/O error!", e );
+        }
+        StringBuffer buffer = stringWriter.getBuffer();
+        if ( !StringUtils.isEmpty( headerComment ) )
+        {
+            int projectStartIndex = buffer.indexOf( "<project" );
+            if ( projectStartIndex >= 0 )
+            {
+                buffer.insert( projectStartIndex, "<!--" + headerComment + "-->\n" );
+            }
+            else
+            {
+                getLog().warn( "POM XML post-processing failed: no project tag found!" );
+            }
+        }
+        writeStringToFile( buffer.toString(), pomFile, pom.getModelEncoding() );
+    }
+
+    /**
+     * Writes the given <code>data</code> to the given <code>file</code> using the specified <code>encoding</code>.
+     * 
+     * @param data is the {@link String} to write.
+     * @param file is the {@link File} to write to.
+     * @param encoding is the encoding to use for writing the file.
+     * @throws MojoExecutionException if anything goes wrong.
+     */
+    protected void writeStringToFile( String data, File file, String encoding )
+        throws MojoExecutionException
+    {
+
         OutputStream outStream = null;
         Writer writer = null;
         try
         {
-            outStream = new FileOutputStream( pomFile );
-            writer = new OutputStreamWriter( outStream, pom.getModelEncoding() );
-            pomWriter.write( writer, pom );
+            outStream = new FileOutputStream( file );
+            writer = new OutputStreamWriter( outStream, encoding );
+            writer.write( data );
         }
         catch ( IOException e )
         {
-            throw new MojoExecutionException( "Failed to write POM to " + pomFile, e );
+            throw new MojoExecutionException( "Failed to write to " + file, e );
         }
         finally
         {
@@ -257,24 +384,12 @@ public class ConsumerMojo
             // and this is not a server application.
             if ( writer != null )
             {
-                close( writer );
+                IOUtil.close( writer );
             }
             if ( outStream != null )
             {
-                close( outStream );
+                IOUtil.close( outStream );
             }
-        }
-    }
-
-    private void close( Closeable writer )
-    {
-        try
-        {
-            writer.close();
-        }
-        catch ( IOException e )
-        {
-            getLog().error( "Error while closing writer", e );
         }
     }
 
@@ -376,7 +491,6 @@ public class ConsumerMojo
                 model.addProfile( strippedProfile );
             }
         }
-
         return model;
     }
 
@@ -529,6 +643,62 @@ public class ConsumerMojo
         else
         {
             return this.updatePomFile.booleanValue();
+        }
+    }
+
+    private class SaxHeaderCommentHandler
+        extends DefaultHandler2
+    {
+
+        private boolean rootTagSeen;
+
+        private String headerComment;
+
+        /**
+         * The constructor.
+         */
+        public SaxHeaderCommentHandler()
+        {
+            super();
+            this.rootTagSeen = false;
+        }
+
+        /**
+         * @return the headerComment
+         */
+        public String getHeaderComment()
+        {
+            return this.headerComment;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void comment( char[] ch, int start, int length )
+            throws SAXException
+        {
+            if ( !this.rootTagSeen )
+            {
+                if ( this.headerComment == null )
+                {
+                    this.headerComment = new String( ch, start, length );
+                }
+                else
+                {
+                    getLog().warn( "Ignoring multiple XML header comment!" );
+                }
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void startElement( String uri, String localName, String qName, Attributes atts )
+            throws SAXException
+        {
+            this.rootTagSeen = true;
         }
     }
 

@@ -18,9 +18,12 @@
  */
 package org.codehaus.mojo.consumer;
 
+import java.io.Closeable;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -236,10 +239,12 @@ public class ConsumerMojo
             }
         }
         MavenXpp3Writer pomWriter = new MavenXpp3Writer();
+        OutputStream outStream = null;
         Writer writer = null;
         try
         {
-            writer = new FileWriter( pomFile );
+            outStream = new FileOutputStream( pomFile );
+            writer = new OutputStreamWriter( outStream, pom.getModelEncoding() );
             pomWriter.write( writer, pom );
         }
         catch ( IOException e )
@@ -252,15 +257,24 @@ public class ConsumerMojo
             // and this is not a server application.
             if ( writer != null )
             {
-                try
-                {
-                    writer.close();
-                }
-                catch ( IOException e )
-                {
-                    getLog().error( "Error while closing writer", e );
-                }
+                close( writer );
             }
+            if ( outStream != null )
+            {
+                close( outStream );
+            }
+        }
+    }
+
+    private void close( Closeable writer )
+    {
+        try
+        {
+            writer.close();
+        }
+        catch ( IOException e )
+        {
+            getLog().error( "Error while closing writer", e );
         }
     }
 
@@ -322,6 +336,14 @@ public class ConsumerMojo
 
         // actually we would need a copy of the 4.0.0 model in a separate package (version_4_0_0 subpackage).
         Model model = new Model();
+
+        // keep original encoding (we could also normalize to UTF-8 here)
+        String modelEncoding = effectiveModel.getModelEncoding();
+        if ( StringUtils.isEmpty( modelEncoding ) )
+        {
+            modelEncoding = "UTF-8";
+        }
+        model.setModelEncoding( modelEncoding );
 
         // fixed to 4.0.0 forever :)
         model.setModelVersion( "4.0.0" );

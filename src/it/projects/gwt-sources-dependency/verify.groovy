@@ -20,10 +20,10 @@ File originalPom = new File( basedir, 'pom.xml' )
 assert originalPom.exists()
 
 def originalProject = new XmlSlurper().parse( originalPom )
-assert 2 ==  originalProject.dependencies.size()
+assert 2 ==  originalProject.dependencies.dependency.size()
 
 File consumerPom = new File( basedir, 'target/consumer-pom.xml' )
 assert consumerPom.exists()
 
 def consumerProject = new XmlSlurper().parse( consumerPom )
-assert 2 ==  consumerProject.dependencies.size()
+assert 2 ==  consumerProject.dependencies.dependency.size()

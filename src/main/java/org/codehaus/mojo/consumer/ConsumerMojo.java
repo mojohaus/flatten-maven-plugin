@@ -32,7 +32,6 @@ import java.util.List;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Activation;
@@ -600,38 +599,7 @@ public class ConsumerMojo
      */
     protected Dependency createConsumerDependency( Dependency projectDependency )
     {
-
-        if ( "test".equals( projectDependency.getScope() ) )
-        {
-            // remove test dependencies from consumer POM
-            return null;
-        }
-        String artifactKey = projectDependency.getGroupId() + ":" + projectDependency.getArtifactId();
-
-        Dependency consumerDependency;
-
-        Artifact artifact = this.project.getArtifactMap().get( artifactKey );
-
-        if ( artifact != null )
-        {
-            consumerDependency = new Dependency();
-            consumerDependency.setGroupId( artifact.getGroupId() );
-            consumerDependency.setArtifactId( artifact.getArtifactId() );
-            consumerDependency.setVersion( artifact.getVersion() );
-            consumerDependency.setScope( artifact.getScope() );
-            consumerDependency.setType( artifact.getType() );
-            consumerDependency.setClassifier( artifact.getClassifier() );
-            consumerDependency.setOptional( artifact.isOptional() );
-            // for completeness, actually system scope is sick for consumers
-            consumerDependency.setSystemPath( projectDependency.getSystemPath() );
-            consumerDependency.setExclusions( projectDependency.getExclusions() );
-        }
-        else
-        {
-            // it's a dependency of an inactive profile, which is already interpolated
-            consumerDependency = projectDependency;
-        }
-        return consumerDependency;
+        return "test".equals( projectDependency.getScope() ) ? null : projectDependency;
     }
 
     /**

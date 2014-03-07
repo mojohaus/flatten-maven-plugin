@@ -121,7 +121,8 @@ import org.xml.sax.ext.DefaultHandler2;
  * {@link Model#getDependencyManagement() dependencyManagement} is resolved to get fixed dependency attributes
  * (especially {@link Dependency#getVersion() version}). However specific impact triggered by consumer relevant profiles
  * (see below) is ignored to create the consumer POM. Therefore dynamic dependencies triggered by profiles will still
- * work for consumers except they are realized via variable properties (TODO discuss and clarify the latter).</td>
+ * work for consumers except they are realized via variable properties. As a workaround you have to directly add the
+ * resolved dependency to all of your according profiles.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getProfiles() profiles}</td>
@@ -156,6 +157,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
+@SuppressWarnings( "deprecation" )
 @Mojo( name = "consumer", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME )
 public class ConsumerMojo
     extends AbstractMojo
@@ -188,13 +190,16 @@ public class ConsumerMojo
     @Parameter( property = "consumerPomFilename", defaultValue = "consumer-pom.xml" )
     private String consumerPomFilename;
 
+    /** The {@link ArtifactRepository} required to resolve POM using {@link #modelBuilder}. */
     @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
     private ArtifactRepository localRepository;
 
+    /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
     @Component
     private ArtifactFactory artifactFactory;
 
+    /** The {@link DefaultModelBuilder} used to resolve the POM in order to extract consumer POM data easily. */
     @Component( role = ModelBuilder.class )
     private DefaultModelBuilder modelBuilder;
 
@@ -402,10 +407,9 @@ public class ConsumerMojo
     protected Model createConsumerPom( File pomFile )
         throws MojoExecutionException
     {
+        ConsumerModelResolver resolver = new ConsumerModelResolver( this.localRepository, this.artifactFactory );
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( new ConsumerModelResolver(
-                                                                                                                 this.localRepository,
-                                                                                                                 this.artifactFactory ) );
+            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver );
 
         ModelBuildingResult buildingResult;
         try
@@ -529,7 +533,7 @@ public class ConsumerMojo
 
         Dependencies consumerDependencies = new Dependencies();
         // resolve all direct and inherited dependencies...
-        createConsumerDependenciesRecursive( effectiveModel, consumerDependencies );
+        createConsumerDependencies( effectiveModel, consumerDependencies );
 
         Model model = this.project.getModel();
 
@@ -569,15 +573,13 @@ public class ConsumerMojo
     }
 
     /**
-     * Collects the resolved {@link Dependency dependencies} from the given <code>currentProject</code> and all its
-     * {@link MavenProject#getParent() parents} recursively.
+     * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
      * 
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @param consumerDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
-    protected void createConsumerDependenciesRecursive( Model effectiveModel, Dependencies consumerDependencies )
+    protected void createConsumerDependencies( Model effectiveModel, Dependencies consumerDependencies )
     {
-
         getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
         // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
         // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
@@ -619,12 +621,18 @@ public class ConsumerMojo
         }
     }
 
+    /**
+     * This class is a simple SAX handler that extracts the first comment located before the root tag in an XML
+     * document.
+     */
     private class SaxHeaderCommentHandler
         extends DefaultHandler2
     {
 
+        /** <code>true</code> if root tag has already been visited, <code>false</code> otherwise. */
         private boolean rootTagSeen;
 
+        /** @see #getHeaderComment() */
         private String headerComment;
 
         /**
@@ -637,7 +645,7 @@ public class ConsumerMojo
         }
 
         /**
-         * @return the headerComment
+         * @return the XML comment from the header of the document or <code>null</code> if not present.
          */
         public String getHeaderComment()
         {

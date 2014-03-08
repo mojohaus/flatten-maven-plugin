@@ -28,5 +28,5 @@ File consumerPom = new File( basedir, 'target/consumer-pom.xml' )
 assert consumerPom.exists()
 
 def consumerProject = new XmlSlurper().parse( consumerPom )
-assert 1 ==  consumerProject.dependencies.size()
+assert 0 ==  consumerProject.dependencies.size()
 assert 0 == consumerProject.profiles.size()

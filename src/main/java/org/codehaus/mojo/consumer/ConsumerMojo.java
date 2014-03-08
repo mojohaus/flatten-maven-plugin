@@ -193,6 +193,17 @@ public class ConsumerMojo
     /** The {@link ArtifactRepository} required to resolve POM using {@link #modelBuilder}. */
     @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
     private ArtifactRepository localRepository;
+    
+    /**
+     * Profiles activated by OS or JDK are valid ways to have different dependencies per environment.
+     * However, profiles activated by property of file are less clear.
+     * 
+     * When setting this parameter to <code>true</code>, the latter dependencies will be written as direct dependencies of the project.
+     * <strong>This is not how Maven2 and Maven3 handles dependencies</strong>
+     * When keeping this property <code>false</code>, all profiles will stay in the consumer-pom.
+     */
+    @Parameter( defaultValue = "false" )
+    private Boolean embedBuildProfileDependencies;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
@@ -427,7 +438,7 @@ public class ConsumerMojo
                     for ( Profile profile : profiles )
                     {
                         Activation activation = profile.getActivation();
-                        if ( !isConsumerRelevant( activation ) )
+                        if ( !embedBuildProfileDependencies || !isConsumerRelevant( activation ) )
                         {
                             activeProfiles.add( profile );
                         }
@@ -483,7 +494,7 @@ public class ConsumerMojo
         // transform profiles...
         for ( Profile profile : effectiveModel.getProfiles() )
         {
-            if ( isConsumerRelevant( profile.getActivation() ) )
+            if ( !embedBuildProfileDependencies || isConsumerRelevant( profile.getActivation() ) )
             {
                 Profile strippedProfile = new Profile();
                 strippedProfile.setId( profile.getId() );
@@ -528,32 +539,33 @@ public class ConsumerMojo
         List<Dependency> consumerDependencies = new ArrayList<Dependency>();
         // resolve all direct and inherited dependencies...
         createConsumerDependencies( effectiveModel, consumerDependencies );
-
-        Model projectModel = this.project.getModel();
-        Dependencies modelDependencies = new Dependencies();
-        modelDependencies.addAll( projectModel.getDependencies() );
-        for ( Profile profile : projectModel.getProfiles() )
+        if( embedBuildProfileDependencies )
         {
-            // build-time driven activation (by property or file)?
-            if ( !isConsumerRelevant( profile.getActivation() ) )
+            Model projectModel = this.project.getModel();
+            Dependencies modelDependencies = new Dependencies();
+            modelDependencies.addAll( projectModel.getDependencies() );
+            for ( Profile profile : projectModel.getProfiles() )
             {
-                List<Dependency> profileDependencies = profile.getDependencies();
-                for ( Dependency profileDependency : profileDependencies )
+                // build-time driven activation (by property or file)?
+                if ( !isConsumerRelevant( profile.getActivation() ) )
                 {
-                    if ( modelDependencies.contains( profileDependency ) )
+                    List<Dependency> profileDependencies = profile.getDependencies();
+                    for ( Dependency profileDependency : profileDependencies )
                     {
-                        // our assumption here is that the profileDependency has been added to model because of
-                        // this build-time driven profile. Therefore we need to add it to the consumer POM.
-                        // Consumer-time driven profiles will remain in the consumer POM with their dependencies and
-                        // allow dynamic dependencies due to OS or JDK.
-                        consumerDependencies.add( profileDependency );
+                        if ( modelDependencies.contains( profileDependency ) )
+                        {
+                            // our assumption here is that the profileDependency has been added to model because of
+                            // this build-time driven profile. Therefore we need to add it to the consumer POM.
+                            // Consumer-time driven profiles will remain in the consumer POM with their dependencies and
+                            // allow dynamic dependencies due to OS or JDK.
+                            consumerDependencies.add( profileDependency );
+                        }
                     }
                 }
             }
+            getLog().debug( "Resolved " + consumerDependencies.size() + " dependency/-ies for consumer POM." );
         }
-        List<Dependency> result = consumerDependencies;
-        getLog().debug( "Resolved " + result.size() + " dependency/-ies for consumer POM." );
-        return result;
+        return consumerDependencies;
     }
 
     /**

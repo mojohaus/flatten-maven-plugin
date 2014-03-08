@@ -27,8 +27,8 @@ import org.apache.maven.model.Dependency;
 
 /**
  * This is a simple container for {@link Dependency} objects. Rather than using a {@link List} this object allows
- * operations like {@link #contains(Dependency)}. To add the {@link Dependencies} to the
- * {@link org.apache.maven.model.Model}, use {@link #toList()}.
+ * operations like {@link #contains(Dependency)} that work reliably even though {@link Dependency} class does not
+ * properly implement {@link Object#equals(Object) equals}.
  * 
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */

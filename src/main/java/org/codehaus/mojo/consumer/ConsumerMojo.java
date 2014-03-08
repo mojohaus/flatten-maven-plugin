@@ -531,23 +531,14 @@ public class ConsumerMojo
     protected List<Dependency> createConsumerDependencies( Model effectiveModel )
     {
 
-        Dependencies consumerDependencies = new Dependencies();
+        List<Dependency> consumerDependencies = new ArrayList<Dependency>();
         // resolve all direct and inherited dependencies...
         createConsumerDependencies( effectiveModel, consumerDependencies );
 
-        Model model = this.project.getModel();
-
-        // special dependencies are those that have been added via profiles, etc.
-        Dependencies specialDependencies = new Dependencies();
-        for ( Dependency dependency : model.getDependencies() )
-        {
-            if ( !consumerDependencies.contains( dependency ) )
-            {
-                specialDependencies.add( dependency );
-            }
-        }
-
-        for ( Profile profile : model.getProfiles() )
+        Model projectModel = this.project.getModel();
+        Dependencies modelDependencies = new Dependencies();
+        modelDependencies.addAll( projectModel.getDependencies() );
+        for ( Profile profile : projectModel.getProfiles() )
         {
             // build-time driven activation (by property or file)?
             if ( !isConsumerRelevant( profile.getActivation() ) )
@@ -555,19 +546,18 @@ public class ConsumerMojo
                 List<Dependency> profileDependencies = profile.getDependencies();
                 for ( Dependency profileDependency : profileDependencies )
                 {
-                    if ( specialDependencies.contains( profileDependency ) )
+                    if ( modelDependencies.contains( profileDependency ) )
                     {
-                        // our assumption here is that the profileDependency has been added to effective POM because of
+                        // our assumption here is that the profileDependency has been added to model because of
                         // this build-time driven profile. Therefore we need to add it to the consumer POM.
                         // Consumer-time driven profiles will remain in the consumer POM with their dependencies and
-                        // allow
-                        // dynamic dependencies due to OS or JDK.
+                        // allow dynamic dependencies due to OS or JDK.
                         consumerDependencies.add( profileDependency );
                     }
                 }
             }
         }
-        List<Dependency> result = consumerDependencies.toList();
+        List<Dependency> result = consumerDependencies;
         getLog().debug( "Resolved " + result.size() + " dependency/-ies for consumer POM." );
         return result;
     }
@@ -578,7 +568,7 @@ public class ConsumerMojo
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @param consumerDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
-    protected void createConsumerDependencies( Model effectiveModel, Dependencies consumerDependencies )
+    protected void createConsumerDependencies( Model effectiveModel, List<Dependency> consumerDependencies )
     {
         getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
         // this.project.getDependencies() already contains the inherited dependencies but also those from profiles

@@ -386,14 +386,8 @@ public class ConsumerMojo
         {
             // resource-handling not perfectly solved but we do not want to require java 1.7
             // and this is not a server application.
-            if ( writer != null )
-            {
-                IOUtil.close( writer );
-            }
-            if ( outStream != null )
-            {
-                IOUtil.close( outStream );
-            }
+            IOUtil.close( writer );
+            IOUtil.close( outStream );
         }
     }
 

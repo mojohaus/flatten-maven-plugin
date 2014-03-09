@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- required -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.codehaus.mojo.consumer.its</groupId>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
   <artifactId>complete-multimodule-parent-pom</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -25,7 +25,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.codehaus.mojo.consumer.its</groupId>
+        <groupId>org.codehaus.mojo.flatten.its</groupId>
         <artifactId>dep</artifactId>
         <version>1.1</version>
       </dependency>
@@ -68,7 +68,7 @@
   </organization>
 
   <parent>
-    <groupId>org.codehaus.mojo.consumer.its</groupId>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
     <artifactId>parent-depMngt</artifactId>
     <version>2</version>
   </parent>

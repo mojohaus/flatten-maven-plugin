@@ -30,11 +30,11 @@ assert originalHeader.contains('Licensed to the Apache Software Foundation (ASF)
 assert originalHeader.contains('http://www.apache.org/licenses/LICENSE-2.0')
 assert originalHeader.contains('under the License.')
 
-File consumerPom = new File( basedir, 'target/consumer-pom.xml' )
-assert consumerPom.exists()
+File flattendPom = new File( basedir, 'target/flattened-pom.xml' )
+assert flattendPom.exists()
 
-def consumerPomContent = consumerPom.getText('UTF-8')
-def consumerHeader = consumerPomContent.substring(0, consumerPomContent.indexOf('<project'))
+def flattendPomContent = flattendPom.getText('UTF-8')
+def consumerHeader = flattendPomContent.substring(0, flattendPomContent.indexOf('<project'))
 commentEndIndex = consumerHeader.indexOf('-->')
 assert commentEndIndex > 0
 commentStartIndex = consumerHeader.indexOf('<!--')

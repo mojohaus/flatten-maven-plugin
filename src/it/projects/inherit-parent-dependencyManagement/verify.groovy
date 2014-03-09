@@ -22,8 +22,8 @@ assert originalPom.exists()
 def originalProject = new XmlSlurper().parse( originalPom )
 assert 0 ==  originalProject.dependencies.dependency.version.size()
 
-File consumerPom = new File( basedir, 'target/consumer-pom.xml' )
-assert consumerPom.exists()
+File flattendPom = new File( basedir, 'target/flattened-pom.xml' )
+assert flattendPom.exists()
 
-def consumerProject = new XmlSlurper().parse( consumerPom )
-assert '1.1' ==  consumerProject.dependencies.dependency.version.text()
+def flattendProject = new XmlSlurper().parse( flattendPom )
+assert '1.1' ==  flattendProject.dependencies.dependency.version.text()

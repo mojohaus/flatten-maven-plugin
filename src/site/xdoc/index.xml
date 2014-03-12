@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<document>
+  <properties>
+    <title>Flatten Maven Plugin</title>
+  </properties>
+
+  <body>
+    <section name="Flatten Maven Plugin">
+      Flatten Maven Plugin generates a flattened version of your pom.xml and makes maven to install
+      and deploy this one instead of the original pom.xml. The flattened POM has the following characteristics:
+      <ul>
+        <li>It is stripped from (internal) development or build specific elements</li>
+        <li>It only contains elements required for users of your artifact</li>
+        <li>Its variables are resolved</li>
+        <li>Its parent relationship is resolved, flattened and removed</li>
+        <li>Its build time driven profiles <b>can</b> be evaluated so their impact gets embedded</li>
+        <li>JDK or OS driven profiles still remain allowing dynamic dependencies if needed</li>
+      </ul>
+      For a complete specification of how the flattened POM is build see <a href="flatten-mojo.html">here</a>.
+      This allows the following possibilities and features:
+      <ul>
+        <li>You can keep the versions of parent POMs fixed and use them for development only distributed
+        via version control only instead of maven repositories. This way you can use centralized
+        variables and dependencyManagement without maintaining and releasing parent POM versions.</li>
+        <li>You can use a lot of the flexibility of maven but avoid various mistakes resulting in
+        installing or deploying POMs that are inconsistent.</li>
+      </ul>      
+      <subsection name="Goals">
+      <ul>
+        <li><a href="flatten-mojo.html">flatten:flatten</a> generates the flattened POM and sets it as file of the maven project.</li>
+      </ul>
+      </subsection>
+      <subsection name="Usage">
+        Simply add the plugin to the build section of your top-level POM as following.
+        <source><![CDATA[
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <!--<version>1.0</version>-->
+        <configuration>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+        ]]></source>
+      </subsection>
+      <!--
+      <subsection name="Examples">
+        TODO
+      </subsection>
+      -->
+    </section>
+  </body>
+</document>

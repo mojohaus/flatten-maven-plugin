@@ -69,7 +69,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
 
 /**
- * This {@link AbstractMojo MOJO} realizes the goal <code>flatten</code> that generates the flattened POM and
+ * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and
  * {@link #isUpdatePomFile() potentially updates the POM file} so that the current {@link MavenProject}'s
  * {@link MavenProject#getFile() file} points to the flattened POM instead of the original
  * <code>pom.xml</code> file.<br/>
@@ -87,9 +87,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>{@link Model#getModelVersion() modelVersion}</td>
  * <td>Fixed to "4.0.0"</td>
  * <td>New maven versions will once be able to evolve the model version without incompatibility to older
- * versions if flattened POMs get deployed. The code of this plugin might need to be changed then as it
- * currently uses the same {@link Model} to access the original POM as well as to create and write the
- * flattened POM.</td>
+ * versions if flattened POMs get deployed.</td>
  * </tr>
  * <tr>
  * <td>
@@ -110,11 +108,9 @@ import org.xml.sax.ext.DefaultHandler2;
  * </td>
  * <td>resolved</td>
  * <td>copied to the flattened POM but with inheritance from {@link Model#getParent() parent} as well as with
- * all variables and defaults resolved. Unlike the above elements these elements would not be required in
- * flattened POM. However, they make sense for publication and deployment. Either because they are just plain
- * descriptive {@link String}s or because they contain important information about the artifact (
- * {@link Model#getLicenses() licenses}) or they link to the actual source of the project where further
- * information can be found ( {@link Model#getScm() scm} and {@link Model#getUrl() url}).</td>
+ * all variables and defaults resolved. Unlike the above elements the licenses would not be required in
+ * flattened POM. However, they make sense for publication and deployment and are important for consumers of
+ * your artifact.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getDependencies() dependencies}</td>
@@ -129,8 +125,8 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>{@link Model#getProfiles() profiles}</td>
  * <td>resolved specially</td>
  * <td>only the {@link Activation} and the {@link Dependency dependencies} of a {@link Profile} are copied to
- * the flattened POM. If you set the parameter {@link #embedBuildProfileDependencies} is set to
- * <code>true</code> then only profiles {@link Activation activated} by {@link Activation#getJdk() JDK} or
+ * the flattened POM. If you set the parameter {@link #embedBuildProfileDependencies} to <code>true</code>
+ * then only profiles {@link Activation activated} by {@link Activation#getJdk() JDK} or
  * {@link Activation#getOs() OS} will be added to the flattened POM while the other profiles are triggered by
  * the current build setup and if activated their impact on dependencies is embedded into the resulting
  * flattened POM.</td>
@@ -400,7 +396,7 @@ public class FlattenMojo extends AbstractMojo {
 
           for (Profile profile : profiles) {
             Activation activation = profile.getActivation();
-            if (!FlattenMojo.this.embedBuildProfileDependencies || isBuildTimeDriven(activation)) {
+            if (!isEmbedBuildProfileDependencies() || isBuildTimeDriven(activation)) {
               activeProfiles.add(profile);
             }
           }
@@ -450,16 +446,25 @@ public class FlattenMojo extends AbstractMojo {
 
     // transform profiles...
     for (Profile profile : effectiveModel.getProfiles()) {
-      if (!this.embedBuildProfileDependencies || !isBuildTimeDriven(profile.getActivation())) {
+      if (!isEmbedBuildProfileDependencies() || !isBuildTimeDriven(profile.getActivation())) {
         Profile strippedProfile = new Profile();
         strippedProfile.setId(profile.getId());
         strippedProfile.setActivation(profile.getActivation());
         strippedProfile.setDependencies(profile.getDependencies());
+        // TODO hohwille why do we copy repositories here when we strip them from project?
         strippedProfile.setRepositories(profile.getRepositories());
         model.addProfile(strippedProfile);
       }
     }
     return model;
+  }
+
+  /**
+   * @return the value of {@link #embedBuildProfileDependencies}.
+   */
+  protected boolean isEmbedBuildProfileDependencies() {
+
+    return this.embedBuildProfileDependencies.booleanValue();
   }
 
   /**
@@ -490,7 +495,7 @@ public class FlattenMojo extends AbstractMojo {
     List<Dependency> flattenedDependencies = new ArrayList<Dependency>();
     // resolve all direct and inherited dependencies...
     createFlattenedDependencies(effectiveModel, flattenedDependencies);
-    if (this.embedBuildProfileDependencies) {
+    if (isEmbedBuildProfileDependencies()) {
       Model projectModel = this.project.getModel();
       Dependencies modelDependencies = new Dependencies();
       modelDependencies.addAll(projectModel.getDependencies());

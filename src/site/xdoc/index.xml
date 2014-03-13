@@ -32,36 +32,8 @@
       </ul>
       </subsection>
       <subsection name="Usage">
-        Simply add the plugin to the build section of your top-level POM as following.
-        <source><![CDATA[
-  <build>
-    <plugins>
-      ...
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>flatten-maven-plugin</artifactId>
-        <!--<version>1.0</version>-->
-        <configuration>
-        </configuration>
-        <executions>
-          <execution>
-            <id>flatten</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>flatten</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-        ]]></source>
+        General instructions on how to use the Exec Maven Plugin can be found on the <a href="usage.html">usage page</a>.
       </subsection>
-      <!--
-      <subsection name="Examples">
-        TODO
-      </subsection>
-      -->
     </section>
   </body>
 </document>

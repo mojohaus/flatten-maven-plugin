@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <body>
+    <menu name="Overview">
+      <item name="Introduction" href="index.html"/>
+      <item name="Goals" href="plugin-info.html"/>
+      <item name="Usage" href="usage.html"/>
+      <item name="FAQ" href="faq.html"/>
+    </menu>
+    <menu name="Examples">
+      <item name="Simple Project" href="examples/example-simple-project.html"/>
+      <item name="Central Version" href="examples/example-central-version.html"/>
+      <item name="Multiple Versions" href="examples/example-multiple-versions.html"/>
+    </menu>
+  </body>
+</project>

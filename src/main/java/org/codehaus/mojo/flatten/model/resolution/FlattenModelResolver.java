@@ -31,60 +31,68 @@ import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 
 /**
- * This is a custom implementation of {@link ModelResolver} to emulate the maven POM resolution in order to
- * build the flattened POM.
+ * This is a custom implementation of {@link ModelResolver} to emulate the maven POM resolution in order to build the
+ * flattened POM.
  * 
  * @see org.codehaus.mojo.flatten.FlattenMojo
  * @author Robert Scholte
  */
-@SuppressWarnings("deprecation")
-public class FlattenModelResolver implements ModelResolver {
+@SuppressWarnings( "deprecation" )
+public class FlattenModelResolver
+    implements ModelResolver
+{
 
-  /** The local repository for artifact resolution. */
-  private ArtifactRepository localRepository;
+    /** The local repository for artifact resolution. */
+    private ArtifactRepository localRepository;
 
-  /** The factory used to create project artifact instances. */
-  private ArtifactFactory artifactFactory;
+    /** The factory used to create project artifact instances. */
+    private ArtifactFactory artifactFactory;
 
-  /**
-   * The constructor.
-   * 
-   * @param localRepository is the local repository.
-   * @param artifactFactory is the factory used to create project artifact instances.
-   */
-  public FlattenModelResolver(ArtifactRepository localRepository, ArtifactFactory artifactFactory) {
+    /**
+     * The constructor.
+     * 
+     * @param localRepository is the local repository.
+     * @param artifactFactory is the factory used to create project artifact instances.
+     */
+    public FlattenModelResolver( ArtifactRepository localRepository, ArtifactFactory artifactFactory )
+    {
 
-    this.localRepository = localRepository;
-    this.artifactFactory = artifactFactory;
-  }
+        this.localRepository = localRepository;
+        this.artifactFactory = artifactFactory;
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public ModelSource resolveModel(String groupId, String artifactId, String version) throws UnresolvableModelException {
+    /**
+     * {@inheritDoc}
+     */
+    public ModelSource resolveModel( String groupId, String artifactId, String version )
+        throws UnresolvableModelException
+    {
 
-    Artifact pomArtifact = this.artifactFactory.createProjectArtifact(groupId, artifactId, version);
-    pomArtifact = this.localRepository.find(pomArtifact);
+        Artifact pomArtifact = this.artifactFactory.createProjectArtifact( groupId, artifactId, version );
+        pomArtifact = this.localRepository.find( pomArtifact );
 
-    File pomFile = pomArtifact.getFile();
+        File pomFile = pomArtifact.getFile();
 
-    return new FileModelSource(pomFile);
-  }
+        return new FileModelSource( pomFile );
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void addRepository(Repository repository) throws InvalidRepositoryException {
+    /**
+     * {@inheritDoc}
+     */
+    public void addRepository( Repository repository )
+        throws InvalidRepositoryException
+    {
 
-    // ignoring... artifact resolution via repository should already have happened before by maven core.
-  }
+        // ignoring... artifact resolution via repository should already have happened before by maven core.
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public ModelResolver newCopy() {
+    /**
+     * {@inheritDoc}
+     */
+    public ModelResolver newCopy()
+    {
 
-    return null;
-  }
+        return null;
+    }
 
 }

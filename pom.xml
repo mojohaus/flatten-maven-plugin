@@ -31,6 +31,10 @@ under the License.
   <name>Maven Flatten Plugin</name>
   <version>1.0.0-beta-1-SNAPSHOT</version>
   <description>Plugin to generate flattened POM (reduced to information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
+  <inceptionYear>2014</inceptionYear>
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
   <properties>
     <mavenVersion>3.0</mavenVersion>
   </properties>
@@ -202,8 +206,11 @@ under the License.
       </build>
     </profile>
   </profiles>
-  <dependencyManagement>
-    <dependencies>
-    </dependencies>
-  </dependencyManagement>
+  <licenses>
+    <license>
+      <name>Apache Software Licenese</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <comments/>
+    </license>
+  </licenses>
 </project>

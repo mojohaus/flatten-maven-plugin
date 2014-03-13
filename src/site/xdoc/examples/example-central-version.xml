@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<document>
+  <properties>
+    <title>Defining a central version for multi-module projects</title>
+  </properties>
+
+  <body>
+    <section name="Defining a central version in multi-module projects">
+      Various projects have a multi-module setup while they release all modules under the same version.
+      With flatten-maven-plugin you can define this central version in a single place. 
+      <subsection name="Top-level POM">
+        In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and define a variable for your central project version:
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example.whizbang</groupId>
+  <artifactId>whizbang</artifactId>
+  <version>dev</version>
+  <packaging>pom</packaging>
+  <properties>
+    <whizbang.version>3.1.7-SP2<whizbang.version>
+  </properties>
+  <modules>
+    <module>whizbang-module1</module>
+    <module>whizbang-module2</module>
+    ...
+  </modules>
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <!--<version>1.0</version>-->
+        <configuration>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.10</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>      
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
+        ]]></source>
+      </subsection>
+      <subsection name="Leaf POM">
+        In your leaf POM (child with packaging other than pom) you inherit the parent and use
+        the central project version variable:
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example.whizbang</groupId>
+    <artifactId>whizbang</artifactId>
+    <version>dev</version>
+  </parent>
+  <artifactId>whizbang-module1</artifactId>
+  <version>${whizbang.version}</version>
+  <packaging>jar</packaging>
+  <dependencies>
+    <!-- Internal dependencies with project version -->
+    <dependency>
+      <groupId>com.example.whizbang</groupId>
+      <artifactId>whizbang-module2</artifactId>
+      <version>${whizbang.version}</version>
+    </dependency>
+
+    <!-- External dependencies with managed version -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
+        ]]></source>
+        If you install or deploy the project the flattened POM of whizbang-module1 that goes into the repository will look like this:
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example.whizbang</groupId>
+  <artifactId>whizbang-module1</artifactId>
+  <version>3.1.7-SP2</version>
+  <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>com.example.whizbang</groupId>
+      <artifactId>whizbang-module2</artifactId>
+      <version>3.1.7-SP2</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>      
+    </dependency>
+  </dependencies>
+</project>
+        ]]></source>
+      </subsection>
+    </section>
+  </body>
+</document>

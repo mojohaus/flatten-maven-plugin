@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
+  <custom>
+    <fluidoSkin>
+      <profile>sandbox</profile>
+    </fluidoSkin>
+  </custom>
+
   <body>
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>

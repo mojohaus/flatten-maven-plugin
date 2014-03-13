@@ -33,7 +33,7 @@ under the License.
   <description>Plugin to generate flattened POM (reduced to information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>
-    <maven>3.0</maven>
+    <maven>${mavenVersion}</maven>
   </prerequisites>
   <properties>
     <mavenVersion>3.0</mavenVersion>

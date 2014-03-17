@@ -496,15 +496,34 @@ public class FlattenMojo
         {
             if ( !isEmbedBuildProfileDependencies() || !isBuildTimeDriven( profile.getActivation() ) )
             {
-                Profile strippedProfile = new Profile();
-                strippedProfile.setId( profile.getId() );
-                strippedProfile.setActivation( profile.getActivation() );
-                strippedProfile.setDependencies( profile.getDependencies() );
-                strippedProfile.setRepositories( profile.getRepositories() );
-                model.addProfile( strippedProfile );
+                if ( !isEmpty( profile.getDependencies() ) || !isEmpty( profile.getRepositories() ) )
+                {
+                    Profile strippedProfile = new Profile();
+                    strippedProfile.setId( profile.getId() );
+                    strippedProfile.setActivation( profile.getActivation() );
+                    strippedProfile.setDependencies( profile.getDependencies() );
+                    strippedProfile.setRepositories( profile.getRepositories() );
+                    model.addProfile( strippedProfile );
+                }
             }
         }
         return model;
+    }
+
+    /**
+     * Null-safe check for {@link Collection#isEmpty()}.
+     * 
+     * @param collection is the {@link Collection} to test. May be <code>null</code>.
+     * @return <code>true</code> if <code>null</code> or {@link Collection#isEmpty() empty}, <code>false</code>
+     *         otherwise.
+     */
+    private boolean isEmpty( Collection<?> collection )
+    {
+        if ( collection == null )
+        {
+            return true;
+        }
+        return collection.isEmpty();
     }
 
     /**

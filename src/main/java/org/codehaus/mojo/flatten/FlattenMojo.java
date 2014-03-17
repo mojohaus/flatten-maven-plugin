@@ -102,11 +102,12 @@ import org.xml.sax.ext.DefaultHandler2;
  * <tr>
  * <td>
  * {@link Model#getLicenses() licenses}<br/>
+ * {@link Model#getRepositories() repositories}<br/>
  * </td>
  * <td>resolved</td>
  * <td>copied to the flattened POM but with inheritance from {@link Model#getParent() parent} as well as with all
- * variables and defaults resolved. Unlike the above elements the licenses would not be required in flattened POM.
- * However, they make sense for publication and deployment and are important for consumers of your artifact.</td>
+ * variables and defaults resolved. The licenses would not be required in flattened POM. However, they make sense for
+ * publication and deployment and are important for consumers of your artifact.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getDependencies() dependencies}</td>
@@ -142,7 +143,6 @@ import org.xml.sax.ext.DefaultHandler2;
  * {@link Model#getModules() modules}<br/>
  * {@link Model#getPluginRepositories() pluginRepositories}<br/>
  * {@link Model#getPrerequisites() prerequisites}<br/>
- * {@link Model#getRepositories() repositories}<br/>
  * {@link Model#getIssueManagement() issueManagement}<br/>
  * {@link Model#getReporting() reporting}</td>
  * <td>removed</td>
@@ -485,6 +485,7 @@ public class FlattenMojo
 
         // copy by reference - if model changes this code has to explicitly create the new elements
         model.setLicenses( effectiveModel.getLicenses() );
+        model.setRepositories( effectiveModel.getRepositories() );
 
         // transform dependencies...
         List<Dependency> dependencies = createFlattenedDependencies( effectiveModel );
@@ -499,7 +500,6 @@ public class FlattenMojo
                 strippedProfile.setId( profile.getId() );
                 strippedProfile.setActivation( profile.getActivation() );
                 strippedProfile.setDependencies( profile.getDependencies() );
-                // TODO hohwille why do we copy repositories here when we strip them from project?
                 strippedProfile.setRepositories( profile.getRepositories() );
                 model.addProfile( strippedProfile );
             }

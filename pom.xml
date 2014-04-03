@@ -23,8 +23,8 @@ under the License.
 
   <parent>
     <groupId>org.codehaus.mojo</groupId>
-    <artifactId>mojo-sandbox-parent</artifactId>
-    <version>14</version>
+    <artifactId>mojo-parent</artifactId>
+    <version>33</version>
   </parent>
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>

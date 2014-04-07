@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
+  <custom>
+    <fluidoSkin>
+      <profile>pre-release</profile>
+    </fluidoSkin>
+  </custom>
   <body>
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>

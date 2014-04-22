@@ -16,7 +16,8 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
---><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -28,7 +29,7 @@ under the License.
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.0.0-beta-1</version>
+  <version>1.0.0-beta-1-SNAPSHOT</version>
   <description>Plugin to generate flattened POM (reduced to information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>
@@ -40,7 +41,7 @@ under the License.
   <developers>
     <developer>
       <id>hohwille</id>
-      <name>Jörg Hohwiller</name>
+      <name>J&#246;rg Hohwiller</name>
       <email>hohwille@users.sourceforge.net</email>
     </developer>
     <developer>
@@ -209,13 +210,7 @@ under the License.
     <license>
       <name>Apache Software Licenese</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <comments />
+      <comments/>
     </license>
   </licenses>
-
-  <scm>
-    <connection>scm:svn:http://svn.codehaus.org/mojo/tags/flatten-maven-plugin-1.0.0-beta-1</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/tags/flatten-maven-plugin-1.0.0-beta-1</developerConnection>
-    <url>http://fisheye.codehaus.org/browse/mojo/tags/flatten-maven-plugin-1.0.0-beta-1</url>
-  </scm>
 </project>

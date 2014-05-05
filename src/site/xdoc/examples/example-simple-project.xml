@@ -87,7 +87,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.example.whizbang</groupId>
-  <artifactId>whizbang-module1</artifactId>
+  <artifactId>whizbang</artifactId>
   <version>3.1.7-SP2</version>
   <packaging>jar</packaging>
   <dependencies>

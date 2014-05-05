@@ -134,8 +134,16 @@ import org.xml.sax.ext.DefaultHandler2;
  * {@link Model#getName() name}<br/>
  * {@link Model#getDescription() description}<br/>
  * {@link Model#getUrl() url}<br/>
- * {@link Model#getInceptionYear() inceptionYear}<br/>
  * {@link Model#getScm() scm}<br/>
+ * </td>
+ * <td>configurable</td>
+ * <td>Will be stripped from the flattened POM by default. You can configure this handling via according parameters
+ * <code>handleXXX</code> for each element (e.g. <code>handleScm</code> or <code>handleUrl</code>) to either
+ * {@link ElementHandling#KeepIfExists} or {@link ElementHandling#KeepOrAdd}.</td>
+ * </tr>
+ * <tr>
+ * <td>
+ * {@link Model#getInceptionYear() inceptionYear}<br/>
  * {@link Model#getParent() parent}<br/>
  * {@link Model#getBuild() build}<br/>
  * {@link Model#getDependencyManagement() dependencyManagement}<br/>

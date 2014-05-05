@@ -31,6 +31,20 @@
     </plugins>
   </build>
       ]]></source>
+      <subsection name="Keep developer information">
+        If you want to keep additional development information in your POM, e.g. for 
+        <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide">OSSHR</a>
+        you can configure flatten-maven-plugin as following:
+      <source><![CDATA[
+        <configuration>
+            <handleName>KeepOrAdd</handleName>
+            <handleDescription>KeepIfExists</handleDescription>
+            <handleUrl>KeepOrAdd</handleUrl>
+            <handleScm>KeepOrAdd</handleScm>
+            <handleDevelopers>KeepOrAdd</handleDevelopers>
+        </configuration>
+      ]]></source>        
+      </subsection>
     </section>
   </body>
 </document>

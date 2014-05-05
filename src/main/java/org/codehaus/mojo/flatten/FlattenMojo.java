@@ -36,8 +36,10 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Profile;
+import org.apache.maven.model.Scm;
 import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuilder;
@@ -149,7 +151,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>Will be completely stripped and never occur in a flattened POM.</td>
  * </tr>
  * </table>
- * 
+ *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
 @SuppressWarnings( "deprecation" )
@@ -199,6 +201,36 @@ public class FlattenMojo
     @Parameter( defaultValue = "false" )
     private Boolean embedBuildProfileDependencies;
 
+    /**
+     * Configures the {@link ElementHandling} for the {@literal <scm>} element of the flattened POM.
+     */
+    @Parameter( defaultValue = "Remove" )
+    private ElementHandling handleScm;
+
+    /**
+     * Configures the {@link ElementHandling} for the {@literal <developers>} element of the flattened POM.
+     */
+    @Parameter( defaultValue = "Remove" )
+    private ElementHandling handleDevelopers;
+
+    /**
+     * Configures the {@link ElementHandling} for the {@literal <name>} element of the flattened POM.
+     */
+    @Parameter( defaultValue = "Remove" )
+    private ElementHandling handleName;
+
+    /**
+     * Configures the {@link ElementHandling} for the {@literal <description>} element of the flattened POM.
+     */
+    @Parameter( defaultValue = "Remove" )
+    private ElementHandling handleDescription;
+
+    /**
+     * Configures the {@link ElementHandling} for the {@literal <url>} element of the flattened POM.
+     */
+    @Parameter( defaultValue = "Remove" )
+    private ElementHandling handleUrl;
+
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
     @Component
@@ -241,7 +273,7 @@ public class FlattenMojo
 
     /**
      * This method extracts the XML header comment if available.
-     * 
+     *
      * @param xmlFile is the XML {@link File} to parse.
      * @return the XML comment between the XML header declaration and the root tag or <code>null</code> if NOT
      *         available.
@@ -267,7 +299,7 @@ public class FlattenMojo
 
     /**
      * This method extracts the XML header comment if available.
-     * 
+     *
      * @param xmlFile is the XML {@link File} to parse.
      * @return the XML comment between the XML header declaration and the root tag or <code>null</code> if NOT
      *         available.
@@ -315,7 +347,7 @@ public class FlattenMojo
 
     /**
      * Writes the given POM {@link Model} to the given {@link File}.
-     * 
+     *
      * @param pom the {@link Model} of the POM to write.
      * @param pomFile the {@link File} where to write the given POM will be written to. {@link File#getParentFile()
      *            Parent directories} are {@link File#mkdirs() created} automatically.
@@ -366,7 +398,7 @@ public class FlattenMojo
 
     /**
      * Writes the given <code>data</code> to the given <code>file</code> using the specified <code>encoding</code>.
-     * 
+     *
      * @param data is the {@link String} to write.
      * @param file is the {@link File} to write to.
      * @param encoding is the encoding to use for writing the file.
@@ -399,13 +431,14 @@ public class FlattenMojo
 
     /**
      * This method creates the flattened POM what is the main task of this plugin.
-     * 
+     *
      * @param pomFile is the name of the original POM file to read and transform.
      * @return the {@link Model} of the flattened POM.
      * @throws MojoExecutionException if anything goes wrong (e.g. POM can not be processed).
+     * @throws MojoFailureException if anything goes wrong (logical error).
      */
     protected Model createFlattenedPom( File pomFile )
-        throws MojoExecutionException
+        throws MojoExecutionException, MojoFailureException
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
@@ -487,6 +520,12 @@ public class FlattenMojo
         model.setLicenses( effectiveModel.getLicenses() );
         model.setRepositories( effectiveModel.getRepositories() );
 
+        setName( effectiveModel, model );
+        setDescription( effectiveModel, model );
+        setUrl( effectiveModel, model );
+        setScm( effectiveModel, model );
+        setDevelopers( effectiveModel, model );
+
         // transform dependencies...
         List<Dependency> dependencies = createFlattenedDependencies( effectiveModel );
         model.setDependencies( dependencies );
@@ -511,8 +550,155 @@ public class FlattenMojo
     }
 
     /**
+     * This method {@link Model#setName(String) sets the name} of the flattened POM.
+     *
+     * @param effectiveModel is the effective {@link Model} of the actual project.
+     * @param model is the {@link Model} of the flattened POM to generate.
+     */
+    private void setName( Model effectiveModel, Model model )
+    {
+        String name = effectiveModel.getName();
+
+        if ( this.handleName == ElementHandling.KeepIfExists )
+        {
+            if ( !StringUtils.isEmpty( name ) )
+            {
+                model.setName( name );
+            }
+        }
+        else if ( this.handleName == ElementHandling.KeepOrAdd )
+        {
+            if ( !StringUtils.isEmpty( name ) )
+            {
+                model.setName( name );
+            }
+            else
+            {
+                model.setName( effectiveModel.getArtifactId() );
+            }
+        }
+    }
+
+    /**
+     * This method {@link Model#setDescription(String) sets the description} of the flattened POM.
+     *
+     * @param effectiveModel is the effective {@link Model} of the actual project.
+     * @param model is the {@link Model} of the flattened POM to generate.
+     * @throws MojoFailureException if no description is present but {@link ElementHandling#KeepOrAdd} is configured.
+     */
+    private void setDescription( Model effectiveModel, Model model )
+        throws MojoFailureException
+    {
+        String description = effectiveModel.getDescription();
+
+        if ( this.handleDescription == ElementHandling.KeepIfExists )
+        {
+            if ( !StringUtils.isEmpty( description ) )
+            {
+                model.setDescription( description );
+            }
+        }
+        else if ( this.handleDescription == ElementHandling.KeepOrAdd )
+        {
+            if ( !StringUtils.isEmpty( description ) )
+            {
+                model.setDescription( description );
+            }
+            else
+            {
+                throw new MojoFailureException(
+                                                "Projects pom.xml is missing a description that can not be added or genereated automatically." );
+            }
+        }
+    }
+
+    /**
+     * This method {@link Model#setUrl(String) sets the URL} of the flattened POM.
+     *
+     * @param effectiveModel is the effective {@link Model} of the actual project.
+     * @param model is the {@link Model} of the flattened POM to generate.
+     * @throws MojoFailureException if no description is present but {@link ElementHandling#KeepOrAdd} is configured.
+     */
+    private void setUrl( Model effectiveModel, Model model )
+        throws MojoFailureException
+    {
+        String url = effectiveModel.getUrl();
+
+        if ( this.handleDescription == ElementHandling.KeepIfExists )
+        {
+            if ( !StringUtils.isEmpty( this.project.getUrl() ) )
+            {
+                model.setUrl( url );
+            }
+        }
+        else if ( this.handleDescription == ElementHandling.KeepOrAdd )
+        {
+            if ( !StringUtils.isEmpty( url ) )
+            {
+                model.setUrl( url );
+            }
+            else
+            {
+                throw new MojoFailureException(
+                                                "Projects pom.xml is missing a description that can not be added or genereated automatically." );
+            }
+        }
+    }
+
+    /**
+     * This method {@link Model#setScm(org.apache.maven.model.Scm) sets the SCM} of the flattened POM.
+     *
+     * @param effectiveModel is the effective {@link Model} of the actual project.
+     * @param model is the {@link Model} of the flattened POM to generate.
+     */
+    private void setScm( Model effectiveModel, Model model )
+    {
+        Scm effectiveScm = effectiveModel.getScm();
+        if ( this.handleScm == ElementHandling.KeepIfExists )
+        {
+            if ( this.project.getScm() != null )
+            {
+                model.setScm( effectiveScm );
+            }
+        }
+        else if ( this.handleScm == ElementHandling.KeepOrAdd )
+        {
+            if ( effectiveScm != null )
+            {
+                model.setScm( effectiveScm );
+            }
+        }
+    }
+
+    /**
+     * This method {@link Model#setDevelopers(List) sets the developers} of the flattened POM.
+     *
+     * @param effectiveModel is the effective {@link Model} of the actual project.
+     * @param model is the {@link Model} of the flattened POM to generate.
+     */
+    private void setDevelopers( Model effectiveModel, Model model )
+    {
+        List<Developer> effectiveDevelopers = effectiveModel.getDevelopers();
+        if ( this.handleScm == ElementHandling.KeepIfExists )
+        {
+            List<Developer> developers = this.project.getDevelopers();
+            if ( ( developers != null ) && !developers.isEmpty() )
+            {
+                model.setDevelopers( effectiveDevelopers );
+            }
+        }
+        else if ( this.handleScm == ElementHandling.KeepOrAdd )
+        {
+            if ( effectiveDevelopers != null )
+            {
+                model.setDevelopers( effectiveDevelopers );
+            }
+        }
+    }
+
+    /**
      * Null-safe check for {@link Collection#isEmpty()}.
-     * 
+     *
      * @param collection is the {@link Collection} to test. May be <code>null</code>.
      * @return <code>true</code> if <code>null</code> or {@link Collection#isEmpty() empty}, <code>false</code>
      *         otherwise.
@@ -557,7 +743,7 @@ public class FlattenMojo
     /**
      * Creates the {@link List} of {@link Dependency dependencies} for the flattened POM. These are all resolved
      * {@link Dependency dependencies} except for those added from {@link Profile profiles}.
-     * 
+     *
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @return the {@link List} of {@link Dependency dependencies}.
      */
@@ -599,7 +785,7 @@ public class FlattenMojo
 
     /**
      * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
-     * 
+     *
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */

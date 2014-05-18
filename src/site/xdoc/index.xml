@@ -29,6 +29,7 @@
       <subsection name="Goals">
       <ul>
         <li><a href="flatten-mojo.html">flatten:flatten</a> generates the flattened POM and sets it as file of the maven project.</li>
+        <li><a href="clean-mojo.html">flatten:clean</a> removes any files created by <code>flatten:flatten</code>.</li>
       </ul>
       </subsection>
       <subsection name="Usage">

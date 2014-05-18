@@ -28,7 +28,7 @@ assert '${utilGroupId}' == originalProject.profiles.profile.dependencies.depende
 assert '${utilArtifactId}' == originalProject.profiles.profile.dependencies.dependency.artifactId.text()
 assert '${utilVersion}' == originalProject.profiles.profile.dependencies.dependency.version.text()
 
-File flattendPom = new File( basedir, 'target/flattened-pom.xml' )
+File flattendPom = new File( basedir, 'flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )

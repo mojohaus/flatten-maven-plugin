@@ -186,7 +186,7 @@ public class FlattenMojo
     /**
      * The directory where the generated flattened POM file will be written to.
      */
-    @Parameter( defaultValue = "${project.build.directory}" )
+    @Parameter( defaultValue = "${project.basedir}" )
     private File outputDirectory;
 
     /**

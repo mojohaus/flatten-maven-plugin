@@ -30,7 +30,7 @@ assert originalHeader.contains('Licensed to the Apache Software Foundation (ASF)
 assert originalHeader.contains('http://www.apache.org/licenses/LICENSE-2.0')
 assert originalHeader.contains('under the License.')
 
-File flattendPom = new File( basedir, 'flattened-pom.xml' )
+File flattendPom = new File( basedir, '.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendPomContent = flattendPom.getText('UTF-8')

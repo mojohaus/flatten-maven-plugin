@@ -47,7 +47,7 @@ assert 1 == originalProject.reports.size()
 assert 1 == originalProject.scm.size()
 assert 1 == originalProject.url.size()
 
-File flattendPom = new File( basedir, 'flattened-pom.xml' )
+File flattendPom = new File( basedir, '.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )

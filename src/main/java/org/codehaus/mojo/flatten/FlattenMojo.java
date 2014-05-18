@@ -51,7 +51,6 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -165,7 +164,7 @@ import org.xml.sax.ext.DefaultHandler2;
 @SuppressWarnings( "deprecation" )
 @Mojo( name = "flatten", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME )
 public class FlattenMojo
-    extends AbstractMojo
+    extends AbstractFlattenMojo
 {
 
     /**
@@ -182,18 +181,6 @@ public class FlattenMojo
      */
     @Parameter( property = "updatePomFile" )
     private Boolean updatePomFile;
-
-    /**
-     * The directory where the generated flattened POM file will be written to.
-     */
-    @Parameter( defaultValue = "${project.basedir}" )
-    private File outputDirectory;
-
-    /**
-     * The filename of the generated flattened POM file.
-     */
-    @Parameter( property = "flattenedPomFilename", defaultValue = "flattened-pom.xml" )
-    private String flattenedPomFilename;
 
     /** The {@link ArtifactRepository} required to resolve POM using {@link #modelBuilder}. */
     @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
@@ -270,7 +257,7 @@ public class FlattenMojo
         Model flattenedPom = createFlattenedPom( originalPomFile );
         String headerComment = extractHeaderComment( originalPomFile );
 
-        File flattenedPomFile = new File( this.outputDirectory, this.flattenedPomFilename );
+        File flattenedPomFile = getFlattenedPomFile();
         writePom( flattenedPom, flattenedPomFile, headerComment );
 
         if ( isUpdatePomFile() )

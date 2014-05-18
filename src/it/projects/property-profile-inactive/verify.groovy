@@ -24,7 +24,7 @@ assert 0 ==  originalProject.dependencies.size()
 assert 'property' == originalProject.profiles.profile.id.text()
 assert 1 == originalProject.profiles.profile.dependencies.size()
 
-File flattendPom = new File( basedir, 'flattened-pom.xml' )
+File flattendPom = new File( basedir, '.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )

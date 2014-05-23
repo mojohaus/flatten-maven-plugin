@@ -1,0 +1,133 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- required -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>complete-artifact-pom</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <!-- banned -->
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <configuration>
+          <flattenDescriptor>
+            <name>KeepIfExists</name>
+            <description>KeepIfExists</description>
+            <url>KeepIfExists</url>
+            <ciManagement>KeepIfExists</ciManagement>
+            <developers>KeepIfExists</developers>
+            <contributors>KeepIfExists</contributors>
+            <distributionManagement>KeepIfExists</distributionManagement>
+            <inceptionYear>KeepIfExists</inceptionYear>
+            <issueManagement>KeepIfExists</issueManagement>
+            <mailingLists>KeepIfExists</mailingLists>
+            <organization>KeepIfExists</organization>
+            <pluginRepositories>KeepIfExists</pluginRepositories>
+            <repositories>KeepIfExists</repositories>
+            <prerequisites>KeepIfExists</prerequisites>
+            <scm>KeepIfExists</scm>
+          </flattenDescriptor>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <ciManagement>
+    <url>http://localhost</url>
+  </ciManagement>
+  
+  <contributors>
+    <contributor>
+      <name>Robert Scholte</name>
+    </contributor>
+  </contributors>
+
+  <description>This project contains only required ignorable elements</description>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.mojo.flatten.its</groupId>
+        <artifactId>dep</artifactId>
+        <version>1.1</version>
+      </dependency>
+    </dependencies>    
+  </dependencyManagement>
+
+  <developers>
+    <developer>
+      <id>hohwille</id>
+      <name>J&#246;rg Hohwiller</name>
+    </developer>
+  </developers>
+
+  <distributionManagement>
+    <downloadUrl>http://mojo.codehaus.org/downloads</downloadUrl>
+  </distributionManagement>
+
+  <inceptionYear>2014</inceptionYear>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.codehaus.org/browse/MOJO</url>
+  </issueManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>announce</name>
+    </mailingList>
+  </mailingLists>
+
+  <!-- This can only be checked when packaging is pom <modules> <module>module</module> 
+    </modules> -->
+
+  <organization>
+    <name>Codehaus</name>
+  </organization>
+
+  <parent>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>parent-depMngt</artifactId>
+    <version>2</version>
+  </parent>
+  
+  <pluginRepositories>
+    <pluginRepository>
+      <id>none</id>
+      <url>@repository.proxy.url@</url>
+    </pluginRepository>
+  </pluginRepositories>
+  
+  <repositories>
+    <repository>
+      <id>no-one</id>
+      <url>@repository.proxy.url@</url>
+    </repository>
+  </repositories>
+
+  <!-- this one is only required for maven-plugin packaging type -->
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>  
+
+  <properties>
+    <key>value</key>
+  </properties>
+  
+  <reporting>
+    <outputDirectory>target/site</outputDirectory>
+  </reporting>
+  
+  <reports/>
+  
+  <scm>
+    <url>http://svn.codehaus.org/mojo</url>
+  </scm> 
+  
+  <url>http://mojo.codehaus.org</url>
+
+</project>

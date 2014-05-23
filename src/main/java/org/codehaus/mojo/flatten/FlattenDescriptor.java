@@ -19,6 +19,15 @@ public class FlattenDescriptor
     /** @see #getDescription() */
     private ElementHandling description;
 
+    /** @see #getUrl() */
+    private ElementHandling url;
+
+    /** @see #getInceptionYear() */
+    private ElementHandling inceptionYear;
+
+    /** @see #getOrganization() */
+    private ElementHandling organization;
+
     /** @see #getScm() */
     private ElementHandling scm;
 
@@ -39,12 +48,6 @@ public class FlattenDescriptor
 
     /** @see #getPluginRepositories() */
     private ElementHandling pluginRepositories;
-
-    /** @see #getUrl() */
-    private ElementHandling url;
-
-    /** @see #getInceptionYear() */
-    private ElementHandling inceptionYear;
 
     /** @see #getIssueManagement() */
     private ElementHandling issueManagement;
@@ -257,6 +260,23 @@ public class FlattenDescriptor
     public void setInceptionYear( ElementHandling inceptionYear )
     {
         this.inceptionYear = inceptionYear;
+    }
+
+    /**
+     * @return the {@link ElementHandling} for the {@link Model#getOrganization() &lt;organization>} element of the
+     *         flattened POM.
+     */
+    public ElementHandling getOrganization()
+    {
+        return this.organization;
+    }
+
+    /**
+     * @param organization is the new value of {@link #getOrganization()}.
+     */
+    public void setOrganization( ElementHandling organization )
+    {
+        this.organization = organization;
     }
 
     /**

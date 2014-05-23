@@ -130,14 +130,15 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>
  * {@link Model#getName() name}<br/>
  * {@link Model#getDescription() description}<br/>
+ * {@link Model#getUrl() url}<br/>
+ * {@link Model#getInceptionYear() inceptionYear}<br/>
+ * {@link Model#getOrganization() organization}<br/>
  * {@link Model#getScm() scm}<br/>
  * {@link Model#getDevelopers() developers}<br/>
  * {@link Model#getContributors() contributors}<br/>
  * {@link Model#getMailingLists() mailingLists}<br/>
  * {@link Model#getRepositories() repositories}<br/>
  * {@link Model#getPluginRepositories() pluginRepositories}<br/>
- * {@link Model#getUrl() url}<br/>
- * {@link Model#getInceptionYear() inceptionYear}<br/>
  * {@link Model#getIssueManagement() issueManagement}<br/>
  * {@link Model#getCiManagement() ciManagement}<br/>
  * {@link Model#getDistributionManagement() distributionManagement}<br/>

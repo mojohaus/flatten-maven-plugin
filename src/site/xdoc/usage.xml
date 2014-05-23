@@ -46,11 +46,13 @@
         you can configure flatten-maven-plugin as following:
       <source><![CDATA[
         <configuration>
-            <handleName>KeepOrAdd</handleName>
-            <handleDescription>KeepIfExists</handleDescription>
-            <handleUrl>KeepOrAdd</handleUrl>
-            <handleScm>KeepOrAdd</handleScm>
-            <handleDevelopers>KeepOrAdd</handleDevelopers>
+          <flattenDescriptor>
+            <name>KeepOrAdd</name>
+            <description>KeepIfExists</description>
+            <url>KeepOrAdd</url>
+            <scm>KeepOrAdd</scm>
+            <developers>KeepOrAdd</developers>
+          </flattenDescriptor>
         </configuration>
       ]]></source>        
       </subsection>

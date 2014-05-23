@@ -220,6 +220,51 @@ public enum OptionalPomElement
         }
     },
 
+    /** @see Model#getOrganization() */
+    Organization
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getOrganization();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            org.apache.maven.model.Organization organization = model.getOrganization();
+            if ( organization == null )
+            {
+                return false;
+            }
+            if ( !StringUtils.isEmpty( organization.getName() ) )
+            {
+                return true;
+            }
+            if ( !StringUtils.isEmpty( organization.getUrl() ) )
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setOrganization( source.getOrganization() );
+        }
+    },
+
     /** @see Model#getDevelopers() */
     Developers
     {
@@ -556,7 +601,7 @@ public enum OptionalPomElement
         @Override
         public void copy( Model source, Model destination )
         {
-            destination.setCiManagement( source.getCiManagement() );
+            destination.setDistributionManagement( source.getDistributionManagement() );
         }
     },
 

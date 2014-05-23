@@ -2,7 +2,13 @@
  * http://www.apache.org/licenses/LICENSE-2.0 */
 package org.codehaus.mojo.flatten;
 
+import java.util.List;
+
+import org.apache.maven.model.Contributor;
+import org.apache.maven.model.Developer;
+import org.apache.maven.model.MailingList;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
@@ -173,6 +179,232 @@ public enum OptionalPomElement
         }
     },
 
+    /** @see Model#getPrerequisites() */
+    Prerequisites
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getPrerequisites();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            org.apache.maven.model.Prerequisites prerequisites = model.getPrerequisites();
+            if ( prerequisites == null )
+            {
+                return false;
+            }
+            if ( !StringUtils.isEmpty( prerequisites.getMaven() ) )
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setPrerequisites( source.getPrerequisites() );
+        }
+    },
+
+    /** @see Model#getDevelopers() */
+    Developers
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getDevelopers();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            List<Developer> developers = model.getDevelopers();
+            if ( ( developers == null ) || ( developers.isEmpty() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setDevelopers( source.getDevelopers() );
+        }
+    },
+
+    /** @see Model#getContributors() */
+    Contributors
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getContributors();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            List<Contributor> contributors = model.getContributors();
+            if ( ( contributors == null ) || ( contributors.isEmpty() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setContributors( source.getContributors() );
+        }
+    },
+
+    /** @see Model#getMailingLists() */
+    MailingLists
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getMailingLists();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            List<MailingList> mailingLists = model.getMailingLists();
+            if ( ( mailingLists == null ) || ( mailingLists.isEmpty() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setMailingLists( source.getMailingLists() );
+        }
+    },
+
+    /** @see Model#getRepositories() */
+    Repositories
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getRepositories();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            List<Repository> repositories = model.getRepositories();
+            if ( ( repositories == null ) || ( repositories.isEmpty() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setRepositories( source.getRepositories() );
+        }
+    },
+
+    /** @see Model#getPluginRepositories() */
+    PluginRepositories
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getPluginRepositories();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            List<Repository> repositories = model.getPluginRepositories();
+            if ( ( repositories == null ) || ( repositories.isEmpty() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setPluginRepositories( source.getPluginRepositories() );
+        }
+    },
+
     /** @see Model#getIssueManagement() */
     IssueManagement
     {
@@ -197,11 +429,11 @@ public enum OptionalPomElement
             {
                 return false;
             }
-            if ( issueManagement.getUrl() != null )
+            if ( !StringUtils.isEmpty( issueManagement.getUrl() ) )
             {
                 return true;
             }
-            if ( issueManagement.getSystem() != null )
+            if ( !StringUtils.isEmpty( issueManagement.getSystem() ) )
             {
                 return true;
             }
@@ -217,6 +449,114 @@ public enum OptionalPomElement
         public void copy( Model source, Model destination )
         {
             destination.setIssueManagement( source.getIssueManagement() );
+        }
+    },
+
+    /** @see Model#getCiManagement() */
+    CiManagement
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getCiManagement();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            org.apache.maven.model.CiManagement ciManagement = model.getCiManagement();
+            if ( ciManagement == null )
+            {
+                return false;
+            }
+            if ( !StringUtils.isEmpty( ciManagement.getUrl() ) )
+            {
+                return true;
+            }
+            if ( !StringUtils.isEmpty( ciManagement.getSystem() ) )
+            {
+                return true;
+            }
+            // ...
+            // return false;
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setCiManagement( source.getCiManagement() );
+        }
+    },
+
+    /** @see Model#getDistributionManagement() */
+    DistributionManagement
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public ElementHandling getHandling( FlattenDescriptor descriptor )
+        {
+            return descriptor.getDistributionManagement();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isAvailable( Model model )
+        {
+            org.apache.maven.model.DistributionManagement distributionManagement = model.getDistributionManagement();
+            if ( distributionManagement == null )
+            {
+                return false;
+            }
+            if ( !StringUtils.isEmpty( distributionManagement.getDownloadUrl() ) )
+            {
+                return true;
+            }
+            if ( !StringUtils.isEmpty( distributionManagement.getStatus() ) )
+            {
+                return true;
+            }
+            if ( distributionManagement.getRepository() != null )
+            {
+                return true;
+            }
+            if ( distributionManagement.getSite() != null )
+            {
+                return true;
+            }
+            if ( distributionManagement.getSnapshotRepository() != null )
+            {
+                return true;
+            }
+            if ( distributionManagement.getRelocation() != null )
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void copy( Model source, Model destination )
+        {
+            destination.setCiManagement( source.getCiManagement() );
         }
     },
 
@@ -288,9 +628,17 @@ public enum OptionalPomElement
         throws MojoFailureException
     {
         ElementHandling handling = getHandling( descriptor );
-        if ( ( handling == ElementHandling.Remove ) || ( handling == null ) )
+        if ( handling == ElementHandling.Remove )
         {
             return;
+        }
+        if ( handling == null )
+        {
+            if ( ( this != Prerequisites ) || ( !"maven-plugin".equals( effectivePom.getPackaging() ) ) )
+            {
+                // by default we do not remove prerequisites for maven-plugins
+                return;
+            }
         }
         if ( isAvailable( project.getOriginalModel() ) )
         {

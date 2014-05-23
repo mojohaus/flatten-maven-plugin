@@ -130,31 +130,38 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>
  * {@link Model#getName() name}<br/>
  * {@link Model#getDescription() description}<br/>
- * {@link Model#getUrl() url}<br/>
  * {@link Model#getScm() scm}<br/>
+ * {@link Model#getDevelopers() developers}<br/>
+ * {@link Model#getContributors() contributors}<br/>
+ * {@link Model#getMailingLists() mailingLists}<br/>
+ * {@link Model#getRepositories() repositories}<br/>
+ * {@link Model#getPluginRepositories() pluginRepositories}<br/>
+ * {@link Model#getUrl() url}<br/>
+ * {@link Model#getInceptionYear() inceptionYear}<br/>
+ * {@link Model#getIssueManagement() issueManagement}<br/>
+ * {@link Model#getCiManagement() ciManagement}<br/>
+ * {@link Model#getDistributionManagement() distributionManagement}<br/>
  * </td>
  * <td>configurable</td>
  * <td>Will be stripped from the flattened POM by default. You can configure this handling via according parameters
- * <code>handleXXX</code> for each element (e.g. <code>handleScm</code> or <code>handleUrl</code>) to either
- * {@link ElementHandling#KeepIfExists} or {@link ElementHandling#KeepOrAdd}.</td>
+ * inside <code>flattenDescriptor</code> for each element to either {@link ElementHandling#KeepIfExists} or
+ * {@link ElementHandling#KeepOrAdd} (e.g.
+ * {@literal <flattenDescriptor><developers>KeepIfExists</developers></flattenDescriptor>}) .</td>
  * </tr>
  * <tr>
+ * <td>{@link Model#getPrerequisites() prerequisites}</td>
+ * <td>configurable</td>
+ * <td>Like above but by default NOT removed if packaging is "maven-plugin".</td>
+ * </tr>
  * <td>
- * {@link Model#getInceptionYear() inceptionYear}<br/>
  * {@link Model#getParent() parent}<br/>
  * {@link Model#getBuild() build}<br/>
  * {@link Model#getDependencyManagement() dependencyManagement}<br/>
- * {@link Model#getDistributionManagement() distributionManagement}<br/>
- * {@link Model#getCiManagement() ciManagement}<br/>
  * {@link Model#getProperties() properties}<br/>
  * {@link Model#getModules() modules}<br/>
- * {@link Model#getPluginRepositories() pluginRepositories}<br/>
- * {@link Model#getPrerequisites() prerequisites}<br/>
- * {@link Model#getIssueManagement() issueManagement}<br/>
  * {@link Model#getReporting() reporting}</td>
  * <td>removed</td>
- * <td>Will be completely stripped and never occur in a flattened POM.</td>
- * </tr>
+ * <td>Will be completely stripped and never occur in a flattened POM.</td> </tr>
  * </table>
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
@@ -437,10 +444,11 @@ public class FlattenMojo
         // general attributes also need no dynamics/variables
         flattenedPom.setPackaging( effectivePom.getPackaging() );
 
-        if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
-        {
-            flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
-        }
+        // moved to OptionalPomElement.apply(...)
+        // if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
+        // {
+        // flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
+        // }
 
         // copy by reference - if model changes this code has to explicitly create the new elements
         flattenedPom.setLicenses( effectivePom.getLicenses() );

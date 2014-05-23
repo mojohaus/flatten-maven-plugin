@@ -36,10 +36,8 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Profile;
-import org.apache.maven.model.Scm;
 import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuilder;
@@ -196,35 +194,9 @@ public class FlattenMojo
     @Parameter( defaultValue = "false" )
     private Boolean embedBuildProfileDependencies;
 
-    /**
-     * Configures the {@link ElementHandling} for the {@literal <scm>} element of the flattened POM.
-     */
-    @Parameter( defaultValue = "Remove" )
-    private ElementHandling handleScm;
-
-    /**
-     * Configures the {@link ElementHandling} for the {@literal <developers>} element of the flattened POM.
-     */
-    @Parameter( defaultValue = "Remove" )
-    private ElementHandling handleDevelopers;
-
-    /**
-     * Configures the {@link ElementHandling} for the {@literal <name>} element of the flattened POM.
-     */
-    @Parameter( defaultValue = "Remove" )
-    private ElementHandling handleName;
-
-    /**
-     * Configures the {@link ElementHandling} for the {@literal <description>} element of the flattened POM.
-     */
-    @Parameter( defaultValue = "Remove" )
-    private ElementHandling handleDescription;
-
-    /**
-     * Configures the {@link ElementHandling} for the {@literal <url>} element of the flattened POM.
-     */
-    @Parameter( defaultValue = "Remove" )
-    private ElementHandling handleUrl;
+    /** The {@link FlattenDescriptor} that defines how to handle additional POM elements. */
+    @Parameter( required = false )
+    private FlattenDescriptor flattenDescriptor;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
@@ -252,6 +224,11 @@ public class FlattenMojo
     {
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
+
+        if ( this.flattenDescriptor == null )
+        {
+            this.flattenDescriptor = new FlattenDescriptor();
+        }
 
         File originalPomFile = this.project.getFile();
         Model flattenedPom = createFlattenedPom( originalPomFile );
@@ -436,6 +413,77 @@ public class FlattenMojo
         throws MojoExecutionException, MojoFailureException
     {
 
+        Model effectivePom = createEffectivePom( pomFile );
+
+        // actually we would need a copy of the 4.0.0 model in a separate package (version_4_0_0 subpackage).
+        Model flattenedPom = new Model();
+
+        // keep original encoding (we could also normalize to UTF-8 here)
+        String modelEncoding = effectivePom.getModelEncoding();
+        if ( StringUtils.isEmpty( modelEncoding ) )
+        {
+            modelEncoding = "UTF-8";
+        }
+        flattenedPom.setModelEncoding( modelEncoding );
+
+        // fixed to 4.0.0 forever :)
+        flattenedPom.setModelVersion( "4.0.0" );
+
+        // GAV values have to be fixed without variables, etc.
+        flattenedPom.setGroupId( effectivePom.getGroupId() );
+        flattenedPom.setArtifactId( effectivePom.getArtifactId() );
+        flattenedPom.setVersion( effectivePom.getVersion() );
+
+        // general attributes also need no dynamics/variables
+        flattenedPom.setPackaging( effectivePom.getPackaging() );
+
+        if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
+        {
+            flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
+        }
+
+        // copy by reference - if model changes this code has to explicitly create the new elements
+        flattenedPom.setLicenses( effectivePom.getLicenses() );
+        flattenedPom.setRepositories( effectivePom.getRepositories() );
+
+        for ( OptionalPomElement element : OptionalPomElement.values() )
+        {
+            element.apply( effectivePom, this.project, flattenedPom, this.flattenDescriptor );
+        }
+
+        // transform dependencies...
+        List<Dependency> dependencies = createFlattenedDependencies( effectivePom );
+        flattenedPom.setDependencies( dependencies );
+
+        // transform profiles...
+        for ( Profile profile : effectivePom.getProfiles() )
+        {
+            if ( !isEmbedBuildProfileDependencies() || !isBuildTimeDriven( profile.getActivation() ) )
+            {
+                if ( !isEmpty( profile.getDependencies() ) || !isEmpty( profile.getRepositories() ) )
+                {
+                    Profile strippedProfile = new Profile();
+                    strippedProfile.setId( profile.getId() );
+                    strippedProfile.setActivation( profile.getActivation() );
+                    strippedProfile.setDependencies( profile.getDependencies() );
+                    strippedProfile.setRepositories( profile.getRepositories() );
+                    flattenedPom.addProfile( strippedProfile );
+                }
+            }
+        }
+        return flattenedPom;
+    }
+
+    /**
+     * Creates the effective POM for the given <code>pomFile</code> trying its best to match the core maven behaviour.
+     *
+     * @param pomFile is the {@link File} pointing to the POM to read.
+     * @return the parsed and calculated effective POM.
+     * @throws MojoExecutionException if anything goes wrong.
+     */
+    private Model createEffectivePom( File pomFile )
+        throws MojoExecutionException
+    {
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver );
@@ -482,213 +530,8 @@ public class FlattenMojo
             throw new MojoExecutionException( e.getMessage(), e );
         }
 
-        Model effectiveModel = buildingResult.getEffectiveModel();
-
-        // actually we would need a copy of the 4.0.0 model in a separate package (version_4_0_0 subpackage).
-        Model model = new Model();
-
-        // keep original encoding (we could also normalize to UTF-8 here)
-        String modelEncoding = effectiveModel.getModelEncoding();
-        if ( StringUtils.isEmpty( modelEncoding ) )
-        {
-            modelEncoding = "UTF-8";
-        }
-        model.setModelEncoding( modelEncoding );
-
-        // fixed to 4.0.0 forever :)
-        model.setModelVersion( "4.0.0" );
-
-        // GAV values have to be fixed without variables, etc.
-        model.setGroupId( effectiveModel.getGroupId() );
-        model.setArtifactId( effectiveModel.getArtifactId() );
-        model.setVersion( effectiveModel.getVersion() );
-
-        // general attributes also need no dynamics/variables
-        model.setPackaging( effectiveModel.getPackaging() );
-
-        if ( "maven-plugin".equals( effectiveModel.getPackaging() ) )
-        {
-            model.setPrerequisites( effectiveModel.getPrerequisites() );
-        }
-
-        // copy by reference - if model changes this code has to explicitly create the new elements
-        model.setLicenses( effectiveModel.getLicenses() );
-        model.setRepositories( effectiveModel.getRepositories() );
-
-        setName( effectiveModel, model );
-        setDescription( effectiveModel, model );
-        setUrl( effectiveModel, model );
-        setScm( effectiveModel, model );
-        setDevelopers( effectiveModel, model );
-
-        // transform dependencies...
-        List<Dependency> dependencies = createFlattenedDependencies( effectiveModel );
-        model.setDependencies( dependencies );
-
-        // transform profiles...
-        for ( Profile profile : effectiveModel.getProfiles() )
-        {
-            if ( !isEmbedBuildProfileDependencies() || !isBuildTimeDriven( profile.getActivation() ) )
-            {
-                if ( !isEmpty( profile.getDependencies() ) || !isEmpty( profile.getRepositories() ) )
-                {
-                    Profile strippedProfile = new Profile();
-                    strippedProfile.setId( profile.getId() );
-                    strippedProfile.setActivation( profile.getActivation() );
-                    strippedProfile.setDependencies( profile.getDependencies() );
-                    strippedProfile.setRepositories( profile.getRepositories() );
-                    model.addProfile( strippedProfile );
-                }
-            }
-        }
-        return model;
-    }
-
-    /**
-     * This method {@link Model#setName(String) sets the name} of the flattened POM.
-     *
-     * @param effectiveModel is the effective {@link Model} of the actual project.
-     * @param model is the {@link Model} of the flattened POM to generate.
-     */
-    private void setName( Model effectiveModel, Model model )
-    {
-        String name = effectiveModel.getName();
-
-        if ( this.handleName == ElementHandling.KeepIfExists )
-        {
-            if ( !StringUtils.isEmpty( name ) )
-            {
-                model.setName( name );
-            }
-        }
-        else if ( this.handleName == ElementHandling.KeepOrAdd )
-        {
-            if ( !StringUtils.isEmpty( name ) )
-            {
-                model.setName( name );
-            }
-            else
-            {
-                model.setName( effectiveModel.getArtifactId() );
-            }
-        }
-    }
-
-    /**
-     * This method {@link Model#setDescription(String) sets the description} of the flattened POM.
-     *
-     * @param effectiveModel is the effective {@link Model} of the actual project.
-     * @param model is the {@link Model} of the flattened POM to generate.
-     * @throws MojoFailureException if no description is present but {@link ElementHandling#KeepOrAdd} is configured.
-     */
-    private void setDescription( Model effectiveModel, Model model )
-        throws MojoFailureException
-    {
-        String description = effectiveModel.getDescription();
-
-        if ( this.handleDescription == ElementHandling.KeepIfExists )
-        {
-            if ( !StringUtils.isEmpty( description ) )
-            {
-                model.setDescription( description );
-            }
-        }
-        else if ( this.handleDescription == ElementHandling.KeepOrAdd )
-        {
-            if ( !StringUtils.isEmpty( description ) )
-            {
-                model.setDescription( description );
-            }
-            else
-            {
-                throw new MojoFailureException(
-                                                "Projects pom.xml is missing a description that can not be added or genereated automatically." );
-            }
-        }
-    }
-
-    /**
-     * This method {@link Model#setUrl(String) sets the URL} of the flattened POM.
-     *
-     * @param effectiveModel is the effective {@link Model} of the actual project.
-     * @param model is the {@link Model} of the flattened POM to generate.
-     * @throws MojoFailureException if no description is present but {@link ElementHandling#KeepOrAdd} is configured.
-     */
-    private void setUrl( Model effectiveModel, Model model )
-        throws MojoFailureException
-    {
-        String url = effectiveModel.getUrl();
-
-        if ( this.handleDescription == ElementHandling.KeepIfExists )
-        {
-            if ( !StringUtils.isEmpty( this.project.getUrl() ) )
-            {
-                model.setUrl( url );
-            }
-        }
-        else if ( this.handleDescription == ElementHandling.KeepOrAdd )
-        {
-            if ( !StringUtils.isEmpty( url ) )
-            {
-                model.setUrl( url );
-            }
-            else
-            {
-                throw new MojoFailureException(
-                                                "Projects pom.xml is missing a description that can not be added or genereated automatically." );
-            }
-        }
-    }
-
-    /**
-     * This method {@link Model#setScm(org.apache.maven.model.Scm) sets the SCM} of the flattened POM.
-     *
-     * @param effectiveModel is the effective {@link Model} of the actual project.
-     * @param model is the {@link Model} of the flattened POM to generate.
-     */
-    private void setScm( Model effectiveModel, Model model )
-    {
-        Scm effectiveScm = effectiveModel.getScm();
-        if ( this.handleScm == ElementHandling.KeepIfExists )
-        {
-            if ( this.project.getScm() != null )
-            {
-                model.setScm( effectiveScm );
-            }
-        }
-        else if ( this.handleScm == ElementHandling.KeepOrAdd )
-        {
-            if ( effectiveScm != null )
-            {
-                model.setScm( effectiveScm );
-            }
-        }
-    }
-
-    /**
-     * This method {@link Model#setDevelopers(List) sets the developers} of the flattened POM.
-     *
-     * @param effectiveModel is the effective {@link Model} of the actual project.
-     * @param model is the {@link Model} of the flattened POM to generate.
-     */
-    private void setDevelopers( Model effectiveModel, Model model )
-    {
-        List<Developer> effectiveDevelopers = effectiveModel.getDevelopers();
-        if ( this.handleScm == ElementHandling.KeepIfExists )
-        {
-            List<Developer> developers = this.project.getDevelopers();
-            if ( ( developers != null ) && !developers.isEmpty() )
-            {
-                model.setDevelopers( effectiveDevelopers );
-            }
-        }
-        else if ( this.handleScm == ElementHandling.KeepOrAdd )
-        {
-            if ( effectiveDevelopers != null )
-            {
-                model.setDevelopers( effectiveDevelopers );
-            }
-        }
+        Model effectivePom = buildingResult.getEffectiveModel();
+        return effectivePom;
     }
 
     /**

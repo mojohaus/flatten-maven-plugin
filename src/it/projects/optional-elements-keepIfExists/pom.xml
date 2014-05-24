@@ -15,21 +15,21 @@
         <artifactId>flatten-maven-plugin</artifactId>
         <configuration>
           <flattenDescriptor>
-            <name>KeepIfExists</name>
-            <description>KeepIfExists</description>
-            <url>KeepIfExists</url>
-            <ciManagement>KeepIfExists</ciManagement>
-            <developers>KeepIfExists</developers>
-            <contributors>KeepIfExists</contributors>
-            <distributionManagement>KeepIfExists</distributionManagement>
-            <inceptionYear>KeepIfExists</inceptionYear>
-            <issueManagement>KeepIfExists</issueManagement>
-            <mailingLists>KeepIfExists</mailingLists>
-            <organization>KeepIfExists</organization>
-            <pluginRepositories>KeepIfExists</pluginRepositories>
-            <repositories>KeepIfExists</repositories>
-            <prerequisites>KeepIfExists</prerequisites>
-            <scm>KeepIfExists</scm>
+            <name/>
+            <description/>
+            <url/>
+            <ciManagement/>
+            <developers/>
+            <contributors/>
+            <distributionManagement/>
+            <inceptionYear/>
+            <issueManagement/>
+            <mailingLists/>
+            <organization/>
+            <pluginRepositories/>
+            <repositories/>
+            <prerequisites/>
+            <scm/>
           </flattenDescriptor>
         </configuration>
       </plugin>

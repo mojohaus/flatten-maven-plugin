@@ -49,6 +49,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -60,6 +61,7 @@ import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -202,9 +204,12 @@ public class FlattenMojo
     @Parameter( defaultValue = "false" )
     private Boolean embedBuildProfileDependencies;
 
+    @Parameter( defaultValue = "${mojo}", readonly=true, required=true )
+    private MojoExecution mojoExecution;
+    
     /** The {@link FlattenDescriptor} that defines how to handle additional POM elements. */
     @Parameter( required = false )
-    private FlattenDescriptor flattenDescriptor;
+    private Model flattenDescriptor;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
@@ -232,11 +237,6 @@ public class FlattenMojo
     {
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
-
-        if ( this.flattenDescriptor == null )
-        {
-            this.flattenDescriptor = new FlattenDescriptor();
-        }
 
         File originalPomFile = this.project.getFile();
         Model flattenedPom = createFlattenedPom( originalPomFile );
@@ -445,19 +445,81 @@ public class FlattenMojo
         // general attributes also need no dynamics/variables
         flattenedPom.setPackaging( effectivePom.getPackaging() );
 
-        // moved to OptionalPomElement.apply(...)
-        // if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
-        // {
-        // flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
-        // }
+         if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
+         {
+             flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
+         }
 
         // copy by reference - if model changes this code has to explicitly create the new elements
         flattenedPom.setLicenses( effectivePom.getLicenses() );
         flattenedPom.setRepositories( effectivePom.getRepositories() );
 
-        for ( OptionalPomElement element : OptionalPomElement.values() )
+        // if specified in flattenDescriptor, copy it
+        // Can't use Model itself, because Lists never return null, so you can't recognize if it was set or not
+        Xpp3Dom descriptor = mojoExecution.getConfiguration().getChild( "flattenDescriptor" );
+        
+        if ( descriptor != null )
         {
-            element.apply( effectivePom, this.project, flattenedPom, this.flattenDescriptor );
+            if ( descriptor.getChild( "ciManagement" ) != null )
+            {
+                flattenedPom.setCiManagement( effectivePom.getCiManagement() );
+            }
+            if ( descriptor.getChild( "contributors" ) != null )
+            {
+                flattenedPom.setContributors( effectivePom.getContributors() );
+            }
+            if ( descriptor.getChild( "description" ) != null )
+            {
+                flattenedPom.setDescription( effectivePom.getDescription() );
+            }
+            if ( descriptor.getChild( "developers" ) != null )
+            {
+                flattenedPom.setDevelopers( effectivePom.getDevelopers() );
+            }
+            if ( descriptor.getChild( "distributionManagement" ) != null )
+            {
+                flattenedPom.setDistributionManagement( effectivePom.getDistributionManagement() );
+            }
+            if ( descriptor.getChild( "inceptionYear" ) != null )
+            {
+                flattenedPom.setInceptionYear( effectivePom.getInceptionYear() );
+            }
+            if ( descriptor.getChild( "issueManagement" ) != null )
+            {
+                flattenedPom.setIssueManagement( effectivePom.getIssueManagement() );
+            }
+            if ( descriptor.getChild( "mailingLists" ) != null )
+            {
+                flattenedPom.setMailingLists( effectivePom.getMailingLists() );
+            }
+            if ( descriptor.getChild( "name" ) != null )
+            {
+                flattenedPom.setName( effectivePom.getName() );
+            }
+            if ( descriptor.getChild( "organization" ) != null )
+            {
+                flattenedPom.setOrganization( effectivePom.getOrganization() );
+            }
+            if ( descriptor.getChild( "pluginRepositories" ) != null )
+            {
+                flattenedPom.setPluginRepositories( effectivePom.getPluginRepositories() );
+            }
+            if ( descriptor.getChild( "prerequisites" ) != null )
+            {
+                flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
+            }
+            if ( descriptor.getChild( "repositories" ) != null )
+            {
+                flattenedPom.setRepositories( effectivePom.getRepositories() );
+            }
+            if ( descriptor.getChild( "scm" ) != null )
+            {
+                flattenedPom.setScm( effectivePom.getScm() );
+            }
+            if ( descriptor.getChild( "url" ) != null )
+            {
+                flattenedPom.setUrl( effectivePom.getUrl() );
+            }                
         }
 
         // transform dependencies...

@@ -3,7 +3,7 @@
   <!-- required -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.mojo.flatten.its</groupId>
-  <artifactId>complete-artifact-pom</artifactId>
+  <artifactId>optional-elements-modeOssrh</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <!-- banned -->
@@ -14,23 +14,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
         <configuration>
-          <flattenDescriptor>
-            <name/>
-            <description/>
-            <url/>
-            <ciManagement/>
-            <developers/>
-            <contributors/>
-            <distributionManagement/>
-            <inceptionYear/>
-            <issueManagement/>
-            <mailingLists/>
-            <organization/>
-            <pluginRepositories/>
-            <repositories/>
-            <prerequisites/>
-            <scm/>
-          </flattenDescriptor>
+          <flattenMode>ossrh</flattenMode>
         </configuration>
       </plugin>
     </plugins>

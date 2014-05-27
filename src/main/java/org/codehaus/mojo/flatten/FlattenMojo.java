@@ -103,7 +103,6 @@ import org.xml.sax.ext.DefaultHandler2;
  * <tr>
  * <td>
  * {@link Model#getLicenses() licenses}<br/>
- * {@link Model#getRepositories() repositories}<br/>
  * </td>
  * <td>resolved</td>
  * <td>copied to the flattened POM but with inheritance from {@link Model#getParent() parent} as well as with all
@@ -146,10 +145,11 @@ import org.xml.sax.ext.DefaultHandler2;
  * {@link Model#getDistributionManagement() distributionManagement}<br/>
  * </td>
  * <td>configurable</td>
- * <td>Will be stripped from the flattened POM by default. You can configure this handling via according parameters
- * inside <code>flattenDescriptor</code> for each element to either {@link ElementHandling#KeepIfExists} or
- * {@link ElementHandling#KeepOrAdd} (e.g.
- * {@literal <flattenDescriptor><developers>KeepIfExists</developers></flattenDescriptor>}) .</td>
+ * <td>Will be stripped from the flattened POM by default. You can configure all of the listed elements inside
+ * <code>pomElements</code> that should be kept in the flattened POM (e.g.
+ * {@literal <flattenDescriptor><name/><description/><developers/><contributors/></flattenDescriptor>}). For common
+ * use-cases there are predefined modes available via the parameter <code>flattenMode</code> that should be used in
+ * preference.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getPrerequisites() prerequisites}</td>
@@ -204,12 +204,23 @@ public class FlattenMojo
     @Parameter( defaultValue = "false" )
     private Boolean embedBuildProfileDependencies;
 
-    @Parameter( defaultValue = "${mojo}", readonly=true, required=true )
+    /**
+     * The {@link MojoExecution} used to get access to the raw configuration of {@link #pomElements} as empty tags are
+     * mapped to null.
+     */
+    @Parameter( defaultValue = "${mojo}", readonly = true, required = true )
     private MojoExecution mojoExecution;
-    
-    /** The {@link FlattenDescriptor} that defines how to handle additional POM elements. */
+
+    /**
+     * The {@link Model} that defines how to handle additional POM elements. Please use <code>flattenMode</code> instead
+     * if possible. Never define both parameters.
+     */
     @Parameter( required = false )
-    private Model flattenDescriptor;
+    private FlattenDescriptor pomElements;
+
+    /** The {@link FlattenMode} */
+    @Parameter( required = false )
+    private FlattenMode flattenMode;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
@@ -445,82 +456,15 @@ public class FlattenMojo
         // general attributes also need no dynamics/variables
         flattenedPom.setPackaging( effectivePom.getPackaging() );
 
-         if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
-         {
-             flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
-         }
+        if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
+        {
+            flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
+        }
 
         // copy by reference - if model changes this code has to explicitly create the new elements
         flattenedPom.setLicenses( effectivePom.getLicenses() );
-        flattenedPom.setRepositories( effectivePom.getRepositories() );
 
-        // if specified in flattenDescriptor, copy it
-        // Can't use Model itself, because Lists never return null, so you can't recognize if it was set or not
-        Xpp3Dom descriptor = mojoExecution.getConfiguration().getChild( "flattenDescriptor" );
-        
-        if ( descriptor != null )
-        {
-            if ( descriptor.getChild( "ciManagement" ) != null )
-            {
-                flattenedPom.setCiManagement( effectivePom.getCiManagement() );
-            }
-            if ( descriptor.getChild( "contributors" ) != null )
-            {
-                flattenedPom.setContributors( effectivePom.getContributors() );
-            }
-            if ( descriptor.getChild( "description" ) != null )
-            {
-                flattenedPom.setDescription( effectivePom.getDescription() );
-            }
-            if ( descriptor.getChild( "developers" ) != null )
-            {
-                flattenedPom.setDevelopers( effectivePom.getDevelopers() );
-            }
-            if ( descriptor.getChild( "distributionManagement" ) != null )
-            {
-                flattenedPom.setDistributionManagement( effectivePom.getDistributionManagement() );
-            }
-            if ( descriptor.getChild( "inceptionYear" ) != null )
-            {
-                flattenedPom.setInceptionYear( effectivePom.getInceptionYear() );
-            }
-            if ( descriptor.getChild( "issueManagement" ) != null )
-            {
-                flattenedPom.setIssueManagement( effectivePom.getIssueManagement() );
-            }
-            if ( descriptor.getChild( "mailingLists" ) != null )
-            {
-                flattenedPom.setMailingLists( effectivePom.getMailingLists() );
-            }
-            if ( descriptor.getChild( "name" ) != null )
-            {
-                flattenedPom.setName( effectivePom.getName() );
-            }
-            if ( descriptor.getChild( "organization" ) != null )
-            {
-                flattenedPom.setOrganization( effectivePom.getOrganization() );
-            }
-            if ( descriptor.getChild( "pluginRepositories" ) != null )
-            {
-                flattenedPom.setPluginRepositories( effectivePom.getPluginRepositories() );
-            }
-            if ( descriptor.getChild( "prerequisites" ) != null )
-            {
-                flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
-            }
-            if ( descriptor.getChild( "repositories" ) != null )
-            {
-                flattenedPom.setRepositories( effectivePom.getRepositories() );
-            }
-            if ( descriptor.getChild( "scm" ) != null )
-            {
-                flattenedPom.setScm( effectivePom.getScm() );
-            }
-            if ( descriptor.getChild( "url" ) != null )
-            {
-                flattenedPom.setUrl( effectivePom.getUrl() );
-            }                
-        }
+        handleAdditionalPomElements( effectivePom, flattenedPom );
 
         // transform dependencies...
         List<Dependency> dependencies = createFlattenedDependencies( effectivePom );
@@ -543,6 +487,103 @@ public class FlattenMojo
             }
         }
         return flattenedPom;
+    }
+
+    /**
+     * Handles the {@link FlattenDescriptor additional POM elements}.
+     *
+     * @param effectivePom is the effective POM.
+     * @param flattenedPom is the flattened POM where additional POM elements may be added according to configuration.
+     * @throws MojoFailureException if anything goes wrong.
+     */
+    private void handleAdditionalPomElements( Model effectivePom, Model flattenedPom )
+        throws MojoFailureException
+    {
+        FlattenDescriptor descriptor = this.pomElements;
+        if ( descriptor == null )
+        {
+            if ( this.flattenMode == null )
+            {
+                descriptor = new FlattenDescriptor();
+            }
+            else
+            {
+                descriptor = this.flattenMode.getDescriptor();
+            }
+        }
+        else
+        {
+            if ( this.flattenMode != null )
+            {
+                throw new MojoFailureException( "Never configure both 'pomElements' and 'flattenMode' parameters!" );
+            }
+            // if specified in flattenDescriptor, copy it
+            // Can't use Model itself, because Lists never return null, so you can't recognize if it was set or not
+            Xpp3Dom rawDescriptor = this.mojoExecution.getConfiguration().getChild( "pomElements" );
+            descriptor = new FlattenDescriptor( rawDescriptor );
+        }
+
+        // copy the configured additional POM elements...
+        if ( descriptor.isKeepCiManagement() )
+        {
+            flattenedPom.setCiManagement( effectivePom.getCiManagement() );
+        }
+        if ( descriptor.isKeepContributors() )
+        {
+            flattenedPom.setContributors( effectivePom.getContributors() );
+        }
+        if ( descriptor.isKeepDescription() )
+        {
+            flattenedPom.setDescription( effectivePom.getDescription() );
+        }
+        if ( descriptor.isKeepDevelopers() )
+        {
+            flattenedPom.setDevelopers( effectivePom.getDevelopers() );
+        }
+        if ( descriptor.isKeepDistributionManagement() )
+        {
+            flattenedPom.setDistributionManagement( effectivePom.getDistributionManagement() );
+        }
+        if ( descriptor.isKeepInceptionYear() )
+        {
+            flattenedPom.setInceptionYear( effectivePom.getInceptionYear() );
+        }
+        if ( descriptor.isKeepIssueManagement() )
+        {
+            flattenedPom.setIssueManagement( effectivePom.getIssueManagement() );
+        }
+        if ( descriptor.isKeepMailingLists() )
+        {
+            flattenedPom.setMailingLists( effectivePom.getMailingLists() );
+        }
+        if ( descriptor.isKeepName() )
+        {
+            flattenedPom.setName( effectivePom.getName() );
+        }
+        if ( descriptor.isKeepOrganization() )
+        {
+            flattenedPom.setOrganization( effectivePom.getOrganization() );
+        }
+        if ( descriptor.isKeepPluginRepositories() )
+        {
+            flattenedPom.setPluginRepositories( effectivePom.getPluginRepositories() );
+        }
+        if ( descriptor.isKeepPrerequisites() )
+        {
+            flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
+        }
+        if ( descriptor.isKeepRepositories() )
+        {
+            flattenedPom.setRepositories( effectivePom.getRepositories() );
+        }
+        if ( descriptor.isKeepScm() )
+        {
+            flattenedPom.setScm( effectivePom.getScm() );
+        }
+        if ( descriptor.isKeepUrl() )
+        {
+            flattenedPom.setUrl( effectivePom.getUrl() );
+        }
     }
 
     /**

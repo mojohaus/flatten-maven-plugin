@@ -23,7 +23,7 @@ def originalProject = new XmlSlurper().parse( originalPom )
 // required elements
 assert '4.0.0' ==  originalProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == originalProject.groupId.text()
-assert 'complete-artifact-pom' == originalProject.artifactId.text()
+assert 'optional-elements-pomElements' == originalProject.artifactId.text()
 assert '0.0.1-SNAPSHOT' == originalProject.version.text()
 // banned elements for artifact
 assert 1 == originalProject.build.size()
@@ -54,11 +54,11 @@ def flattendProject = new XmlSlurper().parse( flattendPom )
 // required elements
 assert '4.0.0' ==  flattendProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == flattendProject.groupId.text()
-assert 'complete-artifact-pom' == flattendProject.artifactId.text()
+assert 'optional-elements-pomElements' == flattendProject.artifactId.text()
 assert '0.0.1-SNAPSHOT' == flattendProject.version.text()
 // banned elements for artifact
 assert 0 == flattendProject.build.size()
-assert 1 == flattendProject.ciManagement.size()
+assert 0 == flattendProject.ciManagement.size()
 assert 1 == flattendProject.contributors.size()
 assert 0 == flattendProject.dependencyManagement.size()
 assert 1 == flattendProject.description.size()

@@ -14,7 +14,7 @@ import org.apache.maven.model.Model;
 public enum FlattenMode
 {
     /** For projects that want to keep all {@link FlattenDescriptor optional POM elements}. */
-    all,
+    minimum,
 
     /**
      * For Open-Source-Software projects that want to keep all {@link FlattenDescriptor optional POM elements} except
@@ -38,7 +38,7 @@ public enum FlattenMode
         FlattenDescriptor descriptor = new FlattenDescriptor();
         switch ( this )
         {
-            case all:
+            case minimum:
                 descriptor.setKeepRepositories();
                 descriptor.setKeepPluginRepositories();
                 //$FALL-THROUGH$

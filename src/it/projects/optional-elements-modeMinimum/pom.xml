@@ -3,7 +3,7 @@
   <!-- required -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.mojo.flatten.its</groupId>
-  <artifactId>optional-elements-modeAll</artifactId>
+  <artifactId>optional-elements-modeMinimum</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <!-- banned -->
@@ -14,7 +14,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
         <configuration>
-          <flattenMode>all</flattenMode>
+          <flattenMode>minimum</flattenMode>
         </configuration>
       </plugin>
     </plugins>

@@ -65,6 +65,8 @@ public class FlattenDescriptor
     {
 
         super();
+        // keep repositories by default as suggested by Robert...
+        setKeepRepositories();
     }
 
     /**

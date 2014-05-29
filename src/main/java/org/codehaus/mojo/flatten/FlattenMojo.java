@@ -138,7 +138,6 @@ import org.xml.sax.ext.DefaultHandler2;
  * {@link Model#getDevelopers() developers}<br/>
  * {@link Model#getContributors() contributors}<br/>
  * {@link Model#getMailingLists() mailingLists}<br/>
- * {@link Model#getRepositories() repositories}<br/>
  * {@link Model#getPluginRepositories() pluginRepositories}<br/>
  * {@link Model#getIssueManagement() issueManagement}<br/>
  * {@link Model#getCiManagement() ciManagement}<br/>
@@ -147,14 +146,19 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>configurable</td>
  * <td>Will be stripped from the flattened POM by default. You can configure all of the listed elements inside
  * <code>pomElements</code> that should be kept in the flattened POM (e.g.
- * {@literal <flattenDescriptor><name/><description/><developers/><contributors/></flattenDescriptor>}). For common
- * use-cases there are predefined modes available via the parameter <code>flattenMode</code> that should be used in
- * preference.</td>
+ * {@literal <pomElements><name/><description/><developers/><contributors/></pomElements>}). For common use-cases there
+ * are predefined modes available via the parameter <code>flattenMode</code> that should be used in preference.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getPrerequisites() prerequisites}</td>
  * <td>configurable</td>
  * <td>Like above but by default NOT removed if packaging is "maven-plugin".</td>
+ * </tr>
+ * <tr>
+ * <td>{@link Model#getRepositories() repositories}</td>
+ * <td>configurable</td>
+ * <td>Like two above but by default NOT removed. If you want have it removed, you need to use the parameter
+ * <code>pomElements</code></td>
  * </tr>
  * <td>
  * {@link Model#getParent() parent}<br/>

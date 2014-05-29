@@ -42,10 +42,11 @@
       ]]></source>
       <subsection name="Keep developer information">
         If you want to keep additional development information in your POM you can configure predefined modes via the <code>flattenMode</code> parameter.
-        E.g. you can keep all additional POM elements with this configuration:
+        For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "minimum". 
+        Here is an example configuration:
       <source><![CDATA[
         <configuration>
-          <flattenMode>all</flattenMode>
+          <flattenMode>minimum</flattenMode>
         </configuration>
       ]]></source>
       </subsection>

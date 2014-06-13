@@ -91,8 +91,7 @@ public class FlattenModelResolver
      */
     public ModelResolver newCopy()
     {
-
-        return null;
+        return new FlattenModelResolver( this.localRepository, this.artifactFactory );
     }
 
 }

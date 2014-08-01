@@ -23,12 +23,11 @@ import java.io.File;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelSource;
-import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
-import org.apache.maven.model.resolution.UnresolvableModelException;
 
 /**
  * This is a custom implementation of {@link ModelResolver} to emulate the maven POM resolution in order to build the
@@ -65,7 +64,6 @@ public class FlattenModelResolver
      * {@inheritDoc}
      */
     public ModelSource resolveModel( String groupId, String artifactId, String version )
-        throws UnresolvableModelException
     {
 
         Artifact pomArtifact = this.artifactFactory.createProjectArtifact( groupId, artifactId, version );
@@ -77,10 +75,9 @@ public class FlattenModelResolver
     }
 
     /**
-     * {@inheritDoc}
+     * 
      */
     public void addRepository( Repository repository )
-        throws InvalidRepositoryException
     {
 
         // ignoring... artifact resolution via repository should already have happened before by maven core.
@@ -94,4 +91,33 @@ public class FlattenModelResolver
         return new FlattenModelResolver( this.localRepository, this.artifactFactory );
     }
 
+    /**
+     * Resolves the POM for the specified parent.
+     * 
+     * @param The parent coordinates to resolve, must not be {@code null}
+     * @return The source of the requested POM, never {@code null}
+     * 
+     * @since Apache-Maven-3.2.2 (MNG-5639)
+     */
+    public ModelSource resolveModel( Parent parent )
+    {
+        Artifact pomArtifact =
+            this.artifactFactory.createProjectArtifact( parent.getGroupId(), parent.getArtifactId(),
+                                                        parent.getVersion() );
+        pomArtifact = this.localRepository.find( pomArtifact );
+
+        File pomFile = pomArtifact.getFile();
+
+        return new FileModelSource( pomFile );
+    }
+    
+    /**
+     * @since Apache-Maven-3.2.2 (MNG-5639)
+     */
+    public void resetRepositories()
+    {
+     // ignoring... artifact resolution via repository should already have happened before by maven core.
+    }
+    
+    
 }

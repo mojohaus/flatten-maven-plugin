@@ -35,8 +35,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Activation;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
@@ -468,6 +470,30 @@ public class FlattenMojo
         // copy by reference - if model changes this code has to explicitly create the new elements
         flattenedPom.setLicenses( effectivePom.getLicenses() );
 
+        // plugins with extensions must stay
+        Build build = effectivePom.getBuild();
+        if ( build != null )
+        {
+            for( Plugin plugin : build.getPlugins() )
+            {
+                if( plugin.isExtensions() )
+                {
+                    Build flattenedBuild = flattenedPom.getBuild();
+                    if( flattenedBuild == null )
+                    {
+                        flattenedBuild = new Build();
+                        flattenedPom.setBuild( flattenedBuild );
+                    }
+                    Plugin flattenedPlugin = new Plugin();
+                    flattenedPlugin.setGroupId( plugin.getGroupId() );
+                    flattenedPlugin.setArtifactId( plugin.getArtifactId() );
+                    flattenedPlugin.setVersion( plugin.getVersion() );
+                    flattenedPlugin.setExtensions( true );
+                    flattenedBuild.addPlugin( flattenedPlugin );
+                }
+            }
+        }
+        
         handleAdditionalPomElements( effectivePom, flattenedPom );
 
         // transform dependencies...

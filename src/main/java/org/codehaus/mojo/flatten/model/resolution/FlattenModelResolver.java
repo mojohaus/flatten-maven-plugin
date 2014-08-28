@@ -119,5 +119,15 @@ public class FlattenModelResolver
      // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
     
-    
+    /**
+     * 
+     * @param repository  The repository to add to the internal search chain, must not be {@code null}.
+     * @param replace {true} when repository with same id should be replaced, otherwise {@code false}.
+     * 
+     * @since Apache-Maven-3.2.3 (MNG-5663)
+     */
+    public void addRepository( Repository repository, boolean replace )
+    {
+     // ignoring... artifact resolution via repository should already have happened before by maven core.
+    }
 }

@@ -40,6 +40,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
+import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuilder;
@@ -116,18 +117,18 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>resolved specially</td>
  * <td>flattened POM contains the actual dependencies of the project. Test dependencies are removed. Variables and
  * {@link Model#getDependencyManagement() dependencyManagement} is resolved to get fixed dependency attributes
- * (especially {@link Dependency#getVersion() version}). If {@link #embedBuildProfileDependencies} is set to
- * <code>true</code>, then also build-time driven {@link Profile}s will be evaluated and may add {@link Dependency
- * dependencies}. For further details see {@link Profile}s below.</td>
+ * (especially {@link Dependency#getVersion() version}). If {@link #isEmbedBuildProfileDependencies()
+ * embedBuildProfileDependencies} is set to <code>true</code>, then also build-time driven {@link Profile}s will be
+ * evaluated and may add {@link Dependency dependencies}. For further details see {@link Profile}s below.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getProfiles() profiles}</td>
  * <td>resolved specially</td>
  * <td>only the {@link Activation} and the {@link Dependency dependencies} of a {@link Profile} are copied to the
- * flattened POM. If you set the parameter {@link #embedBuildProfileDependencies} to <code>true</code> then only
- * profiles {@link Activation activated} by {@link Activation#getJdk() JDK} or {@link Activation#getOs() OS} will be
- * added to the flattened POM while the other profiles are triggered by the current build setup and if activated their
- * impact on dependencies is embedded into the resulting flattened POM.</td>
+ * flattened POM. If you set the parameter {@link #isEmbedBuildProfileDependencies() embedBuildProfileDependencies} to
+ * <code>true</code> then only profiles {@link Activation activated} by {@link Activation#getJdk() JDK} or
+ * {@link Activation#getOs() OS} will be added to the flattened POM while the other profiles are triggered by the
+ * current build setup and if activated their impact on dependencies is embedded into the resulting flattened POM.</td>
  * </tr>
  * <tr>
  * <td>
@@ -474,12 +475,12 @@ public class FlattenMojo
         Build build = effectivePom.getBuild();
         if ( build != null )
         {
-            for( Plugin plugin : build.getPlugins() )
+            for ( Plugin plugin : build.getPlugins() )
             {
-                if( plugin.isExtensions() )
+                if ( plugin.isExtensions() )
                 {
                     Build flattenedBuild = flattenedPom.getBuild();
-                    if( flattenedBuild == null )
+                    if ( flattenedBuild == null )
                     {
                         flattenedBuild = new Build();
                         flattenedPom.setBuild( flattenedBuild );
@@ -493,7 +494,7 @@ public class FlattenMojo
                 }
             }
         }
-        
+
         handleAdditionalPomElements( effectivePom, flattenedPom );
 
         // transform dependencies...
@@ -604,7 +605,17 @@ public class FlattenMojo
         }
         if ( descriptor.isKeepRepositories() )
         {
-            flattenedPom.setRepositories( effectivePom.getRepositories() );
+            List<Repository> effectiveRepositories = effectivePom.getRepositories();
+            List<Repository> flattenedRepositories = new ArrayList<Repository>( effectiveRepositories.size() );
+            for ( Repository repo : effectiveRepositories )
+            {
+                // filter inherited repository section from super POM (see MOJO-2042)...
+                if ( !isCentralRepositoryFromSuperPom( repo ) )
+                {
+                    flattenedRepositories.add( repo );
+                }
+            }
+            flattenedPom.setRepositories( flattenedRepositories );
         }
         if ( descriptor.isKeepScm() )
         {
@@ -614,6 +625,28 @@ public class FlattenMojo
         {
             flattenedPom.setUrl( effectivePom.getUrl() );
         }
+    }
+
+    /**
+     * This method determines if the given {@link Repository} section is identical to what is defined from the super
+     * POM.
+     *
+     * @param repo is the {@link Repository} section to check.
+     * @return <code>true</code> if maven central default configuration, <code>false</code> otherwise.
+     */
+    private boolean isCentralRepositoryFromSuperPom( Repository repo )
+    {
+        if ( "central".equals( repo.getId() ) )
+        {
+            if ( "https://repo.maven.apache.org/maven2".equals( repo.getUrl() ) )
+            {
+                if ( !repo.getSnapshots().isEnabled() )
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -693,7 +726,9 @@ public class FlattenMojo
     }
 
     /**
-     * @return the value of {@link #embedBuildProfileDependencies}.
+     * @return <code>true</code> if build-dependent profiles (triggered by OS or JDK) should be evaluated and their
+     *         effect (variables and dependencies) are resolved and embedded into the flattened POM while the profile
+     *         itself is stripped. Otherwise if <code>false</code> the profiles will remain untouched.
      */
     protected boolean isEmbedBuildProfileDependencies()
     {

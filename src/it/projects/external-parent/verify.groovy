@@ -70,7 +70,9 @@ assert 0 == flattendProject.name.size()
 assert 0 == flattendProject.organization.size()
 assert 0 == flattendProject.parent.size()
 assert 0 == flattendProject.pluginRepositories.size()
-assert 0 == flattendProject.repositories.size()
+assert 1 == flattendProject.repositories.size()
+assert 1 == flattendProject.repositories.repository.size()
+assert 'no-one' == flattendProject.repositories.repository.id
 assert 0 == flattendProject.prerequisites.size()
 assert 0 == flattendProject.properties.size()
 assert 0 == flattendProject.reporting.size()
@@ -78,5 +80,6 @@ assert 0 == flattendProject.reports.size()
 assert 0 == flattendProject.scm.size()
 assert 0 == flattendProject.url.size()
 assert 1 == flattendProject.dependencies.size()
-assert '4.0.5.RELEASE' == flattendProject.dependencies[0].dependency.version
+assert 1 == flattendProject.dependencies.dependency.size()
+assert '4.0.5.RELEASE' == flattendProject.dependencies.dependency.version
 

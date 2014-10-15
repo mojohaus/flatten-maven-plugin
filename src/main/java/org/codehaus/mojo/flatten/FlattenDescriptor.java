@@ -58,6 +58,24 @@ public class FlattenDescriptor
     /** @see #isKeepDistributionManagement() */
     private String distributionManagement;
 
+    /** @see #isKeepDependencyManagement() */
+    private String dependencyManagement;
+
+    /** @see #isKeepBuild() */
+    private String build;
+
+    /** @see #isKeepParent() */
+    private String parent;
+
+    /** @see #isKeepModules() */
+    private String modules;
+
+    /** @see #isKeepProperties() */
+    private String properties;
+
+    /** @see #isKeepReporting() */
+    private String reporting;
+
     /**
      * The constructor.
      */
@@ -137,10 +155,34 @@ public class FlattenDescriptor
         {
             this.url = "";
         }
+        if ( descriptor.getChild( "dependencyManagement" ) != null )
+        {
+            this.dependencyManagement = "";
+        }
+        if ( descriptor.getChild( "build" ) != null )
+        {
+            this.build = "";
+        }
+        if ( descriptor.getChild( "parent" ) != null )
+        {
+            this.parent = "";
+        }
+        if ( descriptor.getChild( "modules" ) != null )
+        {
+            this.modules = "";
+        }
+        if ( descriptor.getChild( "properties" ) != null )
+        {
+            this.properties = "";
+        }
+        if ( descriptor.getChild( "reporting" ) != null )
+        {
+            this.reporting = "";
+        }
     }
 
     /**
-     * @return <code>true </code> if we should keep name
+     * @return <code>true</code> if we should keep name
      */
     public boolean isKeepName()
     {
@@ -148,7 +190,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep description
+     * @return <code>true</code> if we should keep description
      */
     public boolean isKeepDescription()
     {
@@ -156,7 +198,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep url
+     * @return <code>true</code> if we should keep url
      */
     public boolean isKeepUrl()
     {
@@ -164,7 +206,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep inceptionYear
+     * @return <code>true</code> if we should keep inceptionYear
      */
     public boolean isKeepInceptionYear()
     {
@@ -172,7 +214,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep organization
+     * @return <code>true</code> if we should keep organization
      */
     public boolean isKeepOrganization()
     {
@@ -180,7 +222,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep scm
+     * @return <code>true</code> if we should keep scm
      */
     public boolean isKeepScm()
     {
@@ -188,7 +230,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep prerequisites
+     * @return <code>true</code> if we should keep prerequisites
      */
     public boolean isKeepPrerequisites()
     {
@@ -196,7 +238,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep developers
+     * @return <code>true</code> if we should keep developers
      */
     public boolean isKeepDevelopers()
     {
@@ -204,7 +246,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep contributors
+     * @return <code>true</code> if we should keep contributors
      */
     public boolean isKeepContributors()
     {
@@ -212,7 +254,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep mailingLists
+     * @return <code>true</code> if we should keep mailingLists
      */
     public boolean isKeepMailingLists()
     {
@@ -220,7 +262,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep repositories
+     * @return <code>true</code> if we should keep repositories
      */
     public boolean isKeepRepositories()
     {
@@ -228,7 +270,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep pluginRepositories
+     * @return <code>true</code> if we should keep pluginRepositories
      */
     public boolean isKeepPluginRepositories()
     {
@@ -236,7 +278,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep issueManagement
+     * @return <code>true</code> if we should keep issueManagement
      */
     public boolean isKeepIssueManagement()
     {
@@ -244,7 +286,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep ciManagement
+     * @return <code>true</code> if we should keep ciManagement
      */
     public boolean isKeepCiManagement()
     {
@@ -252,11 +294,59 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return <code>true </code> if we should keep distributionManagement
+     * @return <code>true</code> if we should keep distributionManagement
      */
     public boolean isKeepDistributionManagement()
     {
         return this.distributionManagement != null;
+    }
+
+    /**
+     * @return <code>true</code> if we should keep dependencyManagement
+     */
+    public boolean isKeepDependencyManagement()
+    {
+        return this.dependencyManagement != null;
+    }
+
+    /**
+     * @return <code>true</code> if we should keep build
+     */
+    public boolean isKeepBuild()
+    {
+        return this.build != null;
+    }
+
+    /**
+     * @return <code>true</code> if we should keep parent
+     */
+    public boolean isKeepParent()
+    {
+        return this.parent != null;
+    }
+
+    /**
+     * @return <code>true</code> if we should keep modules
+     */
+    public boolean isKeepModules()
+    {
+        return this.modules != null;
+    }
+
+    /**
+     * @return <code>true</code> if we should keep properties
+     */
+    public boolean isKeepProperties()
+    {
+        return this.properties != null;
+    }
+
+    /**
+     * @return <code>true</code> if we should keep reporting
+     */
+    public boolean isKeepReporting()
+    {
+        return this.reporting != null;
     }
 
     /**
@@ -377,6 +467,54 @@ public class FlattenDescriptor
     public void setKeepDistributionManagement()
     {
         this.distributionManagement = "";
+    }
+
+    /**
+     * Sets {@link #isKeepDependencyManagement()}.
+     */
+    public void setKeepDependencyManagement()
+    {
+        this.dependencyManagement = "";
+    }
+
+    /**
+     * Sets {@link #isKeepBuild()}.
+     */
+    public void setKeepBuild()
+    {
+        this.build = "";
+    }
+
+    /**
+     * Sets {@link #isKeepParent()}.
+     */
+    public void setKeepParent()
+    {
+        this.parent = "";
+    }
+
+    /**
+     * Sets {@link #isKeepModules()}.
+     */
+    public void setKeepModules()
+    {
+        this.modules = "";
+    }
+
+    /**
+     * Sets {@link #isKeepProperties()}.
+     */
+    public void setKeepProperties()
+    {
+        this.properties = "";
+    }
+
+    /**
+     * Sets {@link #isKeepReporting()}.
+     */
+    public void setKeepReporting()
+    {
+        this.reporting = "";
     }
 
 }

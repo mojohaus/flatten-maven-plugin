@@ -170,8 +170,11 @@ import org.xml.sax.ext.DefaultHandler2;
  * {@link Model#getProperties() properties}<br/>
  * {@link Model#getModules() modules}<br/>
  * {@link Model#getReporting() reporting}</td>
- * <td>removed</td>
- * <td>Will be completely stripped and never occur in a flattened POM.</td> </tr>
+ * <td>configurable</td>
+ * <td>These elements should typically be completely stripped from the flattened POM. However for ultimate flexibility
+ * (e.g. if you only want to resolve variables in a POM with packaging pom) you can also configure to keep these
+ * elements. We strictly recommend to use this feature with extreme care and only if packaging is pom (for
+ * "Bill of Materials").</td> </tr>
  * </table>
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
@@ -624,6 +627,33 @@ public class FlattenMojo
         if ( descriptor.isKeepUrl() )
         {
             flattenedPom.setUrl( effectivePom.getUrl() );
+        }
+        // MOJO-2041
+        if ( descriptor.isKeepDependencyManagement() )
+        {
+            flattenedPom.setDependencyManagement( effectivePom.getDependencyManagement() );
+        }
+        if ( descriptor.isKeepBuild() )
+        {
+            getLog().warn( "Keeping build section in flattened POM this was never inteded by this plugin." );
+            flattenedPom.setBuild( effectivePom.getBuild() );
+        }
+        if ( descriptor.isKeepParent() )
+        {
+            getLog().warn( "Keeping parent section in flattened POM this was never inteded by this plugin." );
+            flattenedPom.setParent( effectivePom.getParent() );
+        }
+        if ( descriptor.isKeepModules() )
+        {
+            flattenedPom.setModules( effectivePom.getModules() );
+        }
+        if ( descriptor.isKeepProperties() )
+        {
+            flattenedPom.setProperties( effectivePom.getProperties() );
+        }
+        if ( descriptor.isKeepReporting() )
+        {
+            flattenedPom.setReporting( effectivePom.getReporting() );
         }
     }
 

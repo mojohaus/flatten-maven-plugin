@@ -638,12 +638,9 @@ public class FlattenMojo
     {
         if ( "central".equals( repo.getId() ) )
         {
-            if ( "https://repo.maven.apache.org/maven2".equals( repo.getUrl() ) )
+            if ( !repo.getSnapshots().isEnabled() )
             {
-                if ( !repo.getSnapshots().isEnabled() )
-                {
-                    return true;
-                }
+                return true;
             }
         }
         return false;

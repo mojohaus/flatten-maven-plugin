@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>bom-parent</artifactId>
+    <version>dev-SNAPSHOT</version>
+  </parent>
+  <artifactId>bom</artifactId>
+  <packaging>pom</packaging>
+  <version>${bom.project.version}</version>
+  
+  <dependencyManagement>
+    <dependencies>
+      <!-- BOM of spring boot -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>1.1.0.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- spring-context is missing in spring-boot -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <!-- JSR303 API for annotation based validation -->
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.1.0.Final</version>
+      </dependency>
+      <!-- Jackson for JSON mapping -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+        <artifactId>jackson-jaxrs-json-provider</artifactId>
+        <version>2.4.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.3.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.3.3</version>
+      </dependency>
+      <!-- JSR 250 for component/bean lifecycle management -->
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>jsr250-api</artifactId>
+        <version>1.0</version>
+      </dependency>
+      <!-- JSR 330 for dependency injection -->
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>1</version>
+      </dependency>
+      <!-- JSR 250 for common annotations (component-bean lifecycle, security, etc.) -->
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.2</version>
+      </dependency>
+      <!-- Library with general utilities -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>17.0</version>
+      </dependency>
+      <!-- Library with general utilities as well as I18N and exception support -->
+      <dependency>
+        <groupId>net.sf.m-m-m</groupId>
+        <artifactId>mmm-util-core</artifactId>
+        <version>6.0.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+</project>

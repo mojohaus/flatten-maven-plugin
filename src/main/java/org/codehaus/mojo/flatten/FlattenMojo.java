@@ -63,11 +63,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
-import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.codehaus.plexus.util.xml.pull.MXParser;
-import org.codehaus.plexus.util.xml.pull.XmlPullParser;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
@@ -295,54 +291,6 @@ public class FlattenMojo
         catch ( Exception e )
         {
             throw new MojoExecutionException( "Failed to parse XML from " + xmlFile, e );
-        }
-    }
-
-    /**
-     * This method extracts the XML header comment if available.
-     *
-     * @param xmlFile is the XML {@link File} to parse.
-     * @return the XML comment between the XML header declaration and the root tag or <code>null</code> if NOT
-     *         available.
-     * @throws MojoExecutionException if anything goes wrong.
-     */
-    protected String extractHeaderCommentUsingXppNotWorking( File xmlFile )
-        throws MojoExecutionException
-    {
-
-        // Actually StAX would be the standard to use. However, this is what comes with maven...
-        MXParser xpp = new MXParser();
-        XmlStreamReader inStream = null;
-        try
-        {
-            inStream = new XmlStreamReader( xmlFile );
-            xpp.setInput( inStream );
-            int eventType = -1;
-            do
-            {
-                eventType = xpp.next();
-                System.out.println( "XPP Event: " + eventType );
-                if ( eventType == XmlPullParser.COMMENT )
-                {
-                    return xpp.getText();
-                }
-            }
-            while ( eventType != XmlPullParser.START_TAG );
-            // no comment before root tag...
-            return null;
-        }
-        catch ( XmlPullParserException e )
-        {
-            // should never happen as we already parsed the same XML 2 times before...
-            throw new MojoExecutionException( "Failed to parse XML of " + xmlFile, e );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Failed to read " + xmlFile, e );
-        }
-        finally
-        {
-            IOUtil.close( inStream );
         }
     }
 
@@ -631,7 +579,14 @@ public class FlattenMojo
         // MOJO-2041
         if ( descriptor.isKeepDependencyManagement() )
         {
-            flattenedPom.setDependencyManagement( effectivePom.getDependencyManagement() );
+            if ( this.flattenMode == FlattenMode.bom )
+            {
+                flattenedPom.setDependencyManagement( this.project.getOriginalModel().getDependencyManagement() );
+            }
+            else
+            {
+                flattenedPom.setDependencyManagement( effectivePom.getDependencyManagement() );
+            }
         }
         if ( descriptor.isKeepBuild() )
         {
@@ -868,6 +823,10 @@ public class FlattenMojo
 
         if ( this.updatePomFile == null )
         {
+            if ( this.flattenMode == FlattenMode.bom )
+            {
+                return true;
+            }
             return !this.project.getPackaging().equals( "pom" );
         }
         else

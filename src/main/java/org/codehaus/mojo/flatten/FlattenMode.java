@@ -27,7 +27,18 @@ public enum FlattenMode
      * href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide">OSS
      * Repository-Hosting</a>.
      */
-    ossrh;
+    ossrh,
+
+    /**
+     * Like {@link #ossrh} but additionally keeps {@link Model#getDependencyManagement() dependencyManagement} and
+     * {@link Model#getProperties() properties}. Especially it will keep the {@link Model#getDependencyManagement()
+     * dependencyManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
+     * useful if your POM represents a <a href=
+     * "http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
+     * >BOM (Bill Of Material)</a> and you do not want to deploy it as is (to remove parent and resolve version
+     * variables, etc.).
+     */
+    bom;
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
@@ -41,6 +52,10 @@ public enum FlattenMode
             case minimum:
                 descriptor.setKeepRepositories();
                 descriptor.setKeepPluginRepositories();
+                //$FALL-THROUGH$
+            case bom:
+                descriptor.setKeepDependencyManagement();
+                descriptor.setKeepProperties();
                 //$FALL-THROUGH$
             case oss:
                 descriptor.setKeepCiManagement();

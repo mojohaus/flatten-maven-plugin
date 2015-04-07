@@ -23,7 +23,7 @@
         <configuration>
           <updatePomFile>true</updatePomFile>
           <pomElements>
-            <dependencyManagement/>
+            <dependencyManagement>effective</dependencyManagement>
           </pomElements>
         </configuration>
       </plugin>

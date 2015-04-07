@@ -13,7 +13,12 @@ import org.apache.maven.model.Model;
  */
 public enum FlattenMode
 {
-    /** For projects that want to keep all {@link FlattenDescriptor optional POM elements}. */
+    /**
+     * For projects that want to keep all {@link FlattenDescriptor optional POM elements}.
+     *
+     * @deprecated confusing name, unstable contract.
+     */
+    @Deprecated
     minimum,
 
     /**
@@ -38,7 +43,16 @@ public enum FlattenMode
      * >BOM (Bill Of Material)</a> and you do not want to deploy it as is (to remove parent and resolve version
      * variables, etc.).
      */
-    bom;
+    bom,
+
+    /**
+     * The default mode that removes all {@link FlattenDescriptor optional POM elements} except
+     * {@link Model#getRepositories() repositories}.
+     */
+    defaults,
+
+    /** Removes all {@link FlattenDescriptor optional POM elements}. */
+    clean;
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
@@ -50,29 +64,35 @@ public enum FlattenMode
         switch ( this )
         {
             case minimum:
-                descriptor.setKeepRepositories();
-                descriptor.setKeepPluginRepositories();
+                descriptor.setPluginRepositories( ElementHandling.effective );
                 //$FALL-THROUGH$
             case bom:
-                descriptor.setKeepDependencyManagement();
-                descriptor.setKeepProperties();
+                // MOJO-2041
+                descriptor.setDependencyManagement( ElementHandling.keep );
+                descriptor.setProperties( ElementHandling.effective );
                 //$FALL-THROUGH$
             case oss:
-                descriptor.setKeepCiManagement();
-                descriptor.setKeepContributors();
-                descriptor.setKeepDistributionManagement();
-                descriptor.setKeepInceptionYear();
-                descriptor.setKeepIssueManagement();
-                descriptor.setKeepMailingLists();
-                descriptor.setKeepOrganization();
-                descriptor.setKeepPrerequisites();
+                descriptor.setCiManagement( ElementHandling.effective );
+                descriptor.setContributors( ElementHandling.effective );
+                descriptor.setDistributionManagement( ElementHandling.effective );
+                descriptor.setInceptionYear( ElementHandling.effective );
+                descriptor.setIssueManagement( ElementHandling.effective );
+                descriptor.setMailingLists( ElementHandling.effective );
+                descriptor.setOrganization( ElementHandling.effective );
+                descriptor.setPrerequisites( ElementHandling.effective );
                 //$FALL-THROUGH$
             case ossrh:
-                descriptor.setKeepName();
-                descriptor.setKeepDescription();
-                descriptor.setKeepUrl();
-                descriptor.setKeepScm();
-                descriptor.setKeepDevelopers();
+                descriptor.setName( ElementHandling.effective );
+                descriptor.setDescription( ElementHandling.effective );
+                descriptor.setUrl( ElementHandling.effective );
+                descriptor.setScm( ElementHandling.effective );
+                descriptor.setDevelopers( ElementHandling.effective );
+                //$FALL-THROUGH$
+            case defaults:
+                descriptor.setRepositories( ElementHandling.effective );
+                break;
+            case clean:
+                // nothing to do...
                 break;
         }
         return descriptor;

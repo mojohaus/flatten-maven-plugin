@@ -36,7 +36,10 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Build;
+import org.apache.maven.model.CiManagement;
+import org.apache.maven.model.Contributor;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
@@ -242,7 +245,6 @@ public class FlattenMojo
      */
     public FlattenMojo()
     {
-
         super();
     }
 
@@ -414,14 +416,27 @@ public class FlattenMojo
         // general attributes also need no dynamics/variables
         flattenedPom.setPackaging( effectivePom.getPackaging() );
 
-        if ( "maven-plugin".equals( effectivePom.getPackaging() ) )
-        {
-            flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
-        }
-
         // copy by reference - if model changes this code has to explicitly create the new elements
         flattenedPom.setLicenses( effectivePom.getLicenses() );
 
+        Model cleanPom = createCleanPom( effectivePom );
+
+        handleOptionalPomElements( effectivePom, flattenedPom, cleanPom );
+
+        return flattenedPom;
+    }
+
+    /**
+     * This method creates the clean POM as a {@link Model} where to copy elements from that shall be "
+     * {@link ElementHandling#remove removed}". Will be mainly empty but contains some defaults that have to be kept in
+     * flattened POM.
+     *
+     * @param effectivePom is the effective POM.
+     * @return the clean POM.
+     */
+    protected Model createCleanPom( Model effectivePom )
+    {
+        Model cleanPom = new Model();
         // plugins with extensions must stay
         Build build = effectivePom.getBuild();
         if ( build != null )
@@ -430,27 +445,21 @@ public class FlattenMojo
             {
                 if ( plugin.isExtensions() )
                 {
-                    Build flattenedBuild = flattenedPom.getBuild();
-                    if ( flattenedBuild == null )
+                    Build cleanBuild = cleanPom.getBuild();
+                    if ( cleanBuild == null )
                     {
-                        flattenedBuild = new Build();
-                        flattenedPom.setBuild( flattenedBuild );
+                        cleanBuild = new Build();
+                        cleanPom.setBuild( cleanBuild );
                     }
-                    Plugin flattenedPlugin = new Plugin();
-                    flattenedPlugin.setGroupId( plugin.getGroupId() );
-                    flattenedPlugin.setArtifactId( plugin.getArtifactId() );
-                    flattenedPlugin.setVersion( plugin.getVersion() );
-                    flattenedPlugin.setExtensions( true );
-                    flattenedBuild.addPlugin( flattenedPlugin );
+                    Plugin cleanPlugin = new Plugin();
+                    cleanPlugin.setGroupId( plugin.getGroupId() );
+                    cleanPlugin.setArtifactId( plugin.getArtifactId() );
+                    cleanPlugin.setVersion( plugin.getVersion() );
+                    cleanPlugin.setExtensions( true );
+                    cleanBuild.addPlugin( cleanPlugin );
                 }
             }
         }
-
-        handleAdditionalPomElements( effectivePom, flattenedPom );
-
-        // transform dependencies...
-        List<Dependency> dependencies = createFlattenedDependencies( effectivePom );
-        flattenedPom.setDependencies( dependencies );
 
         // transform profiles...
         for ( Profile profile : effectivePom.getProfiles() )
@@ -464,101 +473,200 @@ public class FlattenMojo
                     strippedProfile.setActivation( profile.getActivation() );
                     strippedProfile.setDependencies( profile.getDependencies() );
                     strippedProfile.setRepositories( profile.getRepositories() );
-                    flattenedPom.addProfile( strippedProfile );
+                    cleanPom.addProfile( strippedProfile );
                 }
             }
         }
-        return flattenedPom;
+
+        // transform dependencies...
+        List<Dependency> dependencies = createFlattenedDependencies( effectivePom );
+        cleanPom.setDependencies( dependencies );
+        return cleanPom;
+    }
+
+    private Model getSourceModel( FlattenDescriptor descriptor, String element, Model effectivePom, Model originalPom,
+                                  Model resolvedPom, Model cleanPom )
+    {
+
+        ElementHandling handling = descriptor.getHandling( element );
+        switch ( handling )
+        {
+            case effective:
+                getLog().debug( element + " will be expanded from effective POM in flattened POM." );
+                return effectivePom;
+            case keep:
+                getLog().debug( element + " will be kept as is in flattened POM." );
+                return originalPom;
+            case resolve:
+                getLog().debug( element + " will be resolved in flattened POM." );
+                return resolvedPom;
+            case remove:
+                getLog().debug( element + " will be removed in flattened POM." );
+                return cleanPom;
+            default:
+                throw new IllegalStateException( handling.toString() );
+        }
     }
 
     /**
-     * Handles the {@link FlattenDescriptor additional POM elements}.
+     * Handles the {@link FlattenDescriptor optional POM elements}.
      *
      * @param effectivePom is the effective POM.
      * @param flattenedPom is the flattened POM where additional POM elements may be added according to configuration.
+     * @param cleanPom is the clean POM where to copy POM elements to "{@link ElementHandling#remove remove}".
      * @throws MojoFailureException if anything goes wrong.
      */
-    private void handleAdditionalPomElements( Model effectivePom, Model flattenedPom )
+    private void handleOptionalPomElements( Model effectivePom, Model flattenedPom, Model cleanPom )
         throws MojoFailureException
     {
-        FlattenDescriptor descriptor = this.pomElements;
-        if ( descriptor == null )
-        {
-            if ( this.flattenMode == null )
-            {
-                descriptor = new FlattenDescriptor();
-            }
-            else
-            {
-                descriptor = this.flattenMode.getDescriptor();
-            }
-        }
-        else
-        {
-            if ( this.flattenMode != null )
-            {
-                throw new MojoFailureException( "Never configure both 'pomElements' and 'flattenMode' parameters!" );
-            }
-            // if specified in flattenDescriptor, copy it
-            // Can't use Model itself, because Lists never return null, so you can't recognize if it was set or not
-            Xpp3Dom rawDescriptor = this.mojoExecution.getConfiguration().getChild( "pomElements" );
-            descriptor = new FlattenDescriptor( rawDescriptor );
-        }
+        FlattenDescriptor descriptor = getFlattenDescriptor();
+        Model originalPom = this.project.getOriginalModel();
+        Model resolvedPom = resolve( originalPom );
 
         // copy the configured additional POM elements...
-        if ( descriptor.isKeepCiManagement() )
+
+        // CiManagement
+        Model sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.CI_MANAGEMENT, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setCiManagement( sourceModel.getCiManagement() );
+
+        // Contributors
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.CONTRIBUTORS, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setContributors( sourceModel.getContributors() );
+
+        // Description
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.DESCRIPTION, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setDescription( sourceModel.getDescription() );
+
+        // Developers
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.DEVELOPERS, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setDevelopers( sourceModel.getDevelopers() );
+
+        // DistributionManagement
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.DISTRIBUTION_MANAGEMENT, effectivePom, originalPom,
+                            resolvedPom, cleanPom );
+        flattenedPom.setDistributionManagement( sourceModel.getDistributionManagement() );
+
+        // InceptionYear
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.INCEPTION_YEAR, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setInceptionYear( sourceModel.getInceptionYear() );
+
+        // IssueManagement
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.ISSUE_MANAGEMENT, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setIssueManagement( sourceModel.getIssueManagement() );
+
+        // MailingLists
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.MAILING_LISTS, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setMailingLists( sourceModel.getMailingLists() );
+
+        // Name
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.NAME, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setName( sourceModel.getName() );
+
+        // Organization
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.ORGANIZATION, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setOrganization( sourceModel.getOrganization() );
+
+        // PluginRepositories
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.PLUGIN_REPOSITORIES, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setPluginRepositories( sourceModel.getPluginRepositories() );
+
+        // Prerequisites
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.PREREQUISITES, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setPrerequisites( sourceModel.getPrerequisites() );
+
+        // Repositories
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.REPOSITORIES, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        List<Repository> repositories = createFlattenedRepositories( sourceModel.getRepositories() );
+        flattenedPom.setRepositories( repositories );
+
+        // Scm
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.SCM, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setScm( sourceModel.getScm() );
+
+        // Url
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.URL, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setUrl( sourceModel.getUrl() );
+
+        // DependencyManagement
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.DEPENDENCY_MANAGEMENT, effectivePom, originalPom,
+                            resolvedPom, cleanPom );
+        flattenedPom.setDependencyManagement( sourceModel.getDependencyManagement() );
+
+        // Build
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.BUILD, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setBuild( sourceModel.getBuild() );
+
+        // Parent
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.PARENT, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setParent( sourceModel.getParent() );
+
+        // Modules
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.MODULES, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setModules( sourceModel.getModules() );
+
+        // Properties
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.PROPERTIES, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setProperties( sourceModel.getProperties() );
+
+        // Reporting
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.REPORTING, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setReporting( sourceModel.getReporting() );
+
+        // Dependencies
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.DEPENDENCIES, effectivePom, originalPom, resolvedPom,
+                            cleanPom );
+        flattenedPom.setDependencies( sourceModel.getDependencies() );
+
+        // Profiles
+        sourceModel =
+            getSourceModel( descriptor, FlattenDescriptor.PROFILES, effectivePom, originalPom, resolvedPom, cleanPom );
+        flattenedPom.setProfiles( sourceModel.getProfiles() );
+    }
+
+    /**
+     * Creates a flattened {@link List} of {@link Repository} elements where those from super-POM are omitted.
+     *
+     * @param repositories is the {@link List} of {@link Repository} elements. May be <code>null</code>.
+     * @return the flattened {@link List} of {@link Repository} elements or <code>null</code> if <code>null</code> was
+     *         given.
+     */
+    protected List<Repository> createFlattenedRepositories( List<Repository> repositories )
+    {
+        if ( repositories != null )
         {
-            flattenedPom.setCiManagement( effectivePom.getCiManagement() );
-        }
-        if ( descriptor.isKeepContributors() )
-        {
-            flattenedPom.setContributors( effectivePom.getContributors() );
-        }
-        if ( descriptor.isKeepDescription() )
-        {
-            flattenedPom.setDescription( effectivePom.getDescription() );
-        }
-        if ( descriptor.isKeepDevelopers() )
-        {
-            flattenedPom.setDevelopers( effectivePom.getDevelopers() );
-        }
-        if ( descriptor.isKeepDistributionManagement() )
-        {
-            flattenedPom.setDistributionManagement( effectivePom.getDistributionManagement() );
-        }
-        if ( descriptor.isKeepInceptionYear() )
-        {
-            flattenedPom.setInceptionYear( effectivePom.getInceptionYear() );
-        }
-        if ( descriptor.isKeepIssueManagement() )
-        {
-            flattenedPom.setIssueManagement( effectivePom.getIssueManagement() );
-        }
-        if ( descriptor.isKeepMailingLists() )
-        {
-            flattenedPom.setMailingLists( effectivePom.getMailingLists() );
-        }
-        if ( descriptor.isKeepName() )
-        {
-            flattenedPom.setName( effectivePom.getName() );
-        }
-        if ( descriptor.isKeepOrganization() )
-        {
-            flattenedPom.setOrganization( effectivePom.getOrganization() );
-        }
-        if ( descriptor.isKeepPluginRepositories() )
-        {
-            flattenedPom.setPluginRepositories( effectivePom.getPluginRepositories() );
-        }
-        if ( descriptor.isKeepPrerequisites() )
-        {
-            flattenedPom.setPrerequisites( effectivePom.getPrerequisites() );
-        }
-        if ( descriptor.isKeepRepositories() )
-        {
-            List<Repository> effectiveRepositories = effectivePom.getRepositories();
-            List<Repository> flattenedRepositories = new ArrayList<Repository>( effectiveRepositories.size() );
-            for ( Repository repo : effectiveRepositories )
+            List<Repository> flattenedRepositories = new ArrayList<Repository>( repositories.size() );
+            for ( Repository repo : repositories )
             {
                 // filter inherited repository section from super POM (see MOJO-2042)...
                 if ( !isCentralRepositoryFromSuperPom( repo ) )
@@ -566,50 +674,97 @@ public class FlattenMojo
                     flattenedRepositories.add( repo );
                 }
             }
-            flattenedPom.setRepositories( flattenedRepositories );
+            return flattenedRepositories;
         }
-        if ( descriptor.isKeepScm() )
+        return repositories;
+    }
+
+    /**
+     * @param originalPom
+     * @return
+     */
+    private Model resolve( Model originalPom )
+    {
+        // TODO: resolve all variables...
+        return originalPom;
+    }
+
+    /**
+     * @param developers
+     * @return
+     */
+    private List<Developer> resolveDevelopers( List<Developer> developers )
+    {
+        // TODO: resolve all variables...
+        return developers;
+    }
+
+    /**
+     * @param description
+     * @return
+     */
+    private String resolve( String description )
+    {
+        // TODO: resolve all variables...
+        return description;
+    }
+
+    /**
+     * @param contributors
+     * @return
+     */
+    private List<Contributor> resolveContributors( List<Contributor> contributors )
+    {
+        // TODO: resolve all variables...
+        return contributors;
+    }
+
+    /**
+     * @param ciManagement
+     * @return
+     */
+    private CiManagement resolve( CiManagement ciManagement )
+    {
+        // TODO: resolve all variables...
+        return ciManagement;
+    }
+
+    private FlattenDescriptor getFlattenDescriptor()
+        throws MojoFailureException
+    {
+        FlattenDescriptor descriptor = this.pomElements;
+        if ( descriptor == null )
         {
-            flattenedPom.setScm( effectivePom.getScm() );
-        }
-        if ( descriptor.isKeepUrl() )
-        {
-            flattenedPom.setUrl( effectivePom.getUrl() );
-        }
-        // MOJO-2041
-        if ( descriptor.isKeepDependencyManagement() )
-        {
-            if ( this.flattenMode == FlattenMode.bom )
+            FlattenMode mode = this.flattenMode;
+            if ( mode == null )
             {
-                flattenedPom.setDependencyManagement( this.project.getOriginalModel().getDependencyManagement() );
+                mode = FlattenMode.defaults;
             }
-            else
+            else if ( this.flattenMode == FlattenMode.minimum )
             {
-                flattenedPom.setDependencyManagement( effectivePom.getDependencyManagement() );
+                getLog().warn( "FlattenMode " + FlattenMode.minimum + " is deprecated!" );
+            }
+            descriptor = mode.getDescriptor();
+            if ( "maven-plugin".equals( this.project.getPackaging() ) )
+            {
+                descriptor.setPrerequisites( ElementHandling.effective );
             }
         }
-        if ( descriptor.isKeepBuild() )
+        else
         {
-            getLog().warn( "Keeping build section in flattened POM this was never inteded by this plugin." );
-            flattenedPom.setBuild( effectivePom.getBuild() );
+            if ( descriptor.isEmpty() )
+            {
+                // legacy approach...
+                // Can't use Model itself as empty elements are never null, so you can't recognize if it was set or not
+                Xpp3Dom rawDescriptor = this.mojoExecution.getConfiguration().getChild( "pomElements" );
+                descriptor = new FlattenDescriptor( rawDescriptor );
+            }
+            if ( this.flattenMode != null )
+            {
+                descriptor = descriptor.merge( this.flattenMode.getDescriptor() );
+            }
         }
-        if ( descriptor.isKeepParent() )
-        {
-            getLog().warn( "Keeping parent section in flattened POM this was never inteded by this plugin." );
-            flattenedPom.setParent( effectivePom.getParent() );
-        }
-        if ( descriptor.isKeepModules() )
-        {
-            flattenedPom.setModules( effectivePom.getModules() );
-        }
-        if ( descriptor.isKeepProperties() )
-        {
-            flattenedPom.setProperties( effectivePom.getProperties() );
-        }
-        if ( descriptor.isKeepReporting() )
-        {
-            flattenedPom.setReporting( effectivePom.getReporting() );
-        }
+        return descriptor;
     }
 
     /**

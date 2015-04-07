@@ -2,6 +2,10 @@
  * http://www.apache.org/licenses/LICENSE-2.0 */
 package org.codehaus.mojo.flatten;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
@@ -12,79 +16,89 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  */
 public class FlattenDescriptor
 {
+    /** @see #getBuild() */
+    public static final String BUILD = "build";
 
-    /** @see #isKeepName() */
-    private String name;
+    /** @see #getCiManagement() */
+    public static final String CI_MANAGEMENT = "ciManagement";
 
-    /** @see #isKeepDescription() */
-    private String description;
+    /** @see #getContributors() */
+    public static final String CONTRIBUTORS = "contributors";
 
-    /** @see #isKeepUrl() */
-    private String url;
+    /** @see #getDependencies() */
+    public static final String DEPENDENCIES = "dependencies";
 
-    /** @see #isKeepInceptionYear() */
-    private String inceptionYear;
+    /** @see #getDependencyManagement() */
+    public static final String DEPENDENCY_MANAGEMENT = "dependencyManagement";
 
-    /** @see #isKeepOrganization() */
-    private String organization;
+    /** @see #getDescription() */
+    public static final String DESCRIPTION = "description";
 
-    /** @see #isKeepScm() */
-    private String scm;
+    /** @see #getDevelopers() */
+    public static final String DEVELOPERS = "developers";
 
-    /** @see #isKeepPrerequisites() */
-    private String prerequisites;
+    /** @see #getDistributionManagement() */
+    public static final String DISTRIBUTION_MANAGEMENT = "distributionManagement";
 
-    /** @see #isKeepDevelopers() */
-    private String developers;
+    /** @see #getInceptionYear() */
+    public static final String INCEPTION_YEAR = "inceptionYear";
 
-    /** @see #isKeepContributors() */
-    private String contributors;
+    /** @see #getIssueManagement() */
+    public static final String ISSUE_MANAGEMENT = "issueManagement";
 
-    /** @see #isKeepMailingLists() */
-    private String mailingLists;
+    /** @see #getMailingLists() */
+    public static final String MAILING_LISTS = "mailingLists";
 
-    /** @see #isKeepRepositories() */
-    private String repositories;
+    /** @see #getModules() */
+    public static final String MODULES = "modules";
 
-    /** @see #isKeepPluginRepositories() */
-    private String pluginRepositories;
+    /** @see #getName() */
+    public static final String NAME = "name";
 
-    /** @see #isKeepIssueManagement() */
-    private String issueManagement;
+    /** @see #getOrganization() */
+    public static final String ORGANIZATION = "organization";
 
-    /** @see #isKeepCiManagement() */
-    private String ciManagement;
+    /** @see #getParent() */
+    public static final String PARENT = "parent";
 
-    /** @see #isKeepDistributionManagement() */
-    private String distributionManagement;
+    /** @see #getPluginRepositories() */
+    public static final String PLUGIN_REPOSITORIES = "pluginRepositories";
 
-    /** @see #isKeepDependencyManagement() */
-    private String dependencyManagement;
+    /** @see #getPrerequisites() */
+    public static final String PREREQUISITES = "prerequisites";
 
-    /** @see #isKeepBuild() */
-    private String build;
+    /** @see #getProfiles() */
+    public static final String PROFILES = "profiles";
 
-    /** @see #isKeepParent() */
-    private String parent;
+    /** @see #getProperties() */
+    public static final String PROPERTIES = "properties";
 
-    /** @see #isKeepModules() */
-    private String modules;
+    /** @see #getReporting() */
+    public static final String REPORTING = "reporting";
 
-    /** @see #isKeepProperties() */
-    private String properties;
+    /** @see #getRepositories() */
+    public static final String REPOSITORIES = "repositories";
 
-    /** @see #isKeepReporting() */
-    private String reporting;
+    /** @see #getScm() */
+    public static final String SCM = "scm";
+
+    /** @see #getUrl() */
+    public static final String URL = "url";
+
+    private static final String[] ELEMENET_NAMES = new String[] { BUILD, CI_MANAGEMENT, CONTRIBUTORS, DEPENDENCIES,
+        DEPENDENCY_MANAGEMENT, DESCRIPTION, DEVELOPERS, DISTRIBUTION_MANAGEMENT, INCEPTION_YEAR, ISSUE_MANAGEMENT,
+        MAILING_LISTS, MODULES, NAME, ORGANIZATION, PARENT, PLUGIN_REPOSITORIES, PREREQUISITES, PROFILES, PROPERTIES,
+        REPORTING, REPOSITORIES, SCM, URL };
+
+    private final Map<String, ElementHandling> name2handlingMap;
 
     /**
      * The constructor.
      */
     public FlattenDescriptor()
     {
-
         super();
-        // keep repositories by default as suggested by Robert...
-        setKeepRepositories();
+        this.name2handlingMap = new HashMap<String, ElementHandling>();
     }
 
     /**
@@ -94,427 +108,447 @@ public class FlattenDescriptor
      */
     public FlattenDescriptor( Xpp3Dom descriptor )
     {
-        super();
-        if ( descriptor.getChild( "ciManagement" ) != null )
+        this();
+        for ( String element : ELEMENET_NAMES )
         {
-            this.ciManagement = "";
-        }
-        if ( descriptor.getChild( "contributors" ) != null )
-        {
-            this.contributors = "";
-        }
-        if ( descriptor.getChild( "description" ) != null )
-        {
-            this.description = "";
-        }
-        if ( descriptor.getChild( "developers" ) != null )
-        {
-            this.developers = "";
-        }
-        if ( descriptor.getChild( "distributionManagement" ) != null )
-        {
-            this.distributionManagement = "";
-        }
-        if ( descriptor.getChild( "inceptionYear" ) != null )
-        {
-            this.inceptionYear = "";
-        }
-        if ( descriptor.getChild( "issueManagement" ) != null )
-        {
-            this.issueManagement = "";
-        }
-        if ( descriptor.getChild( "mailingLists" ) != null )
-        {
-            this.mailingLists = "";
-        }
-        if ( descriptor.getChild( "name" ) != null )
-        {
-            this.name = "";
-        }
-        if ( descriptor.getChild( "organization" ) != null )
-        {
-            this.organization = "";
-        }
-        if ( descriptor.getChild( "pluginRepositories" ) != null )
-        {
-            this.pluginRepositories = "";
-        }
-        if ( descriptor.getChild( "prerequisites" ) != null )
-        {
-            this.prerequisites = "";
-        }
-        if ( descriptor.getChild( "repositories" ) != null )
-        {
-            this.repositories = "";
-        }
-        if ( descriptor.getChild( "scm" ) != null )
-        {
-            this.scm = "";
-        }
-        if ( descriptor.getChild( "url" ) != null )
-        {
-            this.url = "";
-        }
-        if ( descriptor.getChild( "dependencyManagement" ) != null )
-        {
-            this.dependencyManagement = "";
-        }
-        if ( descriptor.getChild( "build" ) != null )
-        {
-            this.build = "";
-        }
-        if ( descriptor.getChild( "parent" ) != null )
-        {
-            this.parent = "";
-        }
-        if ( descriptor.getChild( "modules" ) != null )
-        {
-            this.modules = "";
-        }
-        if ( descriptor.getChild( "properties" ) != null )
-        {
-            this.properties = "";
-        }
-        if ( descriptor.getChild( "reporting" ) != null )
-        {
-            this.reporting = "";
+            if ( descriptor.getChild( element ) != null )
+            {
+                this.name2handlingMap.put( element, ElementHandling.effective );
+            }
         }
     }
 
     /**
-     * @return <code>true</code> if we should keep name
+     * Generic method to get a {@link ElementHandling}.
+     *
+     * @param element is the name of a POM element. Please use constants defined in this class.
+     * @return the {@link ElementHandling}. Will be {@link ElementHandling#remove} as fallback if undefined.
      */
-    public boolean isKeepName()
+    public ElementHandling getHandling( String element )
     {
-        return this.name != null;
+        ElementHandling handling = this.name2handlingMap.get( element );
+        if ( handling == null )
+        {
+            handling = ElementHandling.remove;
+        }
+        return handling;
     }
 
     /**
-     * @return <code>true</code> if we should keep description
+     * Generic method to set an {@link ElementHandling}.
+     *
+     * @param element is the name of a POM element. Please use constants defined in this class.
+     * @param handling the new {@link ElementHandling}.
      */
-    public boolean isKeepDescription()
+    public void setHandling( String element, ElementHandling handling )
     {
-        return this.description != null;
+
+        this.name2handlingMap.put( element, handling );
     }
 
     /**
-     * @return <code>true</code> if we should keep url
+     * @return {@link ElementHandling} for {@link Model#getName() name}.
      */
-    public boolean isKeepUrl()
+    public ElementHandling getName()
     {
-        return this.url != null;
+        return getHandling( NAME );
     }
 
     /**
-     * @return <code>true</code> if we should keep inceptionYear
+     * @param name the {@link #getName() name} to set.
      */
-    public boolean isKeepInceptionYear()
+    public void setName( ElementHandling name )
     {
-        return this.inceptionYear != null;
+        setHandling( NAME, name );
     }
 
     /**
-     * @return <code>true</code> if we should keep organization
+     * @return {@link ElementHandling} for {@link Model#getDescription() description}.
      */
-    public boolean isKeepOrganization()
+    public ElementHandling getDescription()
     {
-        return this.organization != null;
+        return getHandling( DESCRIPTION );
     }
 
     /**
-     * @return <code>true</code> if we should keep scm
+     * @param description the {@link #getDescription() description} to set.
      */
-    public boolean isKeepScm()
+    public void setDescription( ElementHandling description )
     {
-        return this.scm != null;
+        setHandling( DESCRIPTION, description );
     }
 
     /**
-     * @return <code>true</code> if we should keep prerequisites
+     * @return {@link ElementHandling} for {@link Model#getUrl() URL}.
      */
-    public boolean isKeepPrerequisites()
+    public ElementHandling getUrl()
     {
-        return this.prerequisites != null;
+        return getHandling( URL );
     }
 
     /**
-     * @return <code>true</code> if we should keep developers
+     * @param url the {@link #getUrl() URL} to set.
      */
-    public boolean isKeepDevelopers()
+    public void setUrl( ElementHandling url )
     {
-        return this.developers != null;
+        setHandling( URL, url );
     }
 
     /**
-     * @return <code>true</code> if we should keep contributors
+     * @return {@link ElementHandling} for {@link Model#getInceptionYear() inceptionYear}.
      */
-    public boolean isKeepContributors()
+    public ElementHandling getInceptionYear()
     {
-        return this.contributors != null;
+        return getHandling( INCEPTION_YEAR );
     }
 
     /**
-     * @return <code>true</code> if we should keep mailingLists
+     * @param inceptionYear the inceptionYear to set
      */
-    public boolean isKeepMailingLists()
+    public void setInceptionYear( ElementHandling inceptionYear )
     {
-        return this.mailingLists != null;
+        setHandling( INCEPTION_YEAR, inceptionYear );
     }
 
     /**
-     * @return <code>true</code> if we should keep repositories
+     * @return {@link ElementHandling} for {@link Model#getOrganization() organization}.
      */
-    public boolean isKeepRepositories()
+    public ElementHandling getOrganization()
     {
-        return this.repositories != null;
+        return getHandling( ORGANIZATION );
     }
 
     /**
-     * @return <code>true</code> if we should keep pluginRepositories
+     * @param organization the {@link #getOrganization() organization} to set.
      */
-    public boolean isKeepPluginRepositories()
+    public void setOrganization( ElementHandling organization )
     {
-        return this.pluginRepositories != null;
+        setHandling( ORGANIZATION, organization );
     }
 
     /**
-     * @return <code>true</code> if we should keep issueManagement
+     * @return {@link ElementHandling} for {@link Model#getScm() SCM}.
      */
-    public boolean isKeepIssueManagement()
+    public ElementHandling getScm()
     {
-        return this.issueManagement != null;
+        return getHandling( SCM );
     }
 
     /**
-     * @return <code>true</code> if we should keep ciManagement
+     * @param scm the {@link #getScm() scm} to set.
      */
-    public boolean isKeepCiManagement()
+    public void setScm( ElementHandling scm )
     {
-        return this.ciManagement != null;
+        setHandling( SCM, scm );
     }
 
     /**
-     * @return <code>true</code> if we should keep distributionManagement
+     * @return {@link ElementHandling} for {@link Model#getPrerequisites() prerequisites}.
      */
-    public boolean isKeepDistributionManagement()
+    public ElementHandling getPrerequisites()
     {
-        return this.distributionManagement != null;
+        return getHandling( PREREQUISITES );
     }
 
     /**
-     * @return <code>true</code> if we should keep dependencyManagement
+     * @param prerequisites the {@link #getPrerequisites() prerequisites} to set.
      */
-    public boolean isKeepDependencyManagement()
+    public void setPrerequisites( ElementHandling prerequisites )
     {
-        return this.dependencyManagement != null;
+        setHandling( PREREQUISITES, prerequisites );
     }
 
     /**
-     * @return <code>true</code> if we should keep build
+     * @return {@link ElementHandling} for {@link Model#getDevelopers() developers}.
      */
-    public boolean isKeepBuild()
+    public ElementHandling getDevelopers()
     {
-        return this.build != null;
+        return getHandling( DEVELOPERS );
     }
 
     /**
-     * @return <code>true</code> if we should keep parent
+     * @param developers the {@link #getDevelopers() developers} to set.
      */
-    public boolean isKeepParent()
+    public void setDevelopers( ElementHandling developers )
     {
-        return this.parent != null;
+        setHandling( DEVELOPERS, developers );
     }
 
     /**
-     * @return <code>true</code> if we should keep modules
+     * @return {@link ElementHandling} for {@link Model#getContributors() contributors}.
      */
-    public boolean isKeepModules()
+    public ElementHandling getContributors()
     {
-        return this.modules != null;
+        return getHandling( CONTRIBUTORS );
     }
 
     /**
-     * @return <code>true</code> if we should keep properties
+     * @param contributors the {@link #getContributors() contributors} to set.
      */
-    public boolean isKeepProperties()
+    public void setContributors( ElementHandling contributors )
     {
-        return this.properties != null;
+        setHandling( CONTRIBUTORS, contributors );
     }
 
     /**
-     * @return <code>true</code> if we should keep reporting
+     * @return {@link ElementHandling} for {@link Model#getMailingLists() mailingLists}.
      */
-    public boolean isKeepReporting()
+    public ElementHandling getMailingLists()
     {
-        return this.reporting != null;
+        return getHandling( MAILING_LISTS );
     }
 
     /**
-     * Sets {@link #isKeepName()}.
+     * @param mailingLists the {@link #getMailingLists() mailingLists} to set.
      */
-    public void setKeepName()
+    public void setMailingLists( ElementHandling mailingLists )
     {
-        this.name = "";
+        setHandling( MAILING_LISTS, mailingLists );
     }
 
     /**
-     * Sets {@link #isKeepDescription()}.
+     * @return {@link ElementHandling} for {@link Model#getRepositories() repositories}.
      */
-    public void setKeepDescription()
+    public ElementHandling getRepositories()
     {
-        this.description = "";
+        return getHandling( REPOSITORIES );
     }
 
     /**
-     * Sets {@link #isKeepUrl()}.
+     * @param repositories the {@link #getRepositories() repositories} to set.
      */
-    public void setKeepUrl()
+    public void setRepositories( ElementHandling repositories )
     {
-        this.url = "";
+        setHandling( REPOSITORIES, repositories );
     }
 
     /**
-     * Sets {@link #isKeepInceptionYear()}.
+     * @return {@link ElementHandling} for {@link Model#getPluginRepositories() pluginRepositories}.
      */
-    public void setKeepInceptionYear()
+    public ElementHandling getPluginRepositories()
     {
-        this.inceptionYear = "";
+        return getHandling( PLUGIN_REPOSITORIES );
     }
 
     /**
-     * Sets {@link #isKeepOrganization()}.
+     * @param pluginRepositories the {@link #getPluginRepositories() pluginRepositories} to set.
      */
-    public void setKeepOrganization()
+    public void setPluginRepositories( ElementHandling pluginRepositories )
     {
-        this.organization = "";
+        setHandling( PLUGIN_REPOSITORIES, pluginRepositories );
     }
 
     /**
-     * Sets {@link #isKeepScm()}.
+     * @return {@link ElementHandling} for {@link Model#getIssueManagement() issueManagement}.
      */
-    public void setKeepScm()
+    public ElementHandling getIssueManagement()
     {
-        this.scm = "";
+        return getHandling( ISSUE_MANAGEMENT );
     }
 
     /**
-     * Sets {@link #isKeepPrerequisites()}.
+     * @param issueManagement the {@link #getIssueManagement() issueManagement} to set.
      */
-    public void setKeepPrerequisites()
+    public void setIssueManagement( ElementHandling issueManagement )
     {
-        this.prerequisites = "";
+        setHandling( ISSUE_MANAGEMENT, issueManagement );
     }
 
     /**
-     * Sets {@link #isKeepDevelopers()}.
+     * @return {@link ElementHandling} for {@link Model#getCiManagement() ciManagement}.
      */
-    public void setKeepDevelopers()
+    public ElementHandling getCiManagement()
     {
-        this.developers = "";
+        return getHandling( CI_MANAGEMENT );
     }
 
     /**
-     * Sets {@link #isKeepContributors()}.
+     * @param ciManagement the {@link #getCiManagement() ciManagement} to set.
      */
-    public void setKeepContributors()
+    public void setCiManagement( ElementHandling ciManagement )
     {
-        this.contributors = "";
+        setHandling( CI_MANAGEMENT, ciManagement );
     }
 
     /**
-     * Sets {@link #isKeepMailingLists()}.
+     * @return {@link ElementHandling} for {@link Model#getDistributionManagement() distributionManagement}.
      */
-    public void setKeepMailingLists()
+    public ElementHandling getDistributionManagement()
     {
-        this.mailingLists = "";
+        return getHandling( DISTRIBUTION_MANAGEMENT );
     }
 
     /**
-     * Sets {@link #isKeepRepositories()}.
+     * @param distributionManagement the {@link #getDistributionManagement() distributionManagement} to set.
      */
-    public void setKeepRepositories()
+    public void setDistributionManagement( ElementHandling distributionManagement )
     {
-        this.repositories = "";
+        setHandling( DISTRIBUTION_MANAGEMENT, distributionManagement );
     }
 
     /**
-     * Sets {@link #isKeepPluginRepositories()}.
+     * @return {@link ElementHandling} for {@link Model#getDependencyManagement() dependencyManagement}.
      */
-    public void setKeepPluginRepositories()
+    public ElementHandling getDependencyManagement()
     {
-        this.pluginRepositories = "";
+        return getHandling( DEPENDENCY_MANAGEMENT );
     }
 
     /**
-     * Sets {@link #isKeepIssueManagement()}.
+     * @param dependencyManagement the {@link #getDependencyManagement() dependencyManagement} to set.
      */
-    public void setKeepIssueManagement()
+    public void setDependencyManagement( ElementHandling dependencyManagement )
     {
-        this.issueManagement = "";
+        setHandling( DEPENDENCY_MANAGEMENT, dependencyManagement );
     }
 
     /**
-     * Sets {@link #isKeepCiManagement()}.
+     * @return {@link ElementHandling} for {@link Model#getBuild() build}.
      */
-    public void setKeepCiManagement()
+    public ElementHandling getBuild()
     {
-        this.ciManagement = "";
+        return getHandling( BUILD );
     }
 
     /**
-     * Sets {@link #isKeepDistributionManagement()}.
+     * @param build the {@link #getBuild() build} to set.
      */
-    public void setKeepDistributionManagement()
+    public void setBuild( ElementHandling build )
     {
-        this.distributionManagement = "";
+        setHandling( BUILD, build );
     }
 
     /**
-     * Sets {@link #isKeepDependencyManagement()}.
+     * @return {@link ElementHandling} for {@link Model#getParent() parent}.
      */
-    public void setKeepDependencyManagement()
+    public ElementHandling getParent()
     {
-        this.dependencyManagement = "";
+        return getHandling( PARENT );
     }
 
     /**
-     * Sets {@link #isKeepBuild()}.
+     * @param parent the {@link #getParent() parent} to set.
      */
-    public void setKeepBuild()
+    public void setParent( ElementHandling parent )
     {
-        this.build = "";
+        setHandling( PARENT, parent );
     }
 
     /**
-     * Sets {@link #isKeepParent()}.
+     * @return {@link ElementHandling} for {@link Model#getModules() modules}.
      */
-    public void setKeepParent()
+    public ElementHandling getModules()
     {
-        this.parent = "";
+        return getHandling( MODULES );
     }
 
     /**
-     * Sets {@link #isKeepModules()}.
+     * @param modules the {@link #getModules() modules} to set.
      */
-    public void setKeepModules()
+    public void setModules( ElementHandling modules )
     {
-        this.modules = "";
+        setHandling( MODULES, modules );
     }
 
     /**
-     * Sets {@link #isKeepProperties()}.
+     * @return {@link ElementHandling} for {@link Model#getProperties() properties}.
      */
-    public void setKeepProperties()
+    public ElementHandling getProperties()
     {
-        this.properties = "";
+        return getHandling( PROPERTIES );
     }
 
     /**
-     * Sets {@link #isKeepReporting()}.
+     * @param properties the {@link #getProperties() properties} to set.
      */
-    public void setKeepReporting()
+    public void setProperties( ElementHandling properties )
     {
-        this.reporting = "";
+        setHandling( PROPERTIES, properties );
+    }
+
+    /**
+     * @return {@link ElementHandling} for {@link Model#getReporting() reporting}.
+     */
+    public ElementHandling getReporting()
+    {
+        return getHandling( REPORTING );
+    }
+
+    /**
+     * @param reporting the {@link #getReporting() reporting} to set.
+     */
+    public void setReporting( ElementHandling reporting )
+    {
+        setHandling( REPORTING, reporting );
+    }
+
+    /**
+     * @return {@link ElementHandling} for {@link Model#getDependencies() dependencies}.
+     */
+    public ElementHandling getDependencies()
+    {
+        return getHandling( DEPENDENCIES );
+    }
+
+    /**
+     * @param dependencies the {@link #getDependencies() dependencies} to set.
+     */
+    public void setDependencies( ElementHandling dependencies )
+    {
+        setHandling( DEPENDENCIES, dependencies );
+    }
+
+    /**
+     * @return {@link ElementHandling} for {@link Model#getProfiles() profiles}.
+     */
+    public ElementHandling getProfiles()
+    {
+        return getHandling( PROFILES );
+    }
+
+    /**
+     * @param profiles the {@link #getProfiles() profiles} to set.
+     */
+    public void setProfiles( ElementHandling profiles )
+    {
+        setHandling( PROFILES, profiles );
+    }
+
+    /**
+     * Creates and returns a new {@link FlattenDescriptor} with the {@link ElementHandling}s merged from this and the
+     * given {@link FlattenDescriptor}.
+     *
+     * @param descriptor is the {@link FlattenDescriptor} to merge with this one.
+     * @return the merged {@link FlattenDescriptor}.
+     */
+    public FlattenDescriptor merge( FlattenDescriptor descriptor )
+    {
+        FlattenDescriptor result = new FlattenDescriptor();
+        for ( String name : ELEMENET_NAMES )
+        {
+            ElementHandling handling = this.name2handlingMap.get( name );
+            if ( handling == null )
+            {
+                handling = descriptor.name2handlingMap.get( name );
+            }
+            result.name2handlingMap.put( name, handling );
+        }
+        return result;
+    }
+
+    /**
+     * @return <code>true</code> if none of the properties has been set explicitly, <code>false</code> otherwise.
+     */
+    public boolean isEmpty()
+    {
+        for ( ElementHandling handling : this.name2handlingMap.values() )
+        {
+            if ( handling != null )
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

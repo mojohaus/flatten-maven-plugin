@@ -32,7 +32,7 @@ import org.apache.maven.model.resolution.ModelResolver;
 /**
  * This is a custom implementation of {@link ModelResolver} to emulate the maven POM resolution in order to build the
  * flattened POM.
- * 
+ *
  * @see org.codehaus.mojo.flatten.FlattenMojo
  * @author Robert Scholte
  */
@@ -49,7 +49,7 @@ public class FlattenModelResolver
 
     /**
      * The constructor.
-     * 
+     *
      * @param localRepository is the local repository.
      * @param artifactFactory is the factory used to create project artifact instances.
      */
@@ -75,7 +75,7 @@ public class FlattenModelResolver
     }
 
     /**
-     * 
+     * {@inheritDoc}
      */
     public void addRepository( Repository repository )
     {
@@ -93,10 +93,9 @@ public class FlattenModelResolver
 
     /**
      * Resolves the POM for the specified parent.
-     * 
-     * @param The parent coordinates to resolve, must not be {@code null}
+     *
+     * @param parent the parent coordinates to resolve, must not be {@code null}
      * @return The source of the requested POM, never {@code null}
-     * 
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
     public ModelSource resolveModel( Parent parent )
@@ -110,24 +109,22 @@ public class FlattenModelResolver
 
         return new FileModelSource( pomFile );
     }
-    
+
     /**
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
     public void resetRepositories()
     {
-     // ignoring... artifact resolution via repository should already have happened before by maven core.
+        // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
-    
+
     /**
-     * 
-     * @param repository  The repository to add to the internal search chain, must not be {@code null}.
+     * @param repository The repository to add to the internal search chain, must not be {@code null}.
      * @param replace {true} when repository with same id should be replaced, otherwise {@code false}.
-     * 
      * @since Apache-Maven-3.2.3 (MNG-5663)
      */
     public void addRepository( Repository repository, boolean replace )
     {
-     // ignoring... artifact resolution via repository should already have happened before by maven core.
+        // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
 }

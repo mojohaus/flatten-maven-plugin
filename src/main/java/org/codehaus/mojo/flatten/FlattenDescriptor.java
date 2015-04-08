@@ -16,79 +16,6 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
  */
 public class FlattenDescriptor
 {
-    /** @see #getBuild() */
-    public static final String BUILD = "build";
-
-    /** @see #getCiManagement() */
-    public static final String CI_MANAGEMENT = "ciManagement";
-
-    /** @see #getContributors() */
-    public static final String CONTRIBUTORS = "contributors";
-
-    /** @see #getDependencies() */
-    public static final String DEPENDENCIES = "dependencies";
-
-    /** @see #getDependencyManagement() */
-    public static final String DEPENDENCY_MANAGEMENT = "dependencyManagement";
-
-    /** @see #getDescription() */
-    public static final String DESCRIPTION = "description";
-
-    /** @see #getDevelopers() */
-    public static final String DEVELOPERS = "developers";
-
-    /** @see #getDistributionManagement() */
-    public static final String DISTRIBUTION_MANAGEMENT = "distributionManagement";
-
-    /** @see #getInceptionYear() */
-    public static final String INCEPTION_YEAR = "inceptionYear";
-
-    /** @see #getIssueManagement() */
-    public static final String ISSUE_MANAGEMENT = "issueManagement";
-
-    /** @see #getMailingLists() */
-    public static final String MAILING_LISTS = "mailingLists";
-
-    /** @see #getModules() */
-    public static final String MODULES = "modules";
-
-    /** @see #getName() */
-    public static final String NAME = "name";
-
-    /** @see #getOrganization() */
-    public static final String ORGANIZATION = "organization";
-
-    /** @see #getParent() */
-    public static final String PARENT = "parent";
-
-    /** @see #getPluginRepositories() */
-    public static final String PLUGIN_REPOSITORIES = "pluginRepositories";
-
-    /** @see #getPrerequisites() */
-    public static final String PREREQUISITES = "prerequisites";
-
-    /** @see #getProfiles() */
-    public static final String PROFILES = "profiles";
-
-    /** @see #getProperties() */
-    public static final String PROPERTIES = "properties";
-
-    /** @see #getReporting() */
-    public static final String REPORTING = "reporting";
-
-    /** @see #getRepositories() */
-    public static final String REPOSITORIES = "repositories";
-
-    /** @see #getScm() */
-    public static final String SCM = "scm";
-
-    /** @see #getUrl() */
-    public static final String URL = "url";
-
-    private static final String[] ELEMENET_NAMES = new String[] { BUILD, CI_MANAGEMENT, CONTRIBUTORS, DEPENDENCIES,
-        DEPENDENCY_MANAGEMENT, DESCRIPTION, DEVELOPERS, DISTRIBUTION_MANAGEMENT, INCEPTION_YEAR, ISSUE_MANAGEMENT,
-        MAILING_LISTS, MODULES, NAME, ORGANIZATION, PARENT, PLUGIN_REPOSITORIES, PREREQUISITES, PROFILES, PROPERTIES,
-        REPORTING, REPOSITORIES, SCM, URL };
 
     private final Map<String, ElementHandling> name2handlingMap;
 
@@ -109,11 +36,12 @@ public class FlattenDescriptor
     public FlattenDescriptor( Xpp3Dom descriptor )
     {
         this();
-        for ( String element : ELEMENET_NAMES )
+        for ( PomProperty<?> property : PomProperty.getPomProperties() )
         {
+            String element = property.getName();
             if ( descriptor.getChild( element ) != null )
             {
-                this.name2handlingMap.put( element, ElementHandling.effective );
+                this.name2handlingMap.put( element, ElementHandling.expand );
             }
         }
     }
@@ -121,15 +49,15 @@ public class FlattenDescriptor
     /**
      * Generic method to get a {@link ElementHandling}.
      *
-     * @param element is the name of a POM element. Please use constants defined in this class.
-     * @return the {@link ElementHandling}. Will be {@link ElementHandling#remove} as fallback if undefined.
+     * @param property is the {@link PomProperty} such as {@link PomProperty#NAME}.
+     * @return the {@link ElementHandling}. Will be {@link ElementHandling#flatten flattened} as fallback if undefined.
      */
-    public ElementHandling getHandling( String element )
+    public ElementHandling getHandling( PomProperty<?> property )
     {
-        ElementHandling handling = this.name2handlingMap.get( element );
+        ElementHandling handling = this.name2handlingMap.get( property.getName() );
         if ( handling == null )
         {
-            handling = ElementHandling.remove;
+            handling = ElementHandling.flatten;
         }
         return handling;
     }
@@ -137,13 +65,13 @@ public class FlattenDescriptor
     /**
      * Generic method to set an {@link ElementHandling}.
      *
-     * @param element is the name of a POM element. Please use constants defined in this class.
+     * @param property is the {@link PomProperty} such as {@link PomProperty#NAME}.
      * @param handling the new {@link ElementHandling}.
      */
-    public void setHandling( String element, ElementHandling handling )
+    public void setHandling( PomProperty<?> property, ElementHandling handling )
     {
 
-        this.name2handlingMap.put( element, handling );
+        this.name2handlingMap.put( property.getName(), handling );
     }
 
     /**
@@ -151,7 +79,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getName()
     {
-        return getHandling( NAME );
+        return getHandling( PomProperty.NAME );
     }
 
     /**
@@ -159,7 +87,7 @@ public class FlattenDescriptor
      */
     public void setName( ElementHandling name )
     {
-        setHandling( NAME, name );
+        setHandling( PomProperty.NAME, name );
     }
 
     /**
@@ -167,7 +95,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getDescription()
     {
-        return getHandling( DESCRIPTION );
+        return getHandling( PomProperty.DESCRIPTION );
     }
 
     /**
@@ -175,7 +103,7 @@ public class FlattenDescriptor
      */
     public void setDescription( ElementHandling description )
     {
-        setHandling( DESCRIPTION, description );
+        setHandling( PomProperty.DESCRIPTION, description );
     }
 
     /**
@@ -183,7 +111,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getUrl()
     {
-        return getHandling( URL );
+        return getHandling( PomProperty.URL );
     }
 
     /**
@@ -191,7 +119,7 @@ public class FlattenDescriptor
      */
     public void setUrl( ElementHandling url )
     {
-        setHandling( URL, url );
+        setHandling( PomProperty.URL, url );
     }
 
     /**
@@ -199,7 +127,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getInceptionYear()
     {
-        return getHandling( INCEPTION_YEAR );
+        return getHandling( PomProperty.INCEPTION_YEAR );
     }
 
     /**
@@ -207,7 +135,7 @@ public class FlattenDescriptor
      */
     public void setInceptionYear( ElementHandling inceptionYear )
     {
-        setHandling( INCEPTION_YEAR, inceptionYear );
+        setHandling( PomProperty.INCEPTION_YEAR, inceptionYear );
     }
 
     /**
@@ -215,7 +143,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getOrganization()
     {
-        return getHandling( ORGANIZATION );
+        return getHandling( PomProperty.ORGANIZATION );
     }
 
     /**
@@ -223,7 +151,7 @@ public class FlattenDescriptor
      */
     public void setOrganization( ElementHandling organization )
     {
-        setHandling( ORGANIZATION, organization );
+        setHandling( PomProperty.ORGANIZATION, organization );
     }
 
     /**
@@ -231,7 +159,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getScm()
     {
-        return getHandling( SCM );
+        return getHandling( PomProperty.SCM );
     }
 
     /**
@@ -239,7 +167,7 @@ public class FlattenDescriptor
      */
     public void setScm( ElementHandling scm )
     {
-        setHandling( SCM, scm );
+        setHandling( PomProperty.SCM, scm );
     }
 
     /**
@@ -247,7 +175,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getPrerequisites()
     {
-        return getHandling( PREREQUISITES );
+        return getHandling( PomProperty.PREREQUISITES );
     }
 
     /**
@@ -255,7 +183,7 @@ public class FlattenDescriptor
      */
     public void setPrerequisites( ElementHandling prerequisites )
     {
-        setHandling( PREREQUISITES, prerequisites );
+        setHandling( PomProperty.PREREQUISITES, prerequisites );
     }
 
     /**
@@ -263,7 +191,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getDevelopers()
     {
-        return getHandling( DEVELOPERS );
+        return getHandling( PomProperty.DEVELOPERS );
     }
 
     /**
@@ -271,7 +199,7 @@ public class FlattenDescriptor
      */
     public void setDevelopers( ElementHandling developers )
     {
-        setHandling( DEVELOPERS, developers );
+        setHandling( PomProperty.DEVELOPERS, developers );
     }
 
     /**
@@ -279,7 +207,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getContributors()
     {
-        return getHandling( CONTRIBUTORS );
+        return getHandling( PomProperty.CONTRIBUTORS );
     }
 
     /**
@@ -287,7 +215,7 @@ public class FlattenDescriptor
      */
     public void setContributors( ElementHandling contributors )
     {
-        setHandling( CONTRIBUTORS, contributors );
+        setHandling( PomProperty.CONTRIBUTORS, contributors );
     }
 
     /**
@@ -295,7 +223,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getMailingLists()
     {
-        return getHandling( MAILING_LISTS );
+        return getHandling( PomProperty.MAILING_LISTS );
     }
 
     /**
@@ -303,7 +231,7 @@ public class FlattenDescriptor
      */
     public void setMailingLists( ElementHandling mailingLists )
     {
-        setHandling( MAILING_LISTS, mailingLists );
+        setHandling( PomProperty.MAILING_LISTS, mailingLists );
     }
 
     /**
@@ -311,7 +239,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getRepositories()
     {
-        return getHandling( REPOSITORIES );
+        return getHandling( PomProperty.REPOSITORIES );
     }
 
     /**
@@ -319,7 +247,7 @@ public class FlattenDescriptor
      */
     public void setRepositories( ElementHandling repositories )
     {
-        setHandling( REPOSITORIES, repositories );
+        setHandling( PomProperty.REPOSITORIES, repositories );
     }
 
     /**
@@ -327,7 +255,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getPluginRepositories()
     {
-        return getHandling( PLUGIN_REPOSITORIES );
+        return getHandling( PomProperty.PLUGIN_REPOSITORIES );
     }
 
     /**
@@ -335,7 +263,7 @@ public class FlattenDescriptor
      */
     public void setPluginRepositories( ElementHandling pluginRepositories )
     {
-        setHandling( PLUGIN_REPOSITORIES, pluginRepositories );
+        setHandling( PomProperty.PLUGIN_REPOSITORIES, pluginRepositories );
     }
 
     /**
@@ -343,7 +271,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getIssueManagement()
     {
-        return getHandling( ISSUE_MANAGEMENT );
+        return getHandling( PomProperty.ISSUE_MANAGEMENT );
     }
 
     /**
@@ -351,7 +279,7 @@ public class FlattenDescriptor
      */
     public void setIssueManagement( ElementHandling issueManagement )
     {
-        setHandling( ISSUE_MANAGEMENT, issueManagement );
+        setHandling( PomProperty.ISSUE_MANAGEMENT, issueManagement );
     }
 
     /**
@@ -359,7 +287,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getCiManagement()
     {
-        return getHandling( CI_MANAGEMENT );
+        return getHandling( PomProperty.CI_MANAGEMENT );
     }
 
     /**
@@ -367,7 +295,7 @@ public class FlattenDescriptor
      */
     public void setCiManagement( ElementHandling ciManagement )
     {
-        setHandling( CI_MANAGEMENT, ciManagement );
+        setHandling( PomProperty.CI_MANAGEMENT, ciManagement );
     }
 
     /**
@@ -375,7 +303,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getDistributionManagement()
     {
-        return getHandling( DISTRIBUTION_MANAGEMENT );
+        return getHandling( PomProperty.DISTRIBUTION_MANAGEMENT );
     }
 
     /**
@@ -383,7 +311,7 @@ public class FlattenDescriptor
      */
     public void setDistributionManagement( ElementHandling distributionManagement )
     {
-        setHandling( DISTRIBUTION_MANAGEMENT, distributionManagement );
+        setHandling( PomProperty.DISTRIBUTION_MANAGEMENT, distributionManagement );
     }
 
     /**
@@ -391,7 +319,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getDependencyManagement()
     {
-        return getHandling( DEPENDENCY_MANAGEMENT );
+        return getHandling( PomProperty.DEPENDENCY_MANAGEMENT );
     }
 
     /**
@@ -399,7 +327,7 @@ public class FlattenDescriptor
      */
     public void setDependencyManagement( ElementHandling dependencyManagement )
     {
-        setHandling( DEPENDENCY_MANAGEMENT, dependencyManagement );
+        setHandling( PomProperty.DEPENDENCY_MANAGEMENT, dependencyManagement );
     }
 
     /**
@@ -407,7 +335,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getBuild()
     {
-        return getHandling( BUILD );
+        return getHandling( PomProperty.BUILD );
     }
 
     /**
@@ -415,7 +343,7 @@ public class FlattenDescriptor
      */
     public void setBuild( ElementHandling build )
     {
-        setHandling( BUILD, build );
+        setHandling( PomProperty.BUILD, build );
     }
 
     /**
@@ -423,7 +351,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getParent()
     {
-        return getHandling( PARENT );
+        return getHandling( PomProperty.PARENT );
     }
 
     /**
@@ -431,7 +359,7 @@ public class FlattenDescriptor
      */
     public void setParent( ElementHandling parent )
     {
-        setHandling( PARENT, parent );
+        setHandling( PomProperty.PARENT, parent );
     }
 
     /**
@@ -439,7 +367,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getModules()
     {
-        return getHandling( MODULES );
+        return getHandling( PomProperty.MODULES );
     }
 
     /**
@@ -447,7 +375,7 @@ public class FlattenDescriptor
      */
     public void setModules( ElementHandling modules )
     {
-        setHandling( MODULES, modules );
+        setHandling( PomProperty.MODULES, modules );
     }
 
     /**
@@ -455,7 +383,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getProperties()
     {
-        return getHandling( PROPERTIES );
+        return getHandling( PomProperty.PROPERTIES );
     }
 
     /**
@@ -463,7 +391,7 @@ public class FlattenDescriptor
      */
     public void setProperties( ElementHandling properties )
     {
-        setHandling( PROPERTIES, properties );
+        setHandling( PomProperty.PROPERTIES, properties );
     }
 
     /**
@@ -471,7 +399,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getReporting()
     {
-        return getHandling( REPORTING );
+        return getHandling( PomProperty.REPORTING );
     }
 
     /**
@@ -479,7 +407,7 @@ public class FlattenDescriptor
      */
     public void setReporting( ElementHandling reporting )
     {
-        setHandling( REPORTING, reporting );
+        setHandling( PomProperty.REPORTING, reporting );
     }
 
     /**
@@ -487,7 +415,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getDependencies()
     {
-        return getHandling( DEPENDENCIES );
+        return getHandling( PomProperty.DEPENDENCIES );
     }
 
     /**
@@ -495,7 +423,7 @@ public class FlattenDescriptor
      */
     public void setDependencies( ElementHandling dependencies )
     {
-        setHandling( DEPENDENCIES, dependencies );
+        setHandling( PomProperty.DEPENDENCIES, dependencies );
     }
 
     /**
@@ -503,7 +431,7 @@ public class FlattenDescriptor
      */
     public ElementHandling getProfiles()
     {
-        return getHandling( PROFILES );
+        return getHandling( PomProperty.PROFILES );
     }
 
     /**
@@ -511,7 +439,7 @@ public class FlattenDescriptor
      */
     public void setProfiles( ElementHandling profiles )
     {
-        setHandling( PROFILES, profiles );
+        setHandling( PomProperty.PROFILES, profiles );
     }
 
     /**
@@ -524,14 +452,18 @@ public class FlattenDescriptor
     public FlattenDescriptor merge( FlattenDescriptor descriptor )
     {
         FlattenDescriptor result = new FlattenDescriptor();
-        for ( String name : ELEMENET_NAMES )
+        for ( PomProperty<?> property : PomProperty.getPomProperties() )
         {
+            String name = property.getName();
             ElementHandling handling = this.name2handlingMap.get( name );
             if ( handling == null )
             {
                 handling = descriptor.name2handlingMap.get( name );
             }
-            result.name2handlingMap.put( name, handling );
+            if ( handling != null )
+            {
+                result.name2handlingMap.put( name, handling );
+            }
         }
         return result;
     }

@@ -9,14 +9,20 @@ package org.codehaus.mojo.flatten;
 public enum ElementHandling
 {
 
-    /** Remove the entire element so it is not present in the flattened POM. */
-    remove,
+    /**
+     * Flatten the element. For most elements this means that they will be removed and are not present in the flattened
+     * POM.
+     */
+    flatten,
 
     /** Take the element from the effective POM. */
-    effective,
+    expand,
 
-    /** Take the element from the original POM but resolve variables. */
+    /** Take the element from the resolved POM. */
     resolve,
+
+    /** Take the element from the interpolated POM (original POM with variables interpolated). */
+    interpolate,
 
     /** Take the element untouched from the original POM. */
     keep

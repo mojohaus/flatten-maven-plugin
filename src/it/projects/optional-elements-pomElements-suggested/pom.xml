@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- required -->
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>parent-depMngt</artifactId>
+    <version>2</version>
+  </parent>
+  <artifactId>optional-elements-pomElements-suggested</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>${project.artifactId}</name>
+  <description>Description of ${project.artifactId}</description>
+
+  <properties>
+    <key>magic-value${project.version}</key>
+    <dep.artifactId>test</dep.artifactId>
+  </properties>
+
+  <url>${key}</url>
+
+  <scm>
+    <url>${key}</url>
+  </scm> 
+  
+  <ciManagement>
+    <url>42${key}42</url>
+  </ciManagement>
+  
+  <developers>
+    <developer>
+      <id>${key}</id>
+      <name>${key}</name>
+    </developer>
+  </developers>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.mojo.flatten.its</groupId>
+        <artifactId>${dep.artifactId}</artifactId>
+        <version>2.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>  
+
+  <!-- banned -->
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <configuration>
+          <pomElements>
+            <name>keep</name>
+            <description>interpolate</description>
+            <url>keep</url>
+            <developers>interpolate</developers>
+            <contributors>interpolate</contributors>
+            <dependencyManagement>interpolate</dependencyManagement>
+            <ciManagement>resolve</ciManagement>
+            <scm>interpolate</scm>
+          </pomElements>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>  
+</project>

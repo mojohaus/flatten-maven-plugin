@@ -64,32 +64,32 @@ public enum FlattenMode
         switch ( this )
         {
             case minimum:
-                descriptor.setPluginRepositories( ElementHandling.effective );
+                descriptor.setPluginRepositories( ElementHandling.expand );
                 //$FALL-THROUGH$
             case bom:
                 // MOJO-2041
                 descriptor.setDependencyManagement( ElementHandling.keep );
-                descriptor.setProperties( ElementHandling.effective );
+                descriptor.setProperties( ElementHandling.expand );
                 //$FALL-THROUGH$
             case oss:
-                descriptor.setCiManagement( ElementHandling.effective );
-                descriptor.setContributors( ElementHandling.effective );
-                descriptor.setDistributionManagement( ElementHandling.effective );
-                descriptor.setInceptionYear( ElementHandling.effective );
-                descriptor.setIssueManagement( ElementHandling.effective );
-                descriptor.setMailingLists( ElementHandling.effective );
-                descriptor.setOrganization( ElementHandling.effective );
-                descriptor.setPrerequisites( ElementHandling.effective );
+                descriptor.setCiManagement( ElementHandling.expand );
+                descriptor.setContributors( ElementHandling.expand );
+                descriptor.setDistributionManagement( ElementHandling.expand );
+                descriptor.setInceptionYear( ElementHandling.expand );
+                descriptor.setIssueManagement( ElementHandling.expand );
+                descriptor.setMailingLists( ElementHandling.expand );
+                descriptor.setOrganization( ElementHandling.expand );
+                descriptor.setPrerequisites( ElementHandling.expand );
                 //$FALL-THROUGH$
             case ossrh:
-                descriptor.setName( ElementHandling.effective );
-                descriptor.setDescription( ElementHandling.effective );
-                descriptor.setUrl( ElementHandling.effective );
-                descriptor.setScm( ElementHandling.effective );
-                descriptor.setDevelopers( ElementHandling.effective );
+                descriptor.setName( ElementHandling.expand );
+                descriptor.setDescription( ElementHandling.expand );
+                descriptor.setUrl( ElementHandling.expand );
+                descriptor.setScm( ElementHandling.expand );
+                descriptor.setDevelopers( ElementHandling.expand );
                 //$FALL-THROUGH$
             case defaults:
-                descriptor.setRepositories( ElementHandling.effective );
+                descriptor.setRepositories( ElementHandling.expand );
                 break;
             case clean:
                 // nothing to do...

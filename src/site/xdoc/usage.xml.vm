@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- $Id: usage.xml 19757 2014-05-29 20:45:48Z joerg.hohwiller $ -->
+<document>
+  <properties>
+    <title>Usage</title>
+  </properties>
+
+  <body>
+    <section name="Usage">
+      Simply add the plugin to the build section of your top-level POM as following.
+      <source><![CDATA[
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <!--<version>${project.version}</version>-->
+        <configuration>
+        </configuration>
+        <executions>
+          <!-- enable flattening -->
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <!-- ensure proper cleanup -->
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+      ]]></source>
+      <subsection name="Keep developer information">
+        If you want to keep additional development information in your POM you can configure predefined modes via the <code>flattenMode</code> parameter.
+        For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "minimum". 
+        Here is an example configuration:
+      <source><![CDATA[
+        <configuration>
+          <flattenMode>minimum</flattenMode>
+        </configuration>
+      ]]></source>
+      </subsection>
+    </section>
+  </body>
+</document>

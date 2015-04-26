@@ -41,6 +41,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.Repository;
+import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuilder;
@@ -601,11 +602,15 @@ public class FlattenMojo
      */
     private boolean isCentralRepositoryFromSuperPom( Repository repo )
     {
-        if ( "central".equals( repo.getId() ) )
+        if ( repo != null )
         {
-            if ( !repo.getSnapshots().isEnabled() )
+            if ( "central".equals( repo.getId() ) )
             {
-                return true;
+                RepositoryPolicy snapshots = repo.getSnapshots();
+                if ( ( snapshots != null ) && !snapshots.isEnabled() )
+                {
+                    return true;
+                }
             }
         }
         return false;

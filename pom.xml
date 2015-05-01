@@ -28,7 +28,7 @@ under the License.
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.0.0-beta-5-SNAPSHOT</version>
+  <version>1.0.0-beta-5</version>
   <description>Plugin to generate flattened POM (reduced to information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>
@@ -213,8 +213,8 @@ under the License.
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/mojo/trunk/mojo/flatten-maven-plugin</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/trunk/mojo/flatten-maven-plugin</developerConnection>
-    <url>http://fisheye.codehaus.org/browse/mojo/trunk/mojo/flatten-maven-plugin</url>
+    <connection>scm:svn:http://svn.codehaus.org/mojo/tags/flatten-maven-plugin-1.0.0-beta-5</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/tags/flatten-maven-plugin-1.0.0-beta-5</developerConnection>
+    <url>http://fisheye.codehaus.org/browse/mojo/tags/flatten-maven-plugin-1.0.0-beta-5</url>
   </scm>
 </project>

@@ -71,7 +71,7 @@ public class FlattenDescriptor
     public void setHandling( PomProperty<?> property, ElementHandling handling )
     {
 
-        this.name2handlingMap.put( property.getName(), handling );
+        this.name2handlingMap.put(property.getName(), handling);
     }
 
     /**
@@ -442,6 +442,21 @@ public class FlattenDescriptor
         setHandling( PomProperty.PROFILES, profiles );
     }
 
+    /**
+     * @return {@link ElementHandling} for {@link Model#getVersion()}  profiles}.
+     */
+    public ElementHandling getVersion()
+    {
+        return getHandling( PomProperty.VERSION );
+    }
+
+    /**
+     * @param version the {@link #getVersion()}  version} to set.
+     */
+    public void setVersion( ElementHandling version )
+    {
+        setHandling( PomProperty.VERSION, version );
+    }
     /**
      * Creates and returns a new {@link FlattenDescriptor} with the {@link ElementHandling}s merged from this and the
      * given {@link FlattenDescriptor}.

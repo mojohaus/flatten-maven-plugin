@@ -34,6 +34,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
@@ -243,6 +244,10 @@ public class FlattenMojo
     /** The {@link ModelInterpolator} used to resolve variables. */
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
+
+    /** The {@link MavenSession} used to get user properties. */
+    @Component
+    private MavenSession session;
 
     /**
      * The constructor.
@@ -621,8 +626,9 @@ public class FlattenMojo
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver );
-
+            new DefaultModelBuildingRequest().setPomFile( pomFile )
+                                             .setModelResolver(resolver)
+                                             .setUserProperties(session.getUserProperties());
         return buildingRequest;
     }
 

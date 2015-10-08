@@ -28,7 +28,7 @@ under the License.
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.0.0-beta-6-SNAPSHOT</version>
+  <version>1.0.0-beta-6-PLUGINMANAGEMENT</version>
   <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>

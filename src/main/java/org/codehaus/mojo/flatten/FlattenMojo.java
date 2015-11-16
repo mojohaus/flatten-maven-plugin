@@ -43,8 +43,8 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.model.building.DefaultModelBuilder;
+import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
-import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
@@ -235,10 +235,6 @@ public class FlattenMojo
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
     @Component
     private ArtifactFactory artifactFactory;
-
-    /** The {@link DefaultModelBuilder} used to resolve the POM in order to extract flattened POM data easily. */
-    @Component( role = ModelBuilder.class )
-    private DefaultModelBuilder modelBuilder;
 
     /** The {@link ModelInterpolator} used to resolve variables. */
     @Component( role = ModelInterpolator.class )
@@ -670,8 +666,9 @@ public class FlattenMojo
                     return activeProfiles;
                 }
             };
-            this.modelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
-            buildingResult = this.modelBuilder.build( buildingRequest );
+            DefaultModelBuilder defaultModelBuilder = new DefaultModelBuilderFactory().newInstance();
+            defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
+            buildingResult = defaultModelBuilder.build( buildingRequest );
         }
         catch ( ModelBuildingException e )
         {

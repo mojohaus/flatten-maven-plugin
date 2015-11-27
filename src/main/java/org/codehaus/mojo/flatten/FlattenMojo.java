@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -54,6 +55,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -239,6 +241,9 @@ public class FlattenMojo
     /** The {@link ModelInterpolator} used to resolve variables. */
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
+
+    @Component( role = LegacySupport.class )
+    private LegacySupport legacySupport;
 
     /**
      * The constructor.
@@ -616,8 +621,10 @@ public class FlattenMojo
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
+        Properties userProperties = this.legacySupport.getSession().getUserProperties();
+
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver );
+            new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver );
         return buildingRequest;
     }
 

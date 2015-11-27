@@ -393,7 +393,7 @@ public class FlattenMojo
     {
 
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
-        Model effectivePom = createEffectivePom( pomFile, buildingRequest );
+        Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies() );
 
         Model flattenedPom = new Model();
 
@@ -533,7 +533,7 @@ public class FlattenMojo
      * @return the flattened {@link List} of {@link Repository} elements or <code>null</code> if <code>null</code> was
      *         given.
      */
-    protected List<Repository> createFlattenedRepositories( List<Repository> repositories )
+    protected static List<Repository> createFlattenedRepositories( List<Repository> repositories )
     {
         if ( repositories != null )
         {
@@ -596,7 +596,7 @@ public class FlattenMojo
      * @param repo is the {@link Repository} section to check.
      * @return <code>true</code> if maven central default configuration, <code>false</code> otherwise.
      */
-    private boolean isCentralRepositoryFromSuperPom( Repository repo )
+    private static boolean isCentralRepositoryFromSuperPom( Repository repo )
     {
         if ( repo != null )
         {
@@ -617,19 +617,18 @@ public class FlattenMojo
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver );
-
+            new DefaultModelBuildingRequest().setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver );
         return buildingRequest;
     }
 
     /**
      * Creates the effective POM for the given <code>pomFile</code> trying its best to match the core maven behaviour.
      *
-     * @param pomFile is the {@link File} pointing to the POM to read.
      * @return the parsed and calculated effective POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    private Model createEffectivePom( File pomFile, ModelBuildingRequest buildingRequest )
+    protected static Model createEffectivePom( ModelBuildingRequest buildingRequest,
+                                               final boolean embedBuildProfileDependencies )
         throws MojoExecutionException
     {
         ModelBuildingResult buildingResult;
@@ -657,7 +656,7 @@ public class FlattenMojo
                     for ( Profile profile : profiles )
                     {
                         Activation activation = profile.getActivation();
-                        if ( !isEmbedBuildProfileDependencies() || isBuildTimeDriven( activation ) )
+                        if ( !embedBuildProfileDependencies || isBuildTimeDriven( activation ) )
                         {
                             activeProfiles.add( profile );
                         }
@@ -719,7 +718,7 @@ public class FlattenMojo
      * @return <code>true</code> if the given {@link Activation} is build-time driven, <code>false</code> otherwise (if
      *         it is triggered by OS or JDK).
      */
-    protected boolean isBuildTimeDriven( Activation activation )
+    protected static boolean isBuildTimeDriven( Activation activation )
     {
 
         if ( activation == null )

@@ -708,7 +708,7 @@ public class FlattenMojo
      *         effect (variables and dependencies) are resolved and embedded into the flattened POM while the profile
      *         itself is stripped. Otherwise if <code>false</code> the profiles will remain untouched.
      */
-    protected boolean isEmbedBuildProfileDependencies()
+    public boolean isEmbedBuildProfileDependencies()
     {
 
         return this.embedBuildProfileDependencies.booleanValue();
@@ -814,7 +814,7 @@ public class FlattenMojo
      * @return <code>true</code> if the generated flattened POM shall be {@link MavenProject#setFile(java.io.File) set}
      *         as POM artifact of the {@link MavenProject}, <code>false</code> otherwise.
      */
-    protected boolean isUpdatePomFile()
+    public boolean isUpdatePomFile()
     {
 
         if ( this.updatePomFile == null )

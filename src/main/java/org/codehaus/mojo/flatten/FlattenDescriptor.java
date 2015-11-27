@@ -2,12 +2,12 @@
  * http://www.apache.org/licenses/LICENSE-2.0 */
 package org.codehaus.mojo.flatten;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The descriptor that defines the additional POM elements that should be kept and copied to flattened POM.
@@ -72,7 +72,7 @@ public class FlattenDescriptor
     public void setHandling( PomProperty<?> property, ElementHandling handling )
     {
 
-        this.name2handlingMap.put(property.getName(), handling);
+        this.name2handlingMap.put( property.getName(), handling );
     }
 
     /**
@@ -88,7 +88,7 @@ public class FlattenDescriptor
      */
     public void setName( ElementHandling name )
     {
-        setHandling(PomProperty.NAME, name);
+        setHandling( PomProperty.NAME, name );
     }
 
     /**
@@ -252,7 +252,7 @@ public class FlattenDescriptor
     }
 
     /**
-     * @return {@link ElementHandling} for {@link Build#getPluginManagement()}  pluginManagement}.
+     * @return {@link ElementHandling} for {@link Build#getPluginManagement()} pluginManagement}.
      */
     public ElementHandling getPluginManagement()
     {

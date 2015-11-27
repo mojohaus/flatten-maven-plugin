@@ -60,7 +60,8 @@ public abstract class PomProperty<V>
         @Override
         public Build get( Model model )
         {
-            return model.getBuild();
+            Build result = model.getBuild();
+            return result;
         }
 
         @Override
@@ -667,7 +668,10 @@ public abstract class PomProperty<V>
     {
 
         V value = get( source );
-        set( target, value );
+        if ( value != null )
+        {
+            set( target, value );
+        }
     }
 
     /**

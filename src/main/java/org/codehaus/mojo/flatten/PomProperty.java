@@ -1,11 +1,5 @@
 package org.codehaus.mojo.flatten;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.maven.model.Build;
 import org.apache.maven.model.CiManagement;
 import org.apache.maven.model.Contributor;
@@ -19,11 +13,18 @@ import org.apache.maven.model.MailingList;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Organization;
 import org.apache.maven.model.Parent;
+import org.apache.maven.model.PluginManagement;
 import org.apache.maven.model.Prerequisites;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.Reporting;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.Scm;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This class reflects a property of a {@link Model POM}. It contains {@link #getPomProperties() all available
@@ -65,7 +66,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, Build value )
         {
-            model.setBuild( value );
+            model.setBuild(value);
         };
     };
 
@@ -82,7 +83,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, CiManagement value )
         {
-            model.setCiManagement( value );
+            model.setCiManagement(value);
         };
     };
 
@@ -100,7 +101,7 @@ public abstract class PomProperty<V>
             @Override
             public void set( Model model, List<Contributor> value )
             {
-                model.setContributors( value );
+                model.setContributors(value);
             };
         };
 
@@ -118,7 +119,7 @@ public abstract class PomProperty<V>
             @Override
             public void set( Model model, List<Dependency> value )
             {
-                model.setDependencies( value );
+                model.setDependencies(value);
             };
         };
 
@@ -135,7 +136,7 @@ public abstract class PomProperty<V>
             @Override
             public void set( Model model, DependencyManagement value )
             {
-                model.setDependencyManagement( value );
+                model.setDependencyManagement(value);
             };
         };
 
@@ -151,7 +152,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setDescription( value );
+            model.setDescription(value);
         };
     };
 
@@ -169,7 +170,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, List<Developer> value )
         {
-            model.setDevelopers( value );
+            model.setDevelopers(value);
         };
     };
 
@@ -186,7 +187,7 @@ public abstract class PomProperty<V>
             @Override
             public void set( Model model, DistributionManagement value )
             {
-                model.setDistributionManagement( value );
+                model.setDistributionManagement(value);
             };
         };
 
@@ -202,7 +203,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setGroupId( value );
+            model.setGroupId(value);
         };
     };
 
@@ -218,7 +219,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setInceptionYear( value );
+            model.setInceptionYear(value);
         };
     };
 
@@ -235,7 +236,7 @@ public abstract class PomProperty<V>
             @Override
             public void set( Model model, IssueManagement value )
             {
-                model.setIssueManagement( value );
+                model.setIssueManagement(value);
             };
         };
 
@@ -253,7 +254,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, List<License> value )
         {
-            model.setLicenses( value );
+            model.setLicenses(value);
         };
     };
 
@@ -271,7 +272,7 @@ public abstract class PomProperty<V>
             @Override
             public void set( Model model, List<MailingList> value )
             {
-                model.setMailingLists( value );
+                model.setMailingLists(value);
             };
         };
 
@@ -287,7 +288,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setModelEncoding( value );
+            model.setModelEncoding(value);
         };
     };
 
@@ -303,7 +304,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setModelVersion( value );
+            model.setModelVersion(value);
         };
     };
 
@@ -321,7 +322,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, List<String> value )
         {
-            model.setModules( value );
+            model.setModules(value);
         };
     };
 
@@ -337,7 +338,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setName( value );
+            model.setName(value);
         };
     };
 
@@ -354,7 +355,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, Organization value )
         {
-            model.setOrganization( value );
+            model.setOrganization(value);
         };
     };
 
@@ -370,7 +371,7 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, String value )
         {
-            model.setPackaging( value );
+            model.setPackaging(value);
         };
     };
 
@@ -386,9 +387,31 @@ public abstract class PomProperty<V>
         @Override
         public void set( Model model, Parent value )
         {
-            model.setParent( value );
+            model.setParent(value);
         };
     };
+
+    /** @see Model#getBuild()#getPluginManagement() */
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public static final PomProperty<PluginManagement> PLUGIN_MANAGEMENT =
+        new PomProperty<PluginManagement>( "pluginManagement", PluginManagement.class )
+        {
+            @Override
+            public PluginManagement get( Model model )
+            {
+                if (model.getBuild() == null)
+                    return null;
+                return model.getBuild().getPluginManagement();
+            }
+
+            @Override
+            public void set( Model model, PluginManagement value )
+            {
+                if (model.getBuild() == null)
+                    model.setBuild(new Build());
+                model.getBuild().setPluginManagement(value);
+            };
+        };
 
     /** @see Model#getPluginRepositories() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -561,7 +584,7 @@ public abstract class PomProperty<V>
     private static final PomProperty<?>[] POM_PROPERTIES_ARRAY = new PomProperty<?>[] { ARTIFACT_ID, BUILD,
         CI_MANAGEMENT, CONTRIBUTORS, DEPENDENCIES, DEPENDENCY_MANAGEMENT, DESCRIPTION, DEVELOPERS,
         DISTRIBUTION_MANAGEMENT, GROUP_ID, INCEPTION_YEAR, ISSUE_MANAGEMENT, LICENSES, MAILING_LISTS, MODEL_ENCODING,
-        MODEL_VERSION, MODULES, NAME, ORGANIZATION, PACKAGING, PARENT, PLUGIN_REPOSITORIES, POM_FILE, PREREQUISITES,
+        MODEL_VERSION, MODULES, NAME, ORGANIZATION, PACKAGING, PARENT, PLUGIN_MANAGEMENT, PLUGIN_REPOSITORIES, POM_FILE, PREREQUISITES,
         PROFILES, PROPERTIES, REPORTING, REPOSITORIES, SCM, URL, VERSION };
 
     private static final List<PomProperty<?>> POM_PROPERTIES =

@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.factory.DefaultArtifactFactory;
@@ -51,7 +52,9 @@ public class CreateEffectivePomTest
     {
 
         String magicValue = "magic-value";
-        System.setProperty( "cmd.test.property", magicValue );
+        Properties userProperties = new Properties();
+        userProperties.setProperty( "cmd.test.property", magicValue );
+
         File pomFile = new File( "src/test/resources/cmdpropertysubstituion/pom.xml" );
         ArtifactRepository localRepository = new MavenArtifactRepository();
         localRepository.setLayout( new DefaultRepositoryLayout() );
@@ -66,7 +69,7 @@ public class CreateEffectivePomTest
         field.set( artifactHandlerManager, artifactHandlers );
         FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory );
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setSystemProperties( System.getProperties() );
+            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
         Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false );
         assertThat( effectivePom.getName() ).isEqualTo( magicValue );
     }

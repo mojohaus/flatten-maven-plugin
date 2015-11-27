@@ -443,6 +443,22 @@ public class FlattenDescriptor
     }
 
     /**
+     * @return {@link ElementHandling} for {@link Model#getVersion() version}.
+     */
+    public ElementHandling getVersion()
+    {
+        return getHandling( PomProperty.VERSION );
+    }
+
+    /**
+     * @param version the {@link #getVersion() version} to set.
+     */
+    public void setVersion( ElementHandling version )
+    {
+        setHandling( PomProperty.VERSION, version );
+    }
+
+    /**
      * Creates and returns a new {@link FlattenDescriptor} with the {@link ElementHandling}s merged from this and the
      * given {@link FlattenDescriptor}.
      *

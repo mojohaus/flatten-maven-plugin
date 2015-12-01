@@ -35,6 +35,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
@@ -55,7 +56,6 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
-import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -242,8 +242,9 @@ public class FlattenMojo
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
 
-    @Component( role = LegacySupport.class )
-    private LegacySupport legacySupport;
+    /** The {@link MavenSession} used to get user properties. */
+    @Component
+    private MavenSession session;
 
     /**
      * The constructor.
@@ -621,7 +622,7 @@ public class FlattenMojo
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
-        Properties userProperties = this.legacySupport.getSession().getUserProperties();
+        Properties userProperties = this.session.getUserProperties();
 
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver );

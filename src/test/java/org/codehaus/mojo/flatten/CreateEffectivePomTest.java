@@ -40,12 +40,19 @@ import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.junit.Test;
 
 /**
+ * Test-Case for {@link FlattenMojo}.
+ *
  * @author hohwille
  */
 public class CreateEffectivePomTest
     extends Assertions
 {
 
+    /**
+     * Tests method to create effective POM.
+     *
+     * @throws Exception if something goes wrong.
+     */
     @Test
     public void testCreateEffectivePom()
         throws Exception
@@ -59,18 +66,22 @@ public class CreateEffectivePomTest
         ArtifactRepository localRepository = new MavenArtifactRepository();
         localRepository.setLayout( new DefaultRepositoryLayout() );
         ArtifactFactory artifactFactory = new DefaultArtifactFactory();
-        Field field = artifactFactory.getClass().getDeclaredField( "artifactHandlerManager" );
-        field.setAccessible( true );
         ArtifactHandlerManager artifactHandlerManager = new DefaultArtifactHandlerManager();
-        field.set( artifactFactory, artifactHandlerManager );
-        field = artifactHandlerManager.getClass().getDeclaredField( "artifactHandlers" );
-        field.setAccessible( true );
+        setDeclaredField( artifactFactory, "artifactHandlerManager", artifactHandlerManager );
         Map<String, ArtifactHandler> artifactHandlers = new HashMap<String, ArtifactHandler>();
-        field.set( artifactHandlerManager, artifactHandlers );
+        setDeclaredField( artifactHandlerManager, "artifactHandlers", artifactHandlers );
         FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
         Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false );
         assertThat( effectivePom.getName() ).isEqualTo( magicValue );
+    }
+
+    private void setDeclaredField( Object pojo, String fieldName, Object propertyValue )
+        throws NoSuchFieldException, IllegalAccessException
+    {
+        Field field = pojo.getClass().getDeclaredField( fieldName );
+        field.setAccessible( true );
+        field.set( pojo, propertyValue );
     }
 }

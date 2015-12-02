@@ -4,9 +4,7 @@
   <artifactId>legacy-property-support</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <!-- https://github.com/mojohaus/flatten-maven-plugin/issues/15 -->
-  <!-- use this variable instead to reproduce the bug -->
-  <!--<name>${artifactId}</name>-->
-  <name>${project.artifactId}</name>
+  <name>${artifactId}</name>
   
   <build>
     <plugins>

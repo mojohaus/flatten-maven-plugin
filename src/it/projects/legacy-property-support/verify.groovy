@@ -21,7 +21,7 @@ assert originalPom.exists()
 
 def originalProject = new XmlSlurper().parse( originalPom )
 assert 'legacy-property-support' == originalProject.artifactId.text()
-//assert '${artifactId}' == originalProject.name.text()
+assert '${artifactId}' == originalProject.name.text()
 
 File flattendPom = new File( basedir, '.flattened-pom.xml' )
 assert flattendPom.exists()

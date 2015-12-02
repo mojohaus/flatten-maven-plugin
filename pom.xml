@@ -35,7 +35,7 @@ under the License.
     <maven>${mavenVersion}</maven>
   </prerequisites>
   <properties>
-    <mavenVersion>3.0</mavenVersion>
+    <mavenVersion>3.1.1</mavenVersion>
   </properties>
   <developers>
     <developer>

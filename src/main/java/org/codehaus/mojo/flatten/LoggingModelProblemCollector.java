@@ -1,8 +1,7 @@
 package org.codehaus.mojo.flatten;
 
-import org.apache.maven.model.InputLocation;
-import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.ModelProblemCollector;
+import org.apache.maven.model.building.ModelProblemCollectorRequest;
 import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -31,9 +30,9 @@ public class LoggingModelProblemCollector
     /**
      * {@inheritDoc}
      */
-    public void add( Severity severity, String message, InputLocation location, Exception cause )
+    public void add( ModelProblemCollectorRequest req )
     {
-        this.logger.warn( message, cause );
+        this.logger.warn( req.getMessage(), req.getException() );
     }
 
 }

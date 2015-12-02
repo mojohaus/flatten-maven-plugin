@@ -93,8 +93,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * flattened POMs get deployed.</td>
  * </tr>
  * <tr>
- * <td>
- * {@link Model#getGroupId() groupId}<br/>
+ * <td>{@link Model#getGroupId() groupId}<br/>
  * {@link Model#getArtifactId() artifactId}<br/>
  * {@link Model#getVersion() version}<br/>
  * {@link Model#getPackaging() packaging}<br/>
@@ -104,8 +103,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * variables and defaults resolved. These elements are technically required for consumption.</td>
  * </tr>
  * <tr>
- * <td>
- * {@link Model#getLicenses() licenses}<br/>
+ * <td>{@link Model#getLicenses() licenses}<br/>
  * </td>
  * <td>resolved</td>
  * <td>copied to the flattened POM but with inheritance from {@link Model#getParent() parent} as well as with all
@@ -131,8 +129,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * current build setup and if activated their impact on dependencies is embedded into the resulting flattened POM.</td>
  * </tr>
  * <tr>
- * <td>
- * {@link Model#getName() name}<br/>
+ * <td>{@link Model#getName() name}<br/>
  * {@link Model#getDescription() description}<br/>
  * {@link Model#getUrl() url}<br/>
  * {@link Model#getInceptionYear() inceptionYear}<br/>
@@ -148,9 +145,9 @@ import org.xml.sax.ext.DefaultHandler2;
  * </td>
  * <td>configurable</td>
  * <td>Will be stripped from the flattened POM by default. You can configure all of the listed elements inside
- * <code>pomElements</code> that should be kept in the flattened POM (e.g.
- * {@literal <pomElements><name/><description/><developers/><contributors/></pomElements>}). For common use-cases there
- * are predefined modes available via the parameter <code>flattenMode</code> that should be used in preference.</td>
+ * <code>pomElements</code> that should be kept in the flattened POM (e.g. {@literal
+ * <pomElements><name/><description/><developers/><contributors/></pomElements>}). For common use-cases there are
+ * predefined modes available via the parameter <code>flattenMode</code> that should be used in preference.</td>
  * </tr>
  * <tr>
  * <td>{@link Model#getPrerequisites() prerequisites}</td>
@@ -161,10 +158,10 @@ import org.xml.sax.ext.DefaultHandler2;
  * <td>{@link Model#getRepositories() repositories}</td>
  * <td>configurable</td>
  * <td>Like two above but by default NOT removed. If you want have it removed, you need to use the parameter
- * <code>pomElements</code> and configure the child element <code>repositories</code> with value <code>flatten</code>.</td>
+ * <code>pomElements</code> and configure the child element <code>repositories</code> with value <code>flatten</code>.
+ * </td>
  * </tr>
- * <td>
- * {@link Model#getParent() parent}<br/>
+ * <td>{@link Model#getParent() parent}<br/>
  * {@link Model#getBuild() build}<br/>
  * {@link Model#getDependencyManagement() dependencyManagement}<br/>
  * {@link Model#getProperties() properties}<br/>
@@ -175,7 +172,8 @@ import org.xml.sax.ext.DefaultHandler2;
  * (e.g. if you only want to resolve variables in a POM with packaging pom) you can also configure to keep these
  * elements. We strictly recommend to use this feature with extreme care and only if packaging is pom (for
  * "Bill of Materials"). In the latter case you configure the parameter <code>flattenMode</code> to the value
- * <code>bom</code>.</td> </tr>
+ * <code>bom</code>.</td>
+ * </tr>
  * </table>
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
@@ -424,10 +422,20 @@ public class FlattenMojo
         {
             if ( property.isElement() )
             {
-                Model sourceModel =
-                    getSourceModel( descriptor, property, effectivePom, originalPom, resolvedPom, interpolatedPom,
-                                    cleanPom );
-                property.copy( sourceModel, flattenedPom );
+                Model sourceModel = getSourceModel( descriptor, property, effectivePom, originalPom, resolvedPom,
+                                                    interpolatedPom, cleanPom );
+                if ( sourceModel == null )
+                {
+                    if ( property.isRequired() )
+                    {
+                        throw new MojoFailureException( "Property " + property.getName()
+                            + " is required and can not be removed!" );
+                    }
+                }
+                else
+                {
+                    property.copy( sourceModel, flattenedPom );
+                }
             }
         }
 
@@ -514,7 +522,8 @@ public class FlattenMojo
     {
 
         ElementHandling handling = descriptor.getHandling( property );
-        getLog().debug( "Property " + property.getName() + " will be handled using " + handling + " in flattened POM." );
+        getLog().debug( "Property " + property.getName() + " will be handled using " + handling
+            + " in flattened POM." );
         switch ( handling )
         {
             case expand:
@@ -527,6 +536,8 @@ public class FlattenMojo
                 return interpolatedPom;
             case flatten:
                 return cleanPom;
+            case remove:
+                return null;
             default:
                 throw new IllegalStateException( handling.toString() );
         }
@@ -637,7 +648,7 @@ public class FlattenMojo
      */
     protected static Model createEffectivePom( ModelBuildingRequest buildingRequest,
                                                final boolean embedBuildProfileDependencies )
-        throws MojoExecutionException
+                                                   throws MojoExecutionException
     {
         ModelBuildingResult buildingResult;
         try

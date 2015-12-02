@@ -25,6 +25,9 @@ public enum ElementHandling
     interpolate,
 
     /** Take the element untouched from the original POM. */
-    keep
+    keep,
+
+    /** Remove the element entirely so it will not be present in flattened POM. */
+    remove
 
 }

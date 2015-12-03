@@ -23,7 +23,7 @@ under the License.
   <parent>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>mojo-parent</artifactId>
-    <version>33</version>
+    <version>38</version>
   </parent>
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
@@ -225,8 +225,30 @@ under the License.
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/mojo/trunk/mojo/flatten-maven-plugin</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/trunk/mojo/flatten-maven-plugin</developerConnection>
-    <url>http://fisheye.codehaus.org/browse/mojo/trunk/mojo/flatten-maven-plugin</url>
+    <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
+    <url>https://github.com/mojohaus/flatten-maven-plugin</url>
   </scm>
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/mojohaus/flatten-maven-plugin/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>travis</system>
+    <url>https://travis-ci.org/mojohaus/flatten-maven-plugin</url>
+  </ciManagement>
+  <distributionManagement>
+    <repository>
+      <id>ossrh-staging</id>
+      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh-snapshots</id>
+      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <site>
+      <id>github</id>
+      <url>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</url>
+    </site>
+  </distributionManagement>
 </project>

@@ -2,7 +2,6 @@
 <project>
   <custom>
     <fluidoSkin>
-      <profile>pre-release</profile>
     </fluidoSkin>
   </custom>
   <body>

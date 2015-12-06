@@ -8,7 +8,7 @@
   <!-- for testing purpose, normally this would be dep management -->  
   <profiles>
     <profile>
-      <id>myprofile</id>
+      <id>parentprofile</id>
       <activation>
         <jdk>1.3</jdk>
       </activation>

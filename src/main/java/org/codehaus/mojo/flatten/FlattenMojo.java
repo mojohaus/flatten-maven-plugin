@@ -659,8 +659,14 @@ public class FlattenMojo
                 public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
-
-                    // do nothing
+                    // Apply properties from profiles that are active by default. They might be needed to resolve
+                    // my own version.
+                    if (profile.getActivation() != null && profile.getActivation().isActiveByDefault()) {
+                        Properties merged = new Properties();
+                        merged.putAll(profile.getProperties());
+                        merged.putAll(model.getProperties());
+                        model.setProperties(merged);
+                    }
                 }
             };
             ProfileSelector profileSelector = new ProfileSelector()

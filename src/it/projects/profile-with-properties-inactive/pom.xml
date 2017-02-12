@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>profile-with-properties-active</artifactId>
+  <version>0.0.1${versionAddon}-SNAPSHOT</version>
+
+  <properties>
+    <versionAddon>DEFAULT-VALUE</versionAddon>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>myprofile</id>
+      <properties>
+        <versionAddon>PROFILE-VALUE</versionAddon>
+      </properties>
+    </profile>
+  </profiles>  
+</project>

@@ -682,6 +682,7 @@ public class FlattenMojo
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
         Properties userProperties = this.session.getUserProperties();
+        List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
         //@formatter:off
         ModelBuildingRequest buildingRequest =
@@ -689,7 +690,8 @@ public class FlattenMojo
                 .setUserProperties( userProperties )
                 .setSystemProperties( System.getProperties() )
                 .setPomFile( pomFile )
-                .setModelResolver( resolver );
+                .setModelResolver( resolver )
+                .setActiveProfileIds( activeProfiles );
         //@formatter:on
         return buildingRequest;
     }
@@ -715,17 +717,21 @@ public class FlattenMojo
                 public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
-
-                    // do nothing
+                    List<String> activeProfileIds = request.getActiveProfileIds();
+                    if (activeProfileIds.contains(profile.getId()))
+                    {
+                        Properties merged = new Properties();
+                        merged.putAll(model.getProperties());
+                        merged.putAll(profile.getProperties());
+                        model.setProperties(merged);
+                    }
                 }
             };
             ProfileSelector profileSelector = new ProfileSelector()
             {
-
                 public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
                                                         ModelProblemCollector problems )
                 {
-
                     List<Profile> activeProfiles = new ArrayList<Profile>( profiles.size() );
 
                     for ( Profile profile : profiles )

@@ -8,15 +8,6 @@
     <versionAddon>DEFAULT-VALUE</versionAddon>
   </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>flatten-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
   <profiles>
     <profile>
       <id>myprofile</id>

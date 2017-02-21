@@ -23,7 +23,7 @@ under the License.
   <parent>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>mojo-parent</artifactId>
-    <version>39</version>
+    <version>40</version>
   </parent>
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>

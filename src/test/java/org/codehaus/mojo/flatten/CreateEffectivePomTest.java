@@ -30,9 +30,16 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.repository.internal.DefaultVersionRangeResolver;
+import org.apache.maven.shared.dependencies.resolve.internal.DefaultDependencyResolver;
 import org.assertj.core.api.Assertions;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.impl.VersionRangeResolver;
 import org.junit.Test;
 
 import java.io.File;
@@ -73,8 +80,10 @@ public class CreateEffectivePomTest
         setDeclaredField( artifactFactory, "artifactHandlerManager", artifactHandlerManager );
         Map<String, ArtifactHandler> artifactHandlers = new HashMap<String, ArtifactHandler>();
         setDeclaredField( artifactHandlerManager, "artifactHandlers", artifactHandlers );
+        DefaultDependencyResolver depencencyResolver = new DefaultDependencyResolver();
+        DefaultProjectBuildingRequest projectBuildingRequest = new DefaultProjectBuildingRequest();
         FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory,
-            Collections.<MavenProject>emptyList() );
+                depencencyResolver, projectBuildingRequest, Collections.<MavenProject>emptyList() );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
         Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false );

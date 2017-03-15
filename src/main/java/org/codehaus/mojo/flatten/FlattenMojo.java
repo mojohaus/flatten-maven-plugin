@@ -19,21 +19,6 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
@@ -65,6 +50,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -72,6 +58,20 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -291,6 +291,9 @@ public class FlattenMojo
     /** The {@link MavenSession} used to get user properties. */
     @Parameter( defaultValue = "${session}", readonly = true, required = true )
     private MavenSession session;
+
+    @Component
+    private DependencyResolver dependencyResolver;
 
     /**
      * The constructor.
@@ -681,7 +684,7 @@ public class FlattenMojo
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
-            this.session.getAllProjects() );
+            this.dependencyResolver, this.session.getProjectBuildingRequest(), this.session.getAllProjects() );
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 

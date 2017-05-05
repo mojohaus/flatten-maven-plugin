@@ -17,7 +17,7 @@ import org.apache.maven.plugins.annotations.Mojo;
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-2
  */
-@Mojo( name = "clean", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session" )
+@Mojo( name = "clean", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", threadSafe = true )
 public class CleanMojo
     extends AbstractFlattenMojo
 {

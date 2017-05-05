@@ -172,7 +172,10 @@ import org.xml.sax.ext.DefaultHandler2;
  * (e.g. if you only want to resolve variables in a POM with packaging pom) you can also configure to keep these
  * elements. We strictly recommend to use this feature with extreme care and only if packaging is pom (for
  * "Bill of Materials"). In the latter case you configure the parameter <code>flattenMode</code> to the value
- * <code>bom</code>.</td>
+ * <code>bom</code>.<br>
+ * If the <code>build</code> element contains plugins in the <code>build/plugins</code> section which are configured
+ * to load <a href="http://maven.apache.org/pom.html#Extensions">extensions</a>,  a reduced <code>build</code>
+ * element containing these plugins will be kept in the flattened pom.</td>
  * </tr>
  * </table>
  *

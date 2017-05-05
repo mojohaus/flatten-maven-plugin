@@ -195,6 +195,7 @@ public class FlattenMojo
      * this is only done for projects with packaging other than <code>pom</code>. You may want to also do this for
      * <code>pom</code> packages projects by setting this parameter to <code>true</code> or you can use
      * <code>false</code> in order to only generate the flattened POM but never set it as POM file.
+     * If <code>flattenMode</code> is set to bom the default value will be <code>true</code>.
      */
     @Parameter( property = "updatePomFile" )
     private Boolean updatePomFile;

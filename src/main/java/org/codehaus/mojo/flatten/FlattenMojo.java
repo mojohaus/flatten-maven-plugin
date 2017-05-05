@@ -245,7 +245,7 @@ public class FlattenMojo
     private ModelInterpolator modelInterpolator;
 
     /** The {@link MavenSession} used to get user properties. */
-    @Component
+    @Parameter( defaultValue = "${session}", readonly = true, required = true )
     private MavenSession session;
 
     /**

@@ -2,6 +2,18 @@
 <project>
   <custom>
     <fluidoSkin>
+      <googleSearch>
+        <sitesearch>www.mojohaus.org</sitesearch>
+      </googleSearch>
+      <ohloh>
+        <projectId>5211</projectId>
+        <widget>thin-badge</widget>
+      </ohloh>
+      <gitHub>
+        <projectId>mojohaus/${project.artifactId}</projectId>
+        <ribbonOrientation>right</ribbonOrientation>
+        <ribbonColor>gray</ribbonColor>
+      </gitHub>
     </fluidoSkin>
   </custom>
   <body>

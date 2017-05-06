@@ -1,5 +1,24 @@
 package org.codehaus.mojo.flatten;
 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +58,7 @@ public abstract class PomProperty<V>
 {
 
     /** @see Model#getArtifactId() */
-    public static final PomProperty<String> ARTIFACT_ID = new PomProperty<String>( "artifactId", String.class)
+    public static final PomProperty<String> ARTIFACT_ID = new PomProperty<String>( "artifactId", String.class )
     {
         @Override
         public String get( Model model )
@@ -55,7 +74,7 @@ public abstract class PomProperty<V>
     };
 
     /** @see Model#getBuild() */
-    public static final PomProperty<Build> BUILD = new PomProperty<Build>( "build", Build.class)
+    public static final PomProperty<Build> BUILD = new PomProperty<Build>( "build", Build.class )
     {
         @Override
         public Build get( Model model )
@@ -73,7 +92,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getCiManagement() */
     public static final PomProperty<CiManagement> CI_MANAGEMENT =
-        new PomProperty<CiManagement>( "ciManagement", CiManagement.class)
+        new PomProperty<CiManagement>( "ciManagement", CiManagement.class )
         {
             @Override
             public CiManagement get( Model model )
@@ -91,7 +110,7 @@ public abstract class PomProperty<V>
     /** @see Model#getContributors() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<Contributor>> CONTRIBUTORS =
-        new PomProperty<List<Contributor>>( "contributors", (Class) List.class)
+        new PomProperty<List<Contributor>>( "contributors", (Class) List.class )
         {
             @Override
             public List<Contributor> get( Model model )
@@ -109,7 +128,7 @@ public abstract class PomProperty<V>
     /** @see Model#getDependencies() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<Dependency>> DEPENDENCIES =
-        new PomProperty<List<Dependency>>( "dependencies", (Class) List.class)
+        new PomProperty<List<Dependency>>( "dependencies", (Class) List.class )
         {
             @Override
             public List<Dependency> get( Model model )
@@ -126,7 +145,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getDependencyManagement() */
     public static final PomProperty<DependencyManagement> DEPENDENCY_MANAGEMENT =
-        new PomProperty<DependencyManagement>( "dependencyManagement", DependencyManagement.class)
+        new PomProperty<DependencyManagement>( "dependencyManagement", DependencyManagement.class )
         {
             @Override
             public DependencyManagement get( Model model )
@@ -142,7 +161,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getDescription() */
-    public static final PomProperty<String> DESCRIPTION = new PomProperty<String>( "description", String.class)
+    public static final PomProperty<String> DESCRIPTION = new PomProperty<String>( "description", String.class )
     {
         @Override
         public String get( Model model )
@@ -160,7 +179,7 @@ public abstract class PomProperty<V>
     /** @see Model#getDevelopers() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<Developer>> DEVELOPERS =
-        new PomProperty<List<Developer>>( "developers", (Class) List.class)
+        new PomProperty<List<Developer>>( "developers", (Class) List.class )
         {
             @Override
             public List<Developer> get( Model model )
@@ -177,7 +196,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getDistributionManagement() */
     public static final PomProperty<DistributionManagement> DISTRIBUTION_MANAGEMENT =
-        new PomProperty<DistributionManagement>( "distributionManagement", DistributionManagement.class)
+        new PomProperty<DistributionManagement>( "distributionManagement", DistributionManagement.class )
         {
             @Override
             public DistributionManagement get( Model model )
@@ -193,7 +212,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getGroupId() */
-    public static final PomProperty<String> GROUP_ID = new PomProperty<String>( "groupId", String.class)
+    public static final PomProperty<String> GROUP_ID = new PomProperty<String>( "groupId", String.class )
     {
         @Override
         public String get( Model model )
@@ -209,7 +228,7 @@ public abstract class PomProperty<V>
     };
 
     /** @see Model#getInceptionYear() */
-    public static final PomProperty<String> INCEPTION_YEAR = new PomProperty<String>( "inceptionYear", String.class)
+    public static final PomProperty<String> INCEPTION_YEAR = new PomProperty<String>( "inceptionYear", String.class )
     {
         @Override
         public String get( Model model )
@@ -226,7 +245,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getIssueManagement() */
     public static final PomProperty<IssueManagement> ISSUE_MANAGEMENT =
-        new PomProperty<IssueManagement>( "issueManagement", IssueManagement.class)
+        new PomProperty<IssueManagement>( "issueManagement", IssueManagement.class )
         {
             @Override
             public IssueManagement get( Model model )
@@ -244,7 +263,7 @@ public abstract class PomProperty<V>
     /** @see Model#getLicenses() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<License>> LICENSES =
-        new PomProperty<List<License>>( "licenses", (Class) List.class)
+        new PomProperty<List<License>>( "licenses", (Class) List.class )
         {
             @Override
             public List<License> get( Model model )
@@ -262,7 +281,7 @@ public abstract class PomProperty<V>
     /** @see Model#getMailingLists() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<MailingList>> MAILING_LISTS =
-        new PomProperty<List<MailingList>>( "mailingLists", (Class) List.class)
+        new PomProperty<List<MailingList>>( "mailingLists", (Class) List.class )
         {
             @Override
             public List<MailingList> get( Model model )
@@ -278,7 +297,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getModelEncoding() */
-    public static final PomProperty<String> MODEL_ENCODING = new PomProperty<String>( "modelEncoding", String.class)
+    public static final PomProperty<String> MODEL_ENCODING = new PomProperty<String>( "modelEncoding", String.class )
     {
         @Override
         public String get( Model model )
@@ -294,7 +313,7 @@ public abstract class PomProperty<V>
     };
 
     /** @see Model#getModelVersion() */
-    public static final PomProperty<String> MODEL_VERSION = new PomProperty<String>( "modelVersion", String.class)
+    public static final PomProperty<String> MODEL_VERSION = new PomProperty<String>( "modelVersion", String.class )
     {
         @Override
         public String get( Model model )
@@ -312,7 +331,7 @@ public abstract class PomProperty<V>
     /** @see Model#getModules() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<String>> MODULES =
-        new PomProperty<List<String>>( "modules", (Class) List.class)
+        new PomProperty<List<String>>( "modules", (Class) List.class )
         {
             @Override
             public List<String> get( Model model )
@@ -328,7 +347,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getName() */
-    public static final PomProperty<String> NAME = new PomProperty<String>( "name", String.class)
+    public static final PomProperty<String> NAME = new PomProperty<String>( "name", String.class )
     {
         @Override
         public String get( Model model )
@@ -345,7 +364,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getOrganization() */
     public static final PomProperty<Organization> ORGANIZATION =
-        new PomProperty<Organization>( "organization", Organization.class)
+        new PomProperty<Organization>( "organization", Organization.class )
         {
             @Override
             public Organization get( Model model )
@@ -361,7 +380,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getPackaging() */
-    public static final PomProperty<String> PACKAGING = new PomProperty<String>( "packaging", String.class)
+    public static final PomProperty<String> PACKAGING = new PomProperty<String>( "packaging", String.class )
     {
         @Override
         public String get( Model model )
@@ -377,7 +396,7 @@ public abstract class PomProperty<V>
     };
 
     /** @see Model#getParent() */
-    public static final PomProperty<Parent> PARENT = new PomProperty<Parent>( "parent", Parent.class)
+    public static final PomProperty<Parent> PARENT = new PomProperty<Parent>( "parent", Parent.class )
     {
         @Override
         public Parent get( Model model )
@@ -394,13 +413,15 @@ public abstract class PomProperty<V>
 
     /** @see Build#getPluginManagement() */
     public static final PomProperty<PluginManagement> PLUGIN_MANAGEMENT =
-        new PomProperty<PluginManagement>( "pluginManagement", PluginManagement.class)
+        new PomProperty<PluginManagement>( "pluginManagement", PluginManagement.class )
         {
             @Override
             public PluginManagement get( Model model )
             {
                 if ( model.getBuild() == null )
+                {
                     return null;
+                }
                 return model.getBuild().getPluginManagement();
             }
 
@@ -408,7 +429,9 @@ public abstract class PomProperty<V>
             public void set( Model model, PluginManagement value )
             {
                 if ( model.getBuild() == null )
+                {
                     model.setBuild( new Build() );
+                }
                 model.getBuild().setPluginManagement( value );
             };
         };
@@ -416,7 +439,7 @@ public abstract class PomProperty<V>
     /** @see Model#getPluginRepositories() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<Repository>> PLUGIN_REPOSITORIES =
-        new PomProperty<List<Repository>>( "pluginRepositories", (Class) List.class)
+        new PomProperty<List<Repository>>( "pluginRepositories", (Class) List.class )
         {
             @Override
             public List<Repository> get( Model model )
@@ -432,7 +455,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getPomFile() */
-    public static final PomProperty<File> POM_FILE = new PomProperty<File>( "pomFile", File.class)
+    public static final PomProperty<File> POM_FILE = new PomProperty<File>( "pomFile", File.class )
     {
         @Override
         public File get( Model model )
@@ -449,7 +472,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getPrerequisites() */
     public static final PomProperty<Prerequisites> PREREQUISITES =
-        new PomProperty<Prerequisites>( "prerequisites", Prerequisites.class)
+        new PomProperty<Prerequisites>( "prerequisites", Prerequisites.class )
         {
             @Override
             public Prerequisites get( Model model )
@@ -467,7 +490,7 @@ public abstract class PomProperty<V>
     /** @see Model#getProfiles() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<Profile>> PROFILES =
-        new PomProperty<List<Profile>>( "profiles", (Class) List.class)
+        new PomProperty<List<Profile>>( "profiles", (Class) List.class )
         {
             @Override
             public List<Profile> get( Model model )
@@ -484,7 +507,7 @@ public abstract class PomProperty<V>
 
     /** @see Model#getProperties() */
     public static final PomProperty<Properties> PROPERTIES =
-        new PomProperty<Properties>( "properties", Properties.class)
+        new PomProperty<Properties>( "properties", Properties.class )
         {
             @Override
             public Properties get( Model model )
@@ -500,7 +523,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getReporting() */
-    public static final PomProperty<Reporting> REPORTING = new PomProperty<Reporting>( "reporting", Reporting.class)
+    public static final PomProperty<Reporting> REPORTING = new PomProperty<Reporting>( "reporting", Reporting.class )
     {
         @Override
         public Reporting get( Model model )
@@ -518,7 +541,7 @@ public abstract class PomProperty<V>
     /** @see Model#getPluginRepositories() */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public static final PomProperty<List<Repository>> REPOSITORIES =
-        new PomProperty<List<Repository>>( "repositories", (Class) List.class)
+        new PomProperty<List<Repository>>( "repositories", (Class) List.class )
         {
             @Override
             public List<Repository> get( Model model )
@@ -534,7 +557,7 @@ public abstract class PomProperty<V>
         };
 
     /** @see Model#getScm() */
-    public static final PomProperty<Scm> SCM = new PomProperty<Scm>( "scm", Scm.class)
+    public static final PomProperty<Scm> SCM = new PomProperty<Scm>( "scm", Scm.class )
     {
         @Override
         public Scm get( Model model )
@@ -550,7 +573,7 @@ public abstract class PomProperty<V>
     };
 
     /** @see Model#getUrl() */
-    public static final PomProperty<String> URL = new PomProperty<String>( "url", String.class)
+    public static final PomProperty<String> URL = new PomProperty<String>( "url", String.class )
     {
         @Override
         public String get( Model model )
@@ -566,7 +589,7 @@ public abstract class PomProperty<V>
     };
 
     /** @see Model#getVersion() */
-    public static final PomProperty<String> VERSION = new PomProperty<String>( "version", String.class)
+    public static final PomProperty<String> VERSION = new PomProperty<String>( "version", String.class )
     {
         @Override
         public String get( Model model )
@@ -628,7 +651,7 @@ public abstract class PomProperty<V>
      */
     public boolean isRequired()
     {
-        if ( ( this == GROUP_ID ) || ( this == ARTIFACT_ID ) || ( this == VERSION ) )
+        if ( this == GROUP_ID || this == ARTIFACT_ID || this == VERSION )
         {
             return true;
         }

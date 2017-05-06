@@ -1,3 +1,5 @@
+package org.codehaus.mojo.flatten;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.codehaus.mojo.flatten;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,12 +76,11 @@ import org.xml.sax.ext.DefaultHandler2;
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
  * potentially updates the POM file} so that the current {@link MavenProject}'s {@link MavenProject#getFile() file}
- * points to the flattened POM instead of the original <code>pom.xml</code> file.<br/>
- * The flattened POM is a reduced version of the original POM with the focus to contain only the important information
- * for consuming it. Therefore information that is only required for maintenance by developers and to build the project
- * artifact(s) are stripped. <br/>
- * Starting from here we specify how the flattened POM is created from the original POM and its project:<br/>
- * <table border="1">
+ * points to the flattened POM instead of the original <code>pom.xml</code> file. The flattened POM is a reduced version
+ * of the original POM with the focus to contain only the important information for consuming it. Therefore information
+ * that is only required for maintenance by developers and to build the project artifact(s) are stripped. Starting from
+ * here we specify how the flattened POM is created from the original POM and its project:<br>
+ * <table border="1" summary="">
  * <tr>
  * <th>Element</th>
  * <th>Transformation</th>
@@ -93,18 +93,16 @@ import org.xml.sax.ext.DefaultHandler2;
  * flattened POMs get deployed.</td>
  * </tr>
  * <tr>
- * <td>{@link Model#getGroupId() groupId}<br/>
- * {@link Model#getArtifactId() artifactId}<br/>
- * {@link Model#getVersion() version}<br/>
- * {@link Model#getPackaging() packaging}<br/>
- * </td>
+ * <td>{@link Model#getGroupId() groupId}<br>
+ * {@link Model#getArtifactId() artifactId}<br>
+ * {@link Model#getVersion() version}<br>
+ * {@link Model#getPackaging() packaging}</td>
  * <td>resolved</td>
  * <td>copied to the flattened POM but with inheritance from {@link Model#getParent() parent} as well as with all
  * variables and defaults resolved. These elements are technically required for consumption.</td>
  * </tr>
  * <tr>
- * <td>{@link Model#getLicenses() licenses}<br/>
- * </td>
+ * <td>{@link Model#getLicenses() licenses}</td>
  * <td>resolved</td>
  * <td>copied to the flattened POM but with inheritance from {@link Model#getParent() parent} as well as with all
  * variables and defaults resolved. The licenses would not be required in flattened POM. However, they make sense for
@@ -129,20 +127,19 @@ import org.xml.sax.ext.DefaultHandler2;
  * current build setup and if activated their impact on dependencies is embedded into the resulting flattened POM.</td>
  * </tr>
  * <tr>
- * <td>{@link Model#getName() name}<br/>
- * {@link Model#getDescription() description}<br/>
- * {@link Model#getUrl() url}<br/>
- * {@link Model#getInceptionYear() inceptionYear}<br/>
- * {@link Model#getOrganization() organization}<br/>
- * {@link Model#getScm() scm}<br/>
- * {@link Model#getDevelopers() developers}<br/>
- * {@link Model#getContributors() contributors}<br/>
- * {@link Model#getMailingLists() mailingLists}<br/>
- * {@link Model#getPluginRepositories() pluginRepositories}<br/>
- * {@link Model#getIssueManagement() issueManagement}<br/>
- * {@link Model#getCiManagement() ciManagement}<br/>
- * {@link Model#getDistributionManagement() distributionManagement}<br/>
- * </td>
+ * <td>{@link Model#getName() name}<br>
+ * {@link Model#getDescription() description}<br>
+ * {@link Model#getUrl() url}<br>
+ * {@link Model#getInceptionYear() inceptionYear}<br>
+ * {@link Model#getOrganization() organization}<br>
+ * {@link Model#getScm() scm}<br>
+ * {@link Model#getDevelopers() developers}<br>
+ * {@link Model#getContributors() contributors}<br>
+ * {@link Model#getMailingLists() mailingLists}<br>
+ * {@link Model#getPluginRepositories() pluginRepositories}<br>
+ * {@link Model#getIssueManagement() issueManagement}<br>
+ * {@link Model#getCiManagement() ciManagement}<br>
+ * {@link Model#getDistributionManagement() distributionManagement}</td>
  * <td>configurable</td>
  * <td>Will be stripped from the flattened POM by default. You can configure all of the listed elements inside
  * <code>pomElements</code> that should be kept in the flattened POM (e.g. {@literal
@@ -161,31 +158,36 @@ import org.xml.sax.ext.DefaultHandler2;
  * <code>pomElements</code> and configure the child element <code>repositories</code> with value <code>flatten</code>.
  * </td>
  * </tr>
- * <td>{@link Model#getParent() parent}<br/>
- * {@link Model#getBuild() build}<br/>
- * {@link Model#getDependencyManagement() dependencyManagement}<br/>
- * {@link Model#getProperties() properties}<br/>
- * {@link Model#getModules() modules}<br/>
+ * <tr>
+ * <td>{@link Model#getParent() parent}<br>
+ * {@link Model#getBuild() build}<br>
+ * {@link Model#getDependencyManagement() dependencyManagement}<br>
+ * {@link Model#getProperties() properties}<br>
+ * {@link Model#getModules() modules}<br>
  * {@link Model#getReporting() reporting}</td>
  * <td>configurable</td>
  * <td>These elements should typically be completely stripped from the flattened POM. However for ultimate flexibility
  * (e.g. if you only want to resolve variables in a POM with packaging pom) you can also configure to keep these
- * elements. We strictly recommend to use this feature with extreme care and only if packaging is pom (for
- * "Bill of Materials"). In the latter case you configure the parameter <code>flattenMode</code> to the value
+ * elements. We strictly recommend to use this feature with extreme care and only if packaging is pom (for "Bill of
+ * Materials"). In the latter case you configure the parameter <code>flattenMode</code> to the value
  * <code>bom</code>.<br>
- * If the <code>build</code> element contains plugins in the <code>build/plugins</code> section which are configured
- * to load <a href="http://maven.apache.org/pom.html#Extensions">extensions</a>,  a reduced <code>build</code>
- * element containing these plugins will be kept in the flattened pom.</td>
+ * If the <code>build</code> element contains plugins in the <code>build/plugins</code> section which are configured to
+ * load <a href="http://maven.apache.org/pom.html#Extensions">extensions</a>, a reduced <code>build</code> element
+ * containing these plugins will be kept in the flattened pom.</td>
  * </tr>
  * </table>
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
 @SuppressWarnings( "deprecation" )
+// CHECKSTYLE_OFF: LineLength
 @Mojo( name = "flatten", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME, threadSafe = true )
+// CHECKSTYLE_ON: LineLength
 public class FlattenMojo
     extends AbstractFlattenMojo
 {
+
+    private static final int INITIAL_POM_WRITER_SIZE = 4096;
 
     /**
      * The Maven Project.
@@ -197,8 +199,8 @@ public class FlattenMojo
      * The flag to indicate if the generated flattened POM shall be set as POM file to the current project. By default
      * this is only done for projects with packaging other than <code>pom</code>. You may want to also do this for
      * <code>pom</code> packages projects by setting this parameter to <code>true</code> or you can use
-     * <code>false</code> in order to only generate the flattened POM but never set it as POM file.
-     * If <code>flattenMode</code> is set to bom the default value will be <code>true</code>.
+     * <code>false</code> in order to only generate the flattened POM but never set it as POM file. If
+     * <code>flattenMode</code> is set to bom the default value will be <code>true</code>.
      */
     @Parameter( property = "updatePomFile" )
     private Boolean updatePomFile;
@@ -231,7 +233,7 @@ public class FlattenMojo
     @Parameter( required = false )
     private FlattenDescriptor pomElements;
 
-    /** The {@link FlattenMode} */
+    /** {@link FlattenMode} */
     @Parameter( required = false )
     private FlattenMode flattenMode;
 
@@ -330,7 +332,7 @@ public class FlattenMojo
         // MavenXpp3Writer could internally add the comment but does not expose such feature to API!
         // Instead we have to write POM XML to String and do post processing on that :(
         MavenXpp3Writer pomWriter = new MavenXpp3Writer();
-        StringWriter stringWriter = new StringWriter( 4096 );
+        StringWriter stringWriter = new StringWriter( INITIAL_POM_WRITER_SIZE );
         try
         {
             pomWriter.write( stringWriter, pom );
@@ -624,7 +626,7 @@ public class FlattenMojo
             if ( "central".equals( repo.getId() ) )
             {
                 RepositoryPolicy snapshots = repo.getSnapshots();
-                if ( ( snapshots != null ) && !snapshots.isEnabled() )
+                if ( snapshots != null && !snapshots.isEnabled() )
                 {
                     return true;
                 }
@@ -639,20 +641,28 @@ public class FlattenMojo
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
         Properties userProperties = this.session.getUserProperties();
 
+        //@formatter:off
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver );
+            new DefaultModelBuildingRequest()
+                .setUserProperties( userProperties )
+                .setSystemProperties( System.getProperties() )
+                .setPomFile( pomFile )
+                .setModelResolver( resolver );
+        //@formatter:on
         return buildingRequest;
     }
 
     /**
      * Creates the effective POM for the given <code>pomFile</code> trying its best to match the core maven behaviour.
      *
+     * @param buildingRequest {@link ModelBuildingRequest}
+     * @param embedBuildProfileDependencies embed build profiles yes/no.
      * @return the parsed and calculated effective POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected static Model createEffectivePom( ModelBuildingRequest buildingRequest,
                                                final boolean embedBuildProfileDependencies )
-                                                   throws MojoExecutionException
+        throws MojoExecutionException
     {
         ModelBuildingResult buildingResult;
         try
@@ -748,7 +758,7 @@ public class FlattenMojo
         {
             return true;
         }
-        if ( StringUtils.isEmpty( activation.getJdk() ) && ( activation.getOs() == null ) )
+        if ( StringUtils.isEmpty( activation.getJdk() ) && activation.getOs() == null )
         {
             return true;
         }

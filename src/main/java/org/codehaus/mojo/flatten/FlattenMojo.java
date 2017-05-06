@@ -233,7 +233,49 @@ public class FlattenMojo
     @Parameter( required = false )
     private FlattenDescriptor pomElements;
 
-    /** {@link FlattenMode} */
+    /**
+     * The different possible values for flattenMode:
+     * <table border="1" summary="">
+     * <thead>
+     * <tr>
+     * <td>Mode</td>
+     * <td>Description</td>
+     * </tr>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td>oss</td>
+     * <td>For Open-Source-Software projects that want to keep all {@link FlattenDescriptor optional POM elements}
+     * except for {@link Model#getRepositories() repositories} and {@link Model#getPluginRepositories()
+     * pluginRepositories}.</td>
+     * <tr>
+     * <td>ossrh</td>
+     * <td>Keeps all {@link FlattenDescriptor optional POM elements} that are required for
+     * <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide">OSS
+     * Repository-Hosting</a>.</td>
+     * </tr>
+     * <tr>
+     * <td>bom</td>
+     * <td>Like {@link #ossrh} but additionally keeps {@link Model#getDependencyManagement() dependencyManagement}
+     * and {@link Model#getProperties() properties}. Especially it will keep the {@link Model#getDependencyManagement()
+     * dependencyManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
+     * useful if your POM represents a <a href=
+     * "http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
+     * >BOM (Bill Of Material)</a> and you do not want to deploy it as is (to remove parent and resolve version
+     * variables, etc.).</td>
+     * </tr>
+     * <tr>
+     * <td>defaults</td>
+     * <td>The default mode that removes all {@link FlattenDescriptor optional POM elements} except
+     * {@link Model#getRepositories() repositories}.</td>
+     * </tr>
+     * <tr>
+     * <td>clean</td>
+     * <td>Removes all {@link FlattenDescriptor optional POM elements}.</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     */
     @Parameter( required = false )
     private FlattenMode flattenMode;
 

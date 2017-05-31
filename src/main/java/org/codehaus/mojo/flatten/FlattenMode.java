@@ -69,7 +69,10 @@ public enum FlattenMode
     defaults,
 
     /** Removes all {@link FlattenDescriptor optional POM elements}. */
-    clean;
+    clean,
+
+    /** Removes all {@link FlattenDescriptor optional POM elements} and dependencies. */
+    fatjar;
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
@@ -107,6 +110,9 @@ public enum FlattenMode
                 //$FALL-THROUGH$
             case defaults:
                 descriptor.setRepositories( ElementHandling.expand );
+                break;
+            case fatjar:
+                descriptor.setDependencies( ElementHandling.remove );
                 break;
             case clean:
                 // nothing to do...

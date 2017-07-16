@@ -19,12 +19,6 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.factory.DefaultArtifactFactory;
 import org.apache.maven.artifact.handler.ArtifactHandler;
@@ -36,9 +30,17 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.project.MavenProject;
 import org.assertj.core.api.Assertions;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.junit.Test;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Test-Case for {@link FlattenMojo}.
@@ -71,7 +73,8 @@ public class CreateEffectivePomTest
         setDeclaredField( artifactFactory, "artifactHandlerManager", artifactHandlerManager );
         Map<String, ArtifactHandler> artifactHandlers = new HashMap<String, ArtifactHandler>();
         setDeclaredField( artifactHandlerManager, "artifactHandlers", artifactHandlers );
-        FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory );
+        FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory,
+            Collections.<MavenProject>emptyList() );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
         Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false );

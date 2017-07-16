@@ -19,16 +19,20 @@ package org.codehaus.mojo.flatten.model.resolution;
  * under the License.
  */
 
-import java.io.File;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.resolution.ModelResolver;
+import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.apache.maven.project.MavenProject;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * This is a custom implementation of {@link ModelResolver} to emulate the maven POM resolution in order to build the
@@ -44,21 +48,33 @@ public class FlattenModelResolver
 
     /** The local repository for artifact resolution. */
     private ArtifactRepository localRepository;
-
     /** The factory used to create project artifact instances. */
     private ArtifactFactory artifactFactory;
 
+    /** The modules of the project being built. */
+    private ReactorModelPool reactorModelPool;
+
     /**
      * The constructor.
-     *
-     * @param localRepository is the local repository.
+     *  @param localRepository is the local repository.
      * @param artifactFactory is the factory used to create project artifact instances.
+     * @param reactorModels is the list of modules of the project being built.
      */
-    public FlattenModelResolver( ArtifactRepository localRepository, ArtifactFactory artifactFactory )
+    public FlattenModelResolver( ArtifactRepository localRepository, ArtifactFactory artifactFactory,
+        List<MavenProject> reactorModels )
     {
 
         this.localRepository = localRepository;
         this.artifactFactory = artifactFactory;
+        this.reactorModelPool = new ReactorModelPool();
+        reactorModelPool.addProjects( reactorModels );
+    }
+
+    private FlattenModelResolver( FlattenModelResolver other )
+    {
+        this.localRepository = other.localRepository;
+        this.artifactFactory = other.artifactFactory;
+        this.reactorModelPool = other.reactorModelPool;
     }
 
     /**
@@ -67,10 +83,13 @@ public class FlattenModelResolver
     public ModelSource resolveModel( String groupId, String artifactId, String version )
     {
 
-        Artifact pomArtifact = this.artifactFactory.createProjectArtifact( groupId, artifactId, version );
-        pomArtifact = this.localRepository.find( pomArtifact );
-
-        File pomFile = pomArtifact.getFile();
+        File pomFile = reactorModelPool.find(groupId, artifactId, version);
+        if ( pomFile == null )
+        {
+            Artifact pomArtifact = this.artifactFactory.createProjectArtifact( groupId, artifactId, version );
+            pomArtifact = this.localRepository.find( pomArtifact );
+            pomFile = pomArtifact.getFile();
+        }
 
         return new FileModelSource( pomFile );
     }
@@ -89,7 +108,7 @@ public class FlattenModelResolver
      */
     public ModelResolver newCopy()
     {
-        return new FlattenModelResolver( this.localRepository, this.artifactFactory );
+        return new FlattenModelResolver( this );
     }
 
     /**
@@ -101,14 +120,11 @@ public class FlattenModelResolver
      */
     public ModelSource resolveModel( Parent parent )
     {
-        Artifact pomArtifact =
-            this.artifactFactory.createProjectArtifact( parent.getGroupId(), parent.getArtifactId(),
-                                                        parent.getVersion() );
-        pomArtifact = this.localRepository.find( pomArtifact );
+        return resolveModel( parent.getGroupId(), parent.getArtifactId(), parent.getVersion() );
+    }
 
-        File pomFile = pomArtifact.getFile();
-
-        return new FileModelSource( pomFile );
+    public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
+        return resolveModel( dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion() );
     }
 
     /**

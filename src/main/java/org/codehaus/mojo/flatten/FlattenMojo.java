@@ -680,7 +680,8 @@ public class FlattenMojo
     private ModelBuildingRequest createModelBuildingRequest( File pomFile )
     {
 
-        FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory );
+        FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
+            this.session.getAllProjects() );
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 

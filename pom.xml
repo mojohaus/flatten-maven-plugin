@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
 
   http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
---><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>mojo-parent</artifactId>
-    <version>39</version>
+    <version>40</version>
   </parent>
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
@@ -36,18 +38,83 @@ under the License.
   </prerequisites>
   <properties>
     <mavenVersion>3.2.5</mavenVersion>
+    <maven.compiler.source>1.5</maven.compiler.source>
+    <maven.compiler.target>1.5</maven.compiler.target>
   </properties>
   <developers>
     <developer>
       <id>hohwille</id>
       <name>Jörg Hohwiller</name>
       <email>hohwille@users.sourceforge.net</email>
+      <roles>
+        <role>maintainer</role>
+        <role>developer</role>
+      </roles>
     </developer>
     <developer>
       <id>rfscholte</id>
       <name>Robert Scholte</name>
-      <email>rfscholte@codehaus.org</email>
+      <email>rfscholte@apache.org</email>
       <timezone>Europe/Amsterdam</timezone>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>khmarbaise</id>
+      <name>Karl Heinz Marbaise</name>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>cboehme</id>
+      <name>Christoph Böhme</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mguillet</id>
+      <name>Michel Guillet</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mariuszs</id>
+      <name>Mariusz Smykuła</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>sleicht</id>
+      <name>Stephan Leicht Vogt</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>erwint</id>
+      <name>Erwin Tratar</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>gdelafosse</id>
+      <name>Guillaume Delafosse</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>flabodotes</id>
+      <name>Flabo</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
     </developer>
   </developers>
   <dependencies>
@@ -79,7 +146,7 @@ under the License.
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.0.17</version>
+      <version>3.0.24</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -96,53 +163,17 @@ under the License.
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.2</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
+  
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.2</version>
-          <configuration>
-            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-          </configuration>
-          <executions>
-            <execution>
-              <id>mojo-descriptor</id>
-              <phase>process-classes</phase>
-              <goals>
-                <goal>descriptor</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>help-goal</id>
-              <goals>
-                <goal>helpmojo</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <configuration>
           <goalPrefix>flatten</goalPrefix>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
         </configuration>
       </plugin>
     </plugins>
@@ -162,7 +193,6 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>
-            <version>2.0.0</version>
             <executions>
               <execution>
                 <goals>
@@ -194,7 +224,7 @@ under the License.
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>mrm-maven-plugin</artifactId>
-            <version>1.0-beta-1</version>
+            <version>1.0.0</version>
             <executions>
               <execution>
                 <goals>
@@ -217,6 +247,21 @@ under the License.
       </build>
     </profile>
   </profiles>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <links combine.self="override">
+            <link>http://junit.org/junit4/javadoc/latest</link>
+            <link>http://maven.apache.org/ref/${mavenVersion}/apidocs/</link>
+          </links>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
   <licenses>
     <license>
       <name>Apache Software Licenese</name>

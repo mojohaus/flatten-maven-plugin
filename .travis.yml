@@ -4,7 +4,7 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
-script: "mvn --show-version --errors --batch-mode -Prun-its clean verify"
+script: "./mvnw --show-version --errors --batch-mode -Prun-its clean verify"
 
 cache:
     directories:

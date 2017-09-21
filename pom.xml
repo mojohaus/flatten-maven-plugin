@@ -37,7 +37,7 @@
     <maven>${mavenVersion}</maven>
   </prerequisites>
   <properties>
-    <mavenVersion>3.2.1</mavenVersion>
+    <mavenVersion>3.2.5</mavenVersion>
     <maven.compiler.source>1.5</maven.compiler.source>
     <maven.compiler.target>1.5</maven.compiler.target>
   </properties>

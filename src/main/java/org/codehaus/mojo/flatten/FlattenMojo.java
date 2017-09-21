@@ -241,8 +241,7 @@ public class FlattenMojo
      * <td>Mode</td>
      * <td>Description</td>
      * </tr>
-     * </thead>
-     * <tbody>
+     * </thead> <tbody>
      * <tr>
      * <td>oss</td>
      * <td>For Open-Source-Software projects that want to keep all {@link FlattenDescriptor optional POM elements}
@@ -256,8 +255,8 @@ public class FlattenMojo
      * </tr>
      * <tr>
      * <td>bom</td>
-     * <td>Like {@link #ossrh} but additionally keeps {@link Model#getDependencyManagement() dependencyManagement}
-     * and {@link Model#getProperties() properties}. Especially it will keep the {@link Model#getDependencyManagement()
+     * <td>Like {@link #ossrh} but additionally keeps {@link Model#getDependencyManagement() dependencyManagement} and
+     * {@link Model#getProperties() properties}. Especially it will keep the {@link Model#getDependencyManagement()
      * dependencyManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
      * useful if your POM represents a <a href=
      * "http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
@@ -272,6 +271,11 @@ public class FlattenMojo
      * <tr>
      * <td>clean</td>
      * <td>Removes all {@link FlattenDescriptor optional POM elements}.</td>
+     * </tr>
+     * <tr>
+     * <td>fatjar</td>
+     * <td>Removes all {@link FlattenDescriptor optional POM elements} and all {@link Model#getDependencies()
+     * dependencies}.</td>
      * </tr>
      * </tbody>
      * </table>
@@ -680,20 +684,15 @@ public class FlattenMojo
     private ModelBuildingRequest createModelBuildingRequest( File pomFile )
     {
 
-        FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
-            this.session.getAllProjects() );
+        FlattenModelResolver resolver =
+            new FlattenModelResolver( this.localRepository, this.artifactFactory, this.session.getAllProjects() );
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
-        //@formatter:off
+        // @formatter:off
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest()
-                .setUserProperties( userProperties )
-                .setSystemProperties( System.getProperties() )
-                .setPomFile( pomFile )
-                .setModelResolver( resolver )
-                .setActiveProfileIds( activeProfiles );
-        //@formatter:on
+            new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles );
+        // @formatter:on
         return buildingRequest;
     }
 
@@ -719,12 +718,12 @@ public class FlattenMojo
                                            ModelProblemCollector problems )
                 {
                     List<String> activeProfileIds = request.getActiveProfileIds();
-                    if (activeProfileIds.contains(profile.getId()))
+                    if ( activeProfileIds.contains( profile.getId() ) )
                     {
                         Properties merged = new Properties();
-                        merged.putAll(model.getProperties());
-                        merged.putAll(profile.getProperties());
-                        model.setProperties(merged);
+                        merged.putAll( model.getProperties() );
+                        merged.putAll( profile.getProperties() );
+                        model.setProperties( merged );
                     }
                 }
             };

@@ -322,7 +322,7 @@ public class FlattenMojo
 
         if ( isUpdatePomFile() )
         {
-            this.project.setFile( flattenedPomFile );
+            this.project.setPomFile( flattenedPomFile );
         }
     }
 

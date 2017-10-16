@@ -17,8 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -30,14 +29,14 @@
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>
     <maven>${mavenVersion}</maven>
   </prerequisites>
   <properties>
-    <mavenVersion>3.5.0</mavenVersion>
+    <mavenVersion>3.2.5</mavenVersion>
     <maven.compiler.source>1.5</maven.compiler.source>
     <maven.compiler.target>1.5</maven.compiler.target>
   </properties>
@@ -46,12 +45,75 @@
       <id>hohwille</id>
       <name>Jörg Hohwiller</name>
       <email>hohwille@users.sourceforge.net</email>
+      <roles>
+        <role>maintainer</role>
+        <role>developer</role>
+      </roles>
     </developer>
     <developer>
       <id>rfscholte</id>
       <name>Robert Scholte</name>
-      <email>rfscholte@codehaus.org</email>
+      <email>rfscholte@apache.org</email>
       <timezone>Europe/Amsterdam</timezone>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>khmarbaise</id>
+      <name>Karl Heinz Marbaise</name>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>cboehme</id>
+      <name>Christoph Böhme</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mguillet</id>
+      <name>Michel Guillet</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mariuszs</id>
+      <name>Mariusz Smykuła</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>sleicht</id>
+      <name>Stephan Leicht Vogt</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>erwint</id>
+      <name>Erwin Tratar</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>gdelafosse</id>
+      <name>Guillaume Delafosse</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>flabodotes</id>
+      <name>Flabo</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
     </developer>
   </developers>
   <dependencies>

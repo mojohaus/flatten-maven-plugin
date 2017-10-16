@@ -4,6 +4,18 @@
   <artifactId>profile-with-dependencies-triggered-by-folder-presence</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>@project.groupId@</groupId>
+        <artifactId>@project.artifactId@</artifactId>
+        <configuration>
+          <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
   <parent>
     <groupId>org.codehaus.mojo.flatten.its</groupId>
     <artifactId>profile-with-dependencies-triggered-by-folder-presence-parent</artifactId>

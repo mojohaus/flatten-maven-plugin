@@ -30,9 +30,16 @@ import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.shared.artifact.resolve.ArtifactResult;
+import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
+import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.List;
+
+import static java.util.Collections.singleton;
 
 /**
  * This is a custom implementation of {@link ModelResolver} to emulate the maven POM resolution in order to build the
@@ -48,24 +55,34 @@ public class FlattenModelResolver
 
     /** The local repository for artifact resolution. */
     private ArtifactRepository localRepository;
+
     /** The factory used to create project artifact instances. */
     private ArtifactFactory artifactFactory;
+
+    /** The resolver used to resolve version ranges */
+    private DependencyResolver depencencyResolver;
+
+    private ProjectBuildingRequest projectBuildingRequest;
 
     /** The modules of the project being built. */
     private ReactorModelPool reactorModelPool;
 
     /**
      * The constructor.
-     *  @param localRepository is the local repository.
+     * @param localRepository is the local repository.
      * @param artifactFactory is the factory used to create project artifact instances.
+     * @param dependencyResolver is the resolver to use for resolving version ranges.
+     * @param projectBuildingRequest
      * @param reactorModels is the list of modules of the project being built.
      */
     public FlattenModelResolver( ArtifactRepository localRepository, ArtifactFactory artifactFactory,
-        List<MavenProject> reactorModels )
+                                DependencyResolver dependencyResolver,
+                                ProjectBuildingRequest projectBuildingRequest, List<MavenProject> reactorModels )
     {
-
         this.localRepository = localRepository;
         this.artifactFactory = artifactFactory;
+        this.depencencyResolver = dependencyResolver;
+        this.projectBuildingRequest = projectBuildingRequest;
         this.reactorModelPool = new ReactorModelPool();
         reactorModelPool.addProjects( reactorModels );
     }
@@ -74,6 +91,8 @@ public class FlattenModelResolver
     {
         this.localRepository = other.localRepository;
         this.artifactFactory = other.artifactFactory;
+        this.depencencyResolver = other.depencencyResolver;
+        this.projectBuildingRequest = other.projectBuildingRequest;
         this.reactorModelPool = other.reactorModelPool;
     }
 
@@ -82,7 +101,6 @@ public class FlattenModelResolver
      */
     public ModelSource resolveModel( String groupId, String artifactId, String version )
     {
-
         File pomFile = reactorModelPool.find(groupId, artifactId, version);
         if ( pomFile == null )
         {
@@ -99,7 +117,6 @@ public class FlattenModelResolver
      */
     public void addRepository( Repository repository )
     {
-
         // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
 
@@ -119,8 +136,30 @@ public class FlattenModelResolver
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
     public ModelSource resolveModel( Parent parent )
-    {
-        return resolveModel( parent.getGroupId(), parent.getArtifactId(), parent.getVersion() );
+            throws UnresolvableModelException {
+
+        Dependency parentDependency = new Dependency();
+        parentDependency.setGroupId(parent.getGroupId());
+        parentDependency.setArtifactId(parent.getArtifactId());
+        parentDependency.setVersion(parent.getVersion());
+        parentDependency.setClassifier("");
+        parentDependency.setType("pom");
+
+        Artifact parentArtifact = null;
+        try
+        {
+            Iterable<ArtifactResult> artifactResults = depencencyResolver.resolveDependencies(
+                    projectBuildingRequest, singleton(parentDependency), null, null );
+            Iterator<ArtifactResult> iterator = artifactResults.iterator();
+            if (iterator.hasNext()) {
+                parentArtifact = iterator.next().getArtifact();
+            }
+        } catch (DependencyResolverException e) {
+            throw new UnresolvableModelException( e.getMessage(), parent.getGroupId(), parent.getArtifactId(),
+                    parent.getVersion(), e );
+        }
+
+        return resolveModel( parentArtifact.getGroupId(), parentArtifact.getArtifactId(), parentArtifact.getVersion() );
     }
 
     public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
@@ -144,4 +183,5 @@ public class FlattenModelResolver
     {
         // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
+
 }

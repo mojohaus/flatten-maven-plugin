@@ -3,20 +3,19 @@
   <groupId>org.codehaus.mojo.flatten.its</groupId>
   <artifactId>property-profile-inactive</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
+
   <build>
     <plugins>
       <plugin>
         <groupId>@project.groupId@</groupId>
         <artifactId>@project.artifactId@</artifactId>
-        <version>@project.version@</version>
         <configuration>
           <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
         </configuration>
       </plugin>
     </plugins>
   </build>
-  
+
   <profiles>
     <profile>
       <id>property</id>
@@ -33,5 +32,5 @@
         </dependency>
       </dependencies>
     </profile>
-  </profiles>  
+  </profiles>
 </project>

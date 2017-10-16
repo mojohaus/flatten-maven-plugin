@@ -7,8 +7,8 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>flatten-maven-plugin</artifactId>
+        <groupId>@project.groupId@</groupId>
+        <artifactId>@project.artifactId@</artifactId>
         <configuration>
           <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
         </configuration>
@@ -30,5 +30,5 @@
         </dependency>
       </dependencies>
     </profile>
-  </profiles>  
+  </profiles>
 </project>

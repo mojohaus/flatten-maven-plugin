@@ -205,6 +205,26 @@ public class FlattenMojo
     @Parameter( property = "updatePomFile" )
     private Boolean updatePomFile;
 
+    /**
+     * substitute declared project artifactId with the string value of this configuration option
+     * e.g.:
+     * {@code
+     * <properties>
+     *   <scala.binary.version>2.12</scala.binary.version>
+     * </properties>
+     * ...
+     *   <artifactIdOverride>{project.artifactId}_${scala.binary}</artifactIdOverride>
+     * }
+     * this will generate a flattened pom with variable ${scala.binary} injected as artifactId suffix.
+     * It is NOT recommended to use variable directly in project artifactId, which is considered an ill-formed
+     * POM and will trigger a maven warning:
+     * [WARNING] 'artifactId' contains an expression but should be a constant.
+     * Instead, this configuration option should be used whenever cross-building multiple artifacts,
+     * e.g. for different scala versions
+     */
+    @Parameter( property = "artifactIdOverride" )
+    private String artifactIdOverride;
+
     /** The {@link ArtifactRepository} required to resolve POM using {@link #modelBuilder}. */
     @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
     private ArtifactRepository localRepository;
@@ -453,6 +473,7 @@ public class FlattenMojo
 
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
         Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies() );
+        overrideArtifactId(effectivePom);
 
         Model flattenedPom = new Model();
 
@@ -495,6 +516,13 @@ public class FlattenMojo
         }
 
         return flattenedPom;
+    }
+
+    public void overrideArtifactId(Model model)
+    {
+        if (artifactIdOverride != null && !artifactIdOverride.isEmpty()) {
+            model.setArtifactId(artifactIdOverride);
+        }
     }
 
     private Model createResolvedPom( ModelBuildingRequest buildingRequest )

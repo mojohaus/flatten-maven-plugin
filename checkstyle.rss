@@ -23,11 +23,11 @@ under the License.
     <link>http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin</link>
     <description>Maven Flatten Plugin - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2014 - 2017 MojoHaus</copyright>
+    <copyright>&#169;2014 - 2018 MojoHaus</copyright>
     <item>
-      <title>File: 12,
-             Errors: 39,
-             Warnings: 1,
+      <title>File: 11,
+             Errors: 49,
+             Warnings: 3,
              Infos: 0
       </title>
             <link>http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html</link>
@@ -46,7 +46,7 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.Dependencies.java">org/codehaus/mojo/flatten/Dependencies.java</a>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.PomProperty.java">org/codehaus/mojo/flatten/PomProperty.java</a>
                 </td>
                 <td>
                   0
@@ -56,20 +56,6 @@ under the License.
                 </td>
                 <td>
                   0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenDescriptor.java">org/codehaus/mojo/flatten/FlattenDescriptor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
                 </td>
               </tr>
                           <tr>
@@ -83,21 +69,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  10
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.PomProperty.java">org/codehaus/mojo/flatten/PomProperty.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
+                  1
                 </td>
               </tr>
                           <tr>
@@ -144,7 +116,7 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.AbstractFlattenMojo.java">org/codehaus/mojo/flatten/AbstractFlattenMojo.java</a>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenDescriptor.java">org/codehaus/mojo/flatten/FlattenDescriptor.java</a>
                 </td>
                 <td>
                   0
@@ -153,12 +125,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  2
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.HelpMojo.java">org/codehaus/mojo/flatten/HelpMojo.java</a>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.model.resolution.ReactorModelPool.java">org/codehaus/mojo/flatten/model/resolution/ReactorModelPool.java</a>
                 </td>
                 <td>
                   0
@@ -167,12 +139,12 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  20
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.LoggingModelProblemCollector.java">org/codehaus/mojo/flatten/LoggingModelProblemCollector.java</a>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.Dependencies.java">org/codehaus/mojo/flatten/Dependencies.java</a>
                 </td>
                 <td>
                   0
@@ -192,15 +164,15 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  3
                 </td>
                 <td>
-                  5
+                  25
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.model.resolution.ReactorModelPool.java">org/codehaus/mojo/flatten/model/resolution/ReactorModelPool.java</a>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.LoggingModelProblemCollector.java">org/codehaus/mojo/flatten/LoggingModelProblemCollector.java</a>
                 </td>
                 <td>
                   0
@@ -209,7 +181,21 @@ under the License.
                   0
                 </td>
                 <td>
-                  20
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.AbstractFlattenMojo.java">org/codehaus/mojo/flatten/AbstractFlattenMojo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
                 </td>
               </tr>
                       </tbody>

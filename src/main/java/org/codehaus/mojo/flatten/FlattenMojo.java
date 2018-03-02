@@ -316,8 +316,6 @@ public class FlattenMojo
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
 
-        getLog().info("+++++++++++++++++++++ flatten mode: " + flattenMode);
-
         File originalPomFile = this.project.getFile();
         Model flattenedPom = createFlattenedPom( originalPomFile );
         String headerComment = extractHeaderComment( originalPomFile );

@@ -280,7 +280,7 @@ public class FlattenMojo
      * </tbody>
      * </table>
      */
-    @Parameter( required = false )
+    @Parameter( property = "flattenMode", required = false )
     private FlattenMode flattenMode;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
@@ -315,6 +315,8 @@ public class FlattenMojo
     {
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
+
+        getLog().info("+++++++++++++++++++++ flatten mode: " + flattenMode);
 
         File originalPomFile = this.project.getFile();
         Model flattenedPom = createFlattenedPom( originalPomFile );

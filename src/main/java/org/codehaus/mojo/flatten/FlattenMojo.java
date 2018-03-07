@@ -280,7 +280,7 @@ public class FlattenMojo
      * </tbody>
      * </table>
      */
-    @Parameter( property = "flattenMode", required = false )
+    @Parameter( property = "flatten.mode", required = false )
     private FlattenMode flattenMode;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */

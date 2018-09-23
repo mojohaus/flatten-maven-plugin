@@ -42,5 +42,5 @@ assert '${small1}' == flattenedProject.dependencies.dependency[1].classifier.tex
 assert 'revision' == flattenedProject.dependencies.dependency[2].version.text()
 assert 'small2' == flattenedProject.dependencies.dependency[2].classifier.text()
 
-assert '${revision}' == flattenedProject.profiles.profile.properties.profilerevision.text()
+assert '1.2.3.4' == flattenedProject.profiles.profile.properties.profilerevision.text()
 assert '${revision1}' == flattenedProject.profiles.profile.properties.profilerevision1.text()

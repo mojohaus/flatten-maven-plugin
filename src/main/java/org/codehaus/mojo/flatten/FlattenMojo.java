@@ -51,6 +51,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
+import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
+import org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -291,6 +293,10 @@ public class FlattenMojo
     /** The {@link ModelInterpolator} used to resolve variables. */
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
+    
+    /** The {@link ModelInterpolator} used to resolve variables. */
+    @Component( role = CiInterpolator.class)
+    private CiInterpolator modelCiFriendlyInterpolator;
 
     /** The {@link MavenSession} used to get user properties. */
     @Parameter( defaultValue = "${session}", readonly = true, required = true )
@@ -452,7 +458,7 @@ public class FlattenMojo
     {
 
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
-        Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies() );
+        Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode );
 
         Model flattenedPom = new Model();
 
@@ -501,6 +507,10 @@ public class FlattenMojo
     {
         LoggingModelProblemCollector problems = new LoggingModelProblemCollector( getLog() );
         Model originalModel = this.project.getOriginalModel().clone();
+        if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+            return this.modelCiFriendlyInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
+                                                            buildingRequest, problems );
+        }
         return this.modelInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
                                                         buildingRequest, problems );
     }
@@ -708,7 +718,7 @@ public class FlattenMojo
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected static Model createEffectivePom( ModelBuildingRequest buildingRequest,
-                                               final boolean embedBuildProfileDependencies )
+                                               final boolean embedBuildProfileDependencies, final FlattenMode flattenMode )
         throws MojoExecutionException
     {
         ModelBuildingResult buildingResult;
@@ -751,6 +761,9 @@ public class FlattenMojo
             };
             DefaultModelBuilder defaultModelBuilder = new DefaultModelBuilderFactory().newInstance();
             defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
+            //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+            //	defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
+            //}
             buildingResult = defaultModelBuilder.build( buildingRequest );
         }
         catch ( ModelBuildingException e )

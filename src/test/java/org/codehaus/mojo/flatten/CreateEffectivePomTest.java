@@ -86,7 +86,7 @@ public class CreateEffectivePomTest
                 depencencyResolver, projectBuildingRequest, Collections.<MavenProject>emptyList() );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
-        Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false );
+        Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false, FlattenMode.defaults );
         assertThat( effectivePom.getName() ).isEqualTo( magicValue );
     }
 

@@ -72,7 +72,11 @@ public enum FlattenMode
     clean,
 
     /** Removes all {@link FlattenDescriptor optional POM elements} and dependencies. */
-    fatjar;
+    fatjar,
+    
+    /** Only resolves variables revision, sha and changelist. Keeps everything else. */
+    resolveCiFriendliesOnly;
+
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
@@ -113,6 +117,33 @@ public enum FlattenMode
                 break;
             case fatjar:
                 descriptor.setDependencies( ElementHandling.remove );
+                break;
+            case resolveCiFriendliesOnly:
+                descriptor.setBuild( ElementHandling.interpolate );
+                descriptor.setCiManagement( ElementHandling.interpolate );
+                descriptor.setContributors( ElementHandling.interpolate );
+                descriptor.setDependencies( ElementHandling.interpolate );
+                descriptor.setDependencyManagement( ElementHandling.interpolate );
+                descriptor.setDescription( ElementHandling.interpolate );
+                descriptor.setDevelopers( ElementHandling.interpolate );
+                descriptor.setDistributionManagement( ElementHandling.interpolate );
+                descriptor.setInceptionYear( ElementHandling.interpolate );
+                descriptor.setIssueManagement( ElementHandling.interpolate );
+                descriptor.setMailingLists( ElementHandling.interpolate );
+                descriptor.setModules( ElementHandling.interpolate );
+                descriptor.setName( ElementHandling.interpolate );
+                descriptor.setOrganization( ElementHandling.interpolate );
+                descriptor.setParent( ElementHandling.resolve );
+                descriptor.setPluginManagement( ElementHandling.interpolate );
+                descriptor.setPluginRepositories( ElementHandling.interpolate );
+                descriptor.setPrerequisites( ElementHandling.interpolate );
+                descriptor.setProfiles( ElementHandling.interpolate );
+                descriptor.setProperties( ElementHandling.interpolate );
+                descriptor.setReporting( ElementHandling.interpolate );
+                descriptor.setRepositories( ElementHandling.interpolate );
+                descriptor.setScm( ElementHandling.interpolate );
+                descriptor.setUrl( ElementHandling.interpolate );
+                descriptor.setVersion( ElementHandling.resolve );
                 break;
             case clean:
                 // nothing to do...

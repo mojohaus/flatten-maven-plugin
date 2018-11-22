@@ -71,6 +71,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -277,11 +278,32 @@ public class FlattenMojo
      * <td>Removes all {@link FlattenDescriptor optional POM elements} and all {@link Model#getDependencies()
      * dependencies}.</td>
      * </tr>
+     * <tr>
+     * <td>configurable</td>
+     * <td>Allow to define handling policy for each {@link FlattenDescriptor POM elements}
+     * using <code>flattenHandlers</code> below parameter. This mode, and usage of <code>flattenHandlers</code> and
+     * <code>flattenDefaultHandler</code>, is for advanced users only.</td>
+     * </tr>
      * </tbody>
      * </table>
      */
     @Parameter( property = "flatten.mode", required = false )
     private FlattenMode flattenMode;
+
+    /**
+     * When <code>flattenMode</code> is <code>configurable</code>, allow to define a {@link Map} of
+     * {@link ElementHandling policies} for each POM element.
+     */
+    @Parameter(property = "flatten.handlers", required = false )
+    private Map<String, String> flattenHandlers;
+
+    /**
+     * When <code>flattenMode</code> is <code>configurable</code>, defines the default
+     * {@link ElementHandling policy} (default to 'flatten') for each POM element
+     * that is not defined in <code>flattenHandlers</code>.
+     */
+    @Parameter(property = "flatten.default.handler", required = false, defaultValue = "flatten" )
+    private String flattenDefaultHandler;
 
     /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
@@ -638,7 +660,7 @@ public class FlattenMojo
             {
                 getLog().warn( "FlattenMode " + FlattenMode.minimum + " is deprecated!" );
             }
-            descriptor = mode.getDescriptor();
+            descriptor = mode.getDescriptor( getPropertyHandlerMapper() );
             if ( "maven-plugin".equals( this.project.getPackaging() ) )
             {
                 descriptor.setPrerequisites( ElementHandling.expand );
@@ -655,10 +677,45 @@ public class FlattenMojo
             }
             if ( this.flattenMode != null )
             {
-                descriptor = descriptor.merge( this.flattenMode.getDescriptor() );
+                descriptor = descriptor.merge( this.flattenMode.getDescriptor( getPropertyHandlerMapper() ) );
             }
         }
         return descriptor;
+    }
+
+    /**
+     * Creates a property handler mapper that uses flattenHandlers & flattenDefaultHandler
+     * to compute the property policy when flattening an element.
+     * @return a non null FlattenMode.PropertyHandlerMapper
+     */
+    private FlattenMode.PropertyHandlerMapper getPropertyHandlerMapper() {
+        return new FlattenMode.PropertyHandlerMapper() {
+            @Override
+            public ElementHandling handler( String property ) {
+                ElementHandling defaultHandler = ElementHandling.flatten;
+                if (flattenDefaultHandler != null) {
+                    try {
+                        defaultHandler = ElementHandling.valueOf( flattenDefaultHandler );
+                    } catch ( IllegalArgumentException iae ) {
+                        getLog().warn( " unknown default handler kind `" + flattenDefaultHandler + "`" );
+                    }
+                }
+
+                if ( flattenHandlers != null ) {
+                    String handlerKind = flattenHandlers.get( property );
+
+                    if ( handlerKind != null ) {
+                        try {
+                            return ElementHandling.valueOf( handlerKind );
+                        } catch ( IllegalArgumentException iae ) {
+                            getLog().warn( " unknown handler kind `" + handlerKind + "` for property " + property );
+                        }
+                    }
+                }
+
+                return defaultHandler;
+            }
+        };
     }
 
     /**

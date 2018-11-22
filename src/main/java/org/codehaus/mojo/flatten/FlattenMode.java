@@ -72,17 +72,25 @@ public enum FlattenMode
     clean,
 
     /** Removes all {@link FlattenDescriptor optional POM elements} and dependencies. */
-    fatjar;
+    fatjar,
+
+    /** Uses the provided PropertyHandlerMapper to define policies for each property. */
+    configurable;
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
      */
-    public FlattenDescriptor getDescriptor()
+    public FlattenDescriptor getDescriptor(PropertyHandlerMapper mapper)
     {
 
-        FlattenDescriptor descriptor = new FlattenDescriptor();
+        final FlattenDescriptor descriptor = new FlattenDescriptor();
         switch ( this )
         {
+            case configurable:
+                for (PomProperty<?> pomProperty : PomProperty.getPomProperties()) {
+                    descriptor.setHandling(pomProperty, mapper.handler(pomProperty.getName()));
+                }
+                break;
             case minimum:
                 descriptor.setPluginRepositories( ElementHandling.expand );
                 //$FALL-THROUGH$
@@ -125,4 +133,7 @@ public enum FlattenMode
         return descriptor;
     }
 
+    public static interface PropertyHandlerMapper {
+        public ElementHandling handler(String property);
+    }
 }

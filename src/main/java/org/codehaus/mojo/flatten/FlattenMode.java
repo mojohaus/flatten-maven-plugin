@@ -74,7 +74,7 @@ public enum FlattenMode
     /** Removes all {@link FlattenDescriptor optional POM elements} and dependencies. */
     fatjar,
     
-    /** Only resolves variables revision, sha and changelist. Keeps everything else. */
+    /** Only resolves variables revision, sha1 and changelist. Keeps everything else. */
     resolveCiFriendliesOnly;
 
 

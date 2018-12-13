@@ -35,7 +35,9 @@ import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.ValueSource;
 
 /*
- * Based on StringSearchInterpolator from plexus-interpolation.
+ * Based on StringSearchInterpolator from plexus-interpolation,
+ * see {@link org.codehaus.plexus.interpolation.StringSearchInterpolator}.
+ * This interpolates only the Maven CI Friendly variables revision, sha1 and changelist.
  */
 public class CiInterpolatorImpl implements Interpolator {
 

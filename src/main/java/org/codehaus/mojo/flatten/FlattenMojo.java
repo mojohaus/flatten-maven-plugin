@@ -279,6 +279,11 @@ public class FlattenMojo
      * <td>Removes all {@link FlattenDescriptor optional POM elements} and all {@link Model#getDependencies()
      * dependencies}.</td>
      * </tr>
+     * <tr>
+     * <td>resolveCiFriendliesOnly</td>
+     * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else. 
+	 * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
+     * </tr>
      * </tbody>
      * </table>
      */

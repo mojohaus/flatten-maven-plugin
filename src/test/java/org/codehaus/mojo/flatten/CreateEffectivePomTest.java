@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.maven.model.building.DefaultModelBuilderFactory;
 
 /**
  * Test-Case for {@link FlattenMojo}.
@@ -58,6 +59,8 @@ public class CreateEffectivePomTest
     extends Assertions
 {
 
+    FlattenMojo tested = new FlattenMojo();
+    
     /**
      * Tests method to create effective POM.
      *
@@ -86,7 +89,8 @@ public class CreateEffectivePomTest
                 depencencyResolver, projectBuildingRequest, Collections.<MavenProject>emptyList() );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
-        Model effectivePom = FlattenMojo.createEffectivePom( buildingRequest, false, FlattenMode.defaults );
+        setDeclaredField(tested, "defaultModelBuilder", new DefaultModelBuilderFactory().newInstance());
+        Model effectivePom = tested.createEffectivePom( buildingRequest, false, FlattenMode.defaults );
         assertThat( effectivePom.getName() ).isEqualTo( magicValue );
     }
 

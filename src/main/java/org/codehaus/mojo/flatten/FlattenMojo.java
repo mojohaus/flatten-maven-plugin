@@ -70,10 +70,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -705,11 +702,15 @@ public class FlattenMojo
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
             this.dependencyResolver, this.session.getProjectBuildingRequest(), this.session.getAllProjects() );
         Properties userProperties = this.session.getUserProperties();
-        List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
+        List<String> activeProfiles = new ArrayList<>();
 
+        final Map<String, List<String>> injectedProfileIds = this.project.getInjectedProfileIds();
+        for (List<String> ids : injectedProfileIds.values()) {
+            activeProfiles.addAll(ids);
+        }
         // @formatter:off
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles );
+            new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles ).setProfiles(this.project.getProjectBuildingRequest().getProfiles());
         // @formatter:on
         return buildingRequest;
     }

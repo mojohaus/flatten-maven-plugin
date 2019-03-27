@@ -19,17 +19,12 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
+import org.apache.maven.artifact.metadata.ArtifactMetadataRetrievalException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Activation;
-import org.apache.maven.model.Build;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.model.Profile;
-import org.apache.maven.model.Repository;
-import org.apache.maven.model.RepositoryPolicy;
+import org.apache.maven.model.*;
 import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
@@ -51,12 +46,20 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
+import org.apache.maven.shared.dependency.tree.DependencyNode;
+import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
+import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
-import org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.impl.ArtifactDescriptorReader;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
+import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
@@ -70,10 +73,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -282,7 +282,7 @@ public class FlattenMojo
      * <tr>
      * <td>resolveCiFriendliesOnly</td>
      * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else. 
-	 * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
+     * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
      * </tr>
      * </tbody>
      * </table>
@@ -309,6 +309,12 @@ public class FlattenMojo
 
     @Component
     private DependencyResolver dependencyResolver;
+
+    @Component( hint = "default" )
+    private DependencyTreeBuilder dependencyTreeBuilder;
+
+    @Component(role = ArtifactDescriptorReader.class)
+    private ArtifactDescriptorReader artifactDescriptorReader;
 
     /**
      * The constructor.
@@ -459,8 +465,7 @@ public class FlattenMojo
      * @throws MojoFailureException if anything goes wrong (logical error).
      */
     protected Model createFlattenedPom( File pomFile )
-        throws MojoExecutionException, MojoFailureException
-    {
+            throws MojoExecutionException, MojoFailureException {
 
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
         Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode );
@@ -475,7 +480,13 @@ public class FlattenMojo
         }
         flattenedPom.setModelEncoding( modelEncoding );
 
-        Model cleanPom = createCleanPom( effectivePom );
+        Model cleanPom = null;
+        try {
+            cleanPom = createCleanPom( effectivePom );
+        }
+        catch (Exception e) {
+            throw new MojoExecutionException("failed to create a clean pom", e);
+        }
 
         FlattenDescriptor descriptor = getFlattenDescriptor();
         Model originalPom = this.project.getOriginalModel();
@@ -529,7 +540,7 @@ public class FlattenMojo
      * @return the clean POM.
      */
     protected Model createCleanPom( Model effectivePom )
-    {
+            throws MojoExecutionException {
         Model cleanPom = new Model();
 
         cleanPom.setGroupId( effectivePom.getGroupId() );
@@ -767,7 +778,7 @@ public class FlattenMojo
             DefaultModelBuilder defaultModelBuilder = new DefaultModelBuilderFactory().newInstance();
             defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
             //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
-            //	defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
+            //    defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
             //}
             buildingResult = defaultModelBuilder.build( buildingRequest );
         }
@@ -842,11 +853,15 @@ public class FlattenMojo
      * @return the {@link List} of {@link Dependency dependencies}.
      */
     protected List<Dependency> createFlattenedDependencies( Model effectiveModel )
-    {
-
+            throws MojoExecutionException {
         List<Dependency> flattenedDependencies = new ArrayList<Dependency>();
         // resolve all direct and inherited dependencies...
-        createFlattenedDependencies( effectiveModel, flattenedDependencies );
+        try {
+            createFlattenedDependencies( effectiveModel, flattenedDependencies );
+        }
+        catch (Exception e) {
+            throw new MojoExecutionException("unable to create flattened dependencies", e);
+        }
         if ( isEmbedBuildProfileDependencies() )
         {
             Model projectModel = this.project.getModel();
@@ -884,19 +899,70 @@ public class FlattenMojo
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
     protected void createFlattenedDependencies( Model effectiveModel, List<Dependency> flattenedDependencies )
-    {
+            throws DependencyTreeBuilderException, ArtifactMetadataRetrievalException, ArtifactDescriptorException {
+        final Stack<DependencyNode> dependencyNodeStack = new Stack<>();
+        final Set<String> processedDependencies = new HashSet<>();
 
         getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
         // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
         // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
         List<Dependency> projectDependencies = effectiveModel.getDependencies();
-        for ( Dependency projectDependency : projectDependencies )
-        {
-            Dependency flattenedDependency = createFlattenedDependency( projectDependency );
-            if ( flattenedDependency != null )
-            {
-                flattenedDependencies.add( flattenedDependency );
+
+        final DependencyNode dependencyNode = this.dependencyTreeBuilder
+                .buildDependencyTree(this.project, this.localRepository, null);
+
+        dependencyNode.accept(new DependencyNodeVisitor() {
+            @Override public boolean visit(DependencyNode node) {
+                if (node.getState() != DependencyNode.INCLUDED) return true;
+                dependencyNodeStack.push(node);
+                return true;
             }
+
+            @Override public boolean endVisit(DependencyNode node) {
+                return true;
+            }
+        });
+
+        while (!dependencyNodeStack.isEmpty()) {
+            DependencyNode node = dependencyNodeStack.pop();
+
+            Artifact artifact = node.getArtifact();
+
+            Dependency dependency = new Dependency();
+            dependency.setGroupId(artifact.getGroupId());
+            dependency.setArtifactId(artifact.getArtifactId());
+            dependency.setVersion(artifact.getVersion());
+            dependency.setClassifier(artifact.getClassifier());
+            dependency.setOptional(artifact.isOptional());
+            dependency.setScope(artifact.getScope());
+            dependency.setType(artifact.getType());
+
+            List<Exclusion> exclusions = new LinkedList<>();
+
+            org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
+            ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
+            ArtifactDescriptorResult artifactDescriptorResult = this.artifactDescriptorReader
+                    .readArtifactDescriptor(this.session.getRepositorySession(), request);
+
+            for (org.eclipse.aether.graph.Dependency artifactDependency: artifactDescriptorResult.getDependencies()) {
+                Exclusion exclusion = new Exclusion();
+                exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
+                exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());
+                exclusions.add(exclusion);
+            }
+
+            dependency.setExclusions(exclusions);
+
+            // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
+            String dependencyString = dependency.toString();
+
+            if (processedDependencies.contains(dependencyString)) {
+                continue;
+            }
+
+            processedDependencies.add(dependencyString);
+            Dependency flattenedDependency = createFlattenedDependency( dependency );
+            flattenedDependencies.add(flattenedDependency);
         }
     }
 
@@ -907,6 +973,9 @@ public class FlattenMojo
      */
     protected Dependency createFlattenedDependency( Dependency projectDependency )
     {
+        if ("test".equals( projectDependency.getScope() ) ) {
+            return null;
+        }
 
         return "test".equals( projectDependency.getScope() ) ? null : projectDependency;
     }

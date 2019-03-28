@@ -962,7 +962,9 @@ public class FlattenMojo
 
             processedDependencies.add(dependencyString);
             Dependency flattenedDependency = createFlattenedDependency( dependency );
-            flattenedDependencies.add(flattenedDependency);
+            if (flattenedDependency != null) {
+                flattenedDependencies.add(flattenedDependency);
+            }
         }
     }
 

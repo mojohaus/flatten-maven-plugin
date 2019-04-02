@@ -21,13 +21,20 @@ package org.codehaus.mojo.flatten;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.metadata.ArtifactMetadataRetrievalException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.*;
+import org.apache.maven.model.Activation;
+import org.apache.maven.model.Build;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Exclusion;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Profile;
+import org.apache.maven.model.Repository;
+import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.model.building.DefaultModelBuilder;
-import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
@@ -73,7 +80,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
 import org.apache.maven.model.building.ModelBuilder;
 import org.codehaus.plexus.component.annotations.Requirement;
 
@@ -502,8 +516,8 @@ public class FlattenMojo
      * @throws MojoExecutionException if anything goes wrong (e.g. POM can not be processed).
      * @throws MojoFailureException   if anything goes wrong (logical error).
      */
-    protected Model createFlattenedPom( File pomFile )
-            throws MojoExecutionException, MojoFailureException {
+    protected Model createFlattenedPom( File pomFile ) throws MojoExecutionException, MojoFailureException
+    {
 
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
         Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode );
@@ -577,8 +591,8 @@ public class FlattenMojo
      * @param effectivePom is the effective POM.
      * @return the clean POM.
      */
-    protected Model createCleanPom( Model effectivePom )
-            throws MojoExecutionException {
+    protected Model createCleanPom( Model effectivePom ) throws MojoExecutionException
+    {
         Model cleanPom = new Model();
 
         cleanPom.setGroupId( effectivePom.getGroupId() );
@@ -667,7 +681,7 @@ public class FlattenMojo
      *
      * @param repositories is the {@link List} of {@link Repository} elements. May be <code>null</code>.
      * @return the flattened {@link List} of {@link Repository} elements or <code>null</code> if <code>null</code> was
-     * given.
+     *         given.
      */
     protected static List<Repository> createFlattenedRepositories( List<Repository> repositories )
     {
@@ -816,7 +830,7 @@ public class FlattenMojo
             
             defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
             //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
-            //    defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
+            // defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
             //}
             buildingResult = defaultModelBuilder.build( buildingRequest );
         }
@@ -1043,10 +1057,6 @@ public class FlattenMojo
      */
     protected Dependency createFlattenedDependency( Dependency projectDependency )
     {
-        if ("test".equals( projectDependency.getScope() ) ) {
-            return null;
-        }
-
         return "test".equals( projectDependency.getScope() ) ? null : projectDependency;
     }
 

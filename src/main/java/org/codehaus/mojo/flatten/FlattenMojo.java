@@ -292,20 +292,53 @@ public class FlattenMojo
     @Parameter( property = "flatten.mode", required = false )
     private FlattenMode flattenMode;
 
-    /** The ArtifactFactory required to resolve POM using {@link #modelBuilder}. */
+    /**
+     * The different possible values for flattenDependencyMode:
+     * <table border="1" summary="">
+     * <thead>
+     * <tr>
+     * <td>Mode</td>
+     * <td>Description</td>
+     * </tr>
+     * </thead><tbody>
+     * <tr>
+     * <td>direct</td>
+     * <td>Flatten only the direct dependency versions. This is the default mode and compatible with Flatten Plugin prior to 1.2.0.</td>
+     * <tr>
+     * <td>all</td>
+     * <td><p>Flatten both direct and transitive dependencies. This will examine the full dependency tree, and pull up
+     * all transitive dependencies as a direct dependency, and setting their versions appropriately.</p>
+     * <p>This is recommended if you are releasing a library that uses dependency management to manage dependency
+     * versions.</p<</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     */
+    @Parameter( property = "flatten.dependency.mode", required = false )
+    private FlattenDependencyMode flattenDependencyMode;
+
+    /**
+     * The ArtifactFactory required to resolve POM using {@link #modelBuilder}.
+     */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
     @Component
     private ArtifactFactory artifactFactory;
 
-    /** The {@link ModelInterpolator} used to resolve variables. */
+    /**
+     * The {@link ModelInterpolator} used to resolve variables.
+     */
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
     
-    /** The {@link ModelInterpolator} used to resolve variables. */
+    /**
+     * The {@link ModelInterpolator} used to resolve variables.
+     */
     @Component( role = CiInterpolator.class)
     private CiInterpolator modelCiFriendlyInterpolator;
 
-    /** The {@link MavenSession} used to get user properties. */
+    /**
+     * The {@link MavenSession} used to get user properties.
+     */
     @Parameter( defaultValue = "${session}", readonly = true, required = true )
     private MavenSession session;
 
@@ -356,7 +389,7 @@ public class FlattenMojo
      *
      * @param xmlFile is the XML {@link File} to parse.
      * @return the XML comment between the XML header declaration and the root tag or <code>null</code> if NOT
-     *         available.
+     * available.
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected String extractHeaderComment( File xmlFile )
@@ -380,11 +413,11 @@ public class FlattenMojo
     /**
      * Writes the given POM {@link Model} to the given {@link File}.
      *
-     * @param pom the {@link Model} of the POM to write.
-     * @param pomFile the {@link File} where to write the given POM will be written to. {@link File#getParentFile()
-     *            Parent directories} are {@link File#mkdirs() created} automatically.
+     * @param pom           the {@link Model} of the POM to write.
+     * @param pomFile       the {@link File} where to write the given POM will be written to. {@link File#getParentFile()
+     *                      Parent directories} are {@link File#mkdirs() created} automatically.
      * @param headerComment is the content of a potential XML comment at the top of the XML (after XML declaration and
-     *            before root tag). May be <code>null</code> if not present and to be omitted in target POM.
+     *                      before root tag). May be <code>null</code> if not present and to be omitted in target POM.
      * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
      */
     protected void writePom( Model pom, File pomFile, String headerComment )
@@ -431,8 +464,8 @@ public class FlattenMojo
     /**
      * Writes the given <code>data</code> to the given <code>file</code> using the specified <code>encoding</code>.
      *
-     * @param data is the {@link String} to write.
-     * @param file is the {@link File} to write to.
+     * @param data     is the {@link String} to write.
+     * @param file     is the {@link File} to write to.
      * @param encoding is the encoding to use for writing the file.
      * @throws MojoExecutionException if anything goes wrong.
      */
@@ -467,7 +500,7 @@ public class FlattenMojo
      * @param pomFile is the name of the original POM file to read and transform.
      * @return the {@link Model} of the flattened POM.
      * @throws MojoExecutionException if anything goes wrong (e.g. POM can not be processed).
-     * @throws MojoFailureException if anything goes wrong (logical error).
+     * @throws MojoFailureException   if anything goes wrong (logical error).
      */
     protected Model createFlattenedPom( File pomFile )
             throws MojoExecutionException, MojoFailureException {
@@ -634,7 +667,7 @@ public class FlattenMojo
      *
      * @param repositories is the {@link List} of {@link Repository} elements. May be <code>null</code>.
      * @return the flattened {@link List} of {@link Repository} elements or <code>null</code> if <code>null</code> was
-     *         given.
+     * given.
      */
     protected static List<Repository> createFlattenedRepositories( List<Repository> repositories )
     {
@@ -900,21 +933,26 @@ public class FlattenMojo
     /**
      * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
      *
-     * @param effectiveModel is the effective POM {@link Model} to process.
+     * @param projectDependencies is the effective POM {@link Model}'s current dependencies
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
-    protected void createFlattenedDependencies( Model effectiveModel, List<Dependency> flattenedDependencies )
-            throws DependencyTreeBuilderException, ArtifactMetadataRetrievalException, ArtifactDescriptorException {
+    private void createFlattenedDependenciesDirect( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
+    {
+        for ( Dependency projectDependency : projectDependencies )
+        {
+            Dependency flattenedDependency = createFlattenedDependency( projectDependency );
+            if ( flattenedDependency != null )
+            {
+                flattenedDependencies.add( flattenedDependency );
+            }
+        }
+    }
+
+    private void createFlattenedDependenciesAll( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
+            throws DependencyTreeBuilderException, ArtifactDescriptorException {
         final Stack<DependencyNode> dependencyNodeStack = new Stack<>();
         final Set<String> processedDependencies = new HashSet<>();
-
-        getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
-        // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
-        // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
-        List<Dependency> projectDependencies = effectiveModel.getDependencies();
-
-        final DependencyNode dependencyNode = this.dependencyTreeBuilder
-                .buildDependencyTree(this.project, this.localRepository, null);
+        final DependencyNode dependencyNode = this.dependencyTreeBuilder.buildDependencyTree(this.project, this.localRepository, null);
 
         dependencyNode.accept(new DependencyNodeVisitor() {
             @Override public boolean visit(DependencyNode node) {
@@ -969,6 +1007,31 @@ public class FlattenMojo
             Dependency flattenedDependency = createFlattenedDependency( dependency );
             if (flattenedDependency != null) {
                 flattenedDependencies.add(flattenedDependency);
+            }
+        }
+    }
+
+    /**
+     * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
+     *
+     * @param effectiveModel is the effective POM {@link Model} to process.
+     * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
+     */
+    protected void createFlattenedDependencies( Model effectiveModel, List<Dependency> flattenedDependencies )
+            throws MojoExecutionException
+    {
+        getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
+        // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
+        // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
+        List<Dependency> projectDependencies = effectiveModel.getDependencies();
+
+        if (flattenDependencyMode == null | flattenDependencyMode == FlattenDependencyMode.direct) {
+            createFlattenedDependenciesDirect(projectDependencies, flattenedDependencies);
+        } else if (flattenDependencyMode == FlattenDependencyMode.all) {
+            try {
+                createFlattenedDependenciesAll(projectDependencies, flattenedDependencies);
+            } catch (Exception e) {
+                throw new MojoExecutionException("caught exception when flattening dependencies", e);
             }
         }
     }

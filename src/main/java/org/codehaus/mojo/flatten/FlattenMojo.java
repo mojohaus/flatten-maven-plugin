@@ -75,6 +75,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
 
+import org.apache.maven.model.building.ModelBuilder;
+
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
  * potentially updates the POM file} so that the current {@link MavenProject}'s {@link MavenProject#getFile() file}
@@ -348,6 +350,9 @@ public class FlattenMojo
 
     @Component(role = ArtifactDescriptorReader.class)
     private ArtifactDescriptorReader artifactDescriptorReader;
+
+    @Component(role = ModelBuilder.class)
+    private DefaultModelBuilder defaultModelBuilder;
 
     /**
      * The constructor.
@@ -766,7 +771,7 @@ public class FlattenMojo
      * @return the parsed and calculated effective POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected static Model createEffectivePom( ModelBuildingRequest buildingRequest,
+    protected Model createEffectivePom( ModelBuildingRequest buildingRequest,
                                                final boolean embedBuildProfileDependencies, final FlattenMode flattenMode )
         throws MojoExecutionException
     {
@@ -808,7 +813,7 @@ public class FlattenMojo
                     return activeProfiles;
                 }
             };
-            DefaultModelBuilder defaultModelBuilder = new DefaultModelBuilderFactory().newInstance();
+            
             defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
             //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
             //    defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());

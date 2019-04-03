@@ -964,10 +964,17 @@ public class FlattenMojo
             throws DependencyTreeBuilderException, ArtifactDescriptorException {
         final Stack<DependencyNode> dependencyNodeStack = new Stack<>();
         final Set<String> processedDependencies = new HashSet<>();
-        final DependencyNode dependencyNode = this.dependencyTreeBuilder.buildDependencyTree(this.project, this.localRepository, null);
+
+        final Artifact projectArtifact = this.project.getArtifact();
+
+        final DependencyNode dependencyNode = this.dependencyTreeBuilder.buildDependencyTree(this.project,
+                this.localRepository, null);
 
         dependencyNode.accept(new DependencyNodeVisitor() {
             @Override public boolean visit(DependencyNode node) {
+                if (node.getArtifact().getGroupId().equals(projectArtifact.getGroupId()) && node.getArtifact().getArtifactId().equals(projectArtifact.getArtifactId())) {
+                    return true;
+                }
                 if (node.getState() != DependencyNode.INCLUDED) return true;
                 dependencyNodeStack.push(node);
                 return true;
@@ -1000,6 +1007,9 @@ public class FlattenMojo
                     .readArtifactDescriptor(this.session.getRepositorySession(), request);
 
             for (org.eclipse.aether.graph.Dependency artifactDependency: artifactDescriptorResult.getDependencies()) {
+                if ("test".equals(artifactDependency.getScope())) {
+                    continue;
+                }
                 Exclusion exclusion = new Exclusion();
                 exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
                 exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());

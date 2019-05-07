@@ -22,6 +22,8 @@ package org.codehaus.mojo.flatten.model.resolution;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
@@ -36,7 +38,6 @@ import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Collections.singleton;
@@ -72,7 +73,7 @@ public class FlattenModelResolver
      * @param localRepository is the local repository.
      * @param artifactFactory is the factory used to create project artifact instances.
      * @param dependencyResolver is the resolver to use for resolving version ranges.
-     * @param projectBuildingRequest
+     * @param projectBuildingRequest is the request for resolving version ranges against {@code dependencyResolver}.
      * @param reactorModels is the list of modules of the project being built.
      */
     public FlattenModelResolver( ArtifactRepository localRepository, ArtifactFactory artifactFactory,
@@ -101,7 +102,7 @@ public class FlattenModelResolver
      */
     public ModelSource resolveModel( String groupId, String artifactId, String version )
     {
-        File pomFile = reactorModelPool.find(groupId, artifactId, version);
+        File pomFile = reactorModelPool.find( groupId, artifactId, version );
         if ( pomFile == null )
         {
             Artifact pomArtifact = this.artifactFactory.createProjectArtifact( groupId, artifactId, version );
@@ -136,33 +137,60 @@ public class FlattenModelResolver
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
     public ModelSource resolveModel( Parent parent )
-            throws UnresolvableModelException {
+        throws UnresolvableModelException
+    {
+
+        String groupId = parent.getGroupId();
+        String artifactId = parent.getArtifactId();
+        String version = parent.getVersion();
+
+        // resolve version range (if present)
+        if ( isRestrictedVersionRange( version, groupId, artifactId ) )
+        {
+            version = resolveParentVersionRange( groupId, artifactId, version );
+        }
+
+        return resolveModel( groupId, artifactId, version );
+    }
+
+    private static boolean isRestrictedVersionRange( String version, String groupId, String artifactId )
+        throws UnresolvableModelException
+    {
+        try
+        {
+            return VersionRange.createFromVersionSpec( version ).hasRestrictions();
+        }
+        catch ( InvalidVersionSpecificationException e )
+        {
+            throw new UnresolvableModelException( e.getMessage(), groupId, artifactId, version, e );
+        }
+    }
+
+    private String resolveParentVersionRange( String groupId, String artifactId, String version )
+        throws UnresolvableModelException
+    {
 
         Dependency parentDependency = new Dependency();
-        parentDependency.setGroupId(parent.getGroupId());
-        parentDependency.setArtifactId(parent.getArtifactId());
-        parentDependency.setVersion(parent.getVersion());
-        parentDependency.setClassifier("");
-        parentDependency.setType("pom");
+        parentDependency.setGroupId( groupId );
+        parentDependency.setArtifactId( artifactId );
+        parentDependency.setVersion( version );
+        parentDependency.setClassifier( "" );
+        parentDependency.setType( "pom" );
 
-        Artifact parentArtifact = null;
         try
         {
             Iterable<ArtifactResult> artifactResults = depencencyResolver.resolveDependencies(
-                    projectBuildingRequest, singleton(parentDependency), null, null );
-            Iterator<ArtifactResult> iterator = artifactResults.iterator();
-            if (iterator.hasNext()) {
-                parentArtifact = iterator.next().getArtifact();
-            }
-        } catch (DependencyResolverException e) {
-            throw new UnresolvableModelException( e.getMessage(), parent.getGroupId(), parent.getArtifactId(),
-                    parent.getVersion(), e );
+                projectBuildingRequest, singleton( parentDependency ), null, null );
+            return artifactResults.iterator().next().getArtifact().getVersion();
         }
-
-        return resolveModel( parentArtifact.getGroupId(), parentArtifact.getArtifactId(), parentArtifact.getVersion() );
+        catch ( DependencyResolverException e )
+        {
+            throw new UnresolvableModelException( e.getMessage(), groupId, artifactId, version, e );
+        }
     }
 
-    public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
+    public ModelSource resolveModel( Dependency dependency ) throws UnresolvableModelException
+    {
         return resolveModel( dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion() );
     }
 
@@ -183,5 +211,4 @@ public class FlattenModelResolver
     {
         // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
-
 }

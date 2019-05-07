@@ -64,18 +64,18 @@ import org.xml.sax.ext.DefaultHandler2;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import org.apache.maven.model.building.ModelBuilder;
-import org.codehaus.plexus.component.annotations.Requirement;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -434,13 +434,35 @@ public class FlattenMojo
         throws MojoExecutionException
     {
 
-        OutputStream outStream = null;
-        Writer writer = null;
+         OutputStream outStream = null;
         try
         {
+            byte[] binaryData = data.getBytes( encoding );
+
+            if ( file.isFile() && file.canRead() && file.length() == binaryData.length )
+            {
+                InputStream inputStream = null;
+                try
+                {
+                    byte[] buffer = new byte[ binaryData.length ];
+                    inputStream = new FileInputStream( file );
+                    inputStream.read( buffer );
+                    if ( Arrays.equals( buffer, binaryData ) ) {
+                        return;
+                    }
+                }
+                catch ( IOException e )
+                {
+                    // ignore those exceptions, we well overwrite the file
+                }
+                finally
+                {
+                    IOUtil.close( inputStream );
+                }
+            }
+
             outStream = new FileOutputStream( file );
-            writer = new OutputStreamWriter( outStream, encoding );
-            writer.write( data );
+            outStream.write( binaryData );
         }
         catch ( IOException e )
         {
@@ -450,7 +472,6 @@ public class FlattenMojo
         {
             // resource-handling not perfectly solved but we do not want to require java 1.7
             // and this is not a server application.
-            IOUtil.close( writer );
             IOUtil.close( outStream );
         }
     }

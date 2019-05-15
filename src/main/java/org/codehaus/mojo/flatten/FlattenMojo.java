@@ -321,7 +321,7 @@ public class FlattenMojo
      * <td><p>Flatten both direct and transitive dependencies. This will examine the full dependency tree, and pull up
      * all transitive dependencies as a direct dependency, and setting their versions appropriately.</p>
      * <p>This is recommended if you are releasing a library that uses dependency management to manage dependency
-     * versions.</p<</td>
+     * versions.</p>/td>
      * </tr>
      * </tbody>
      * </table>
@@ -960,6 +960,24 @@ public class FlattenMojo
         }
     }
 
+    /**
+     * Collects the resolved direct and transitive {@link Dependency dependencies} from the given <code>effectiveModel</code>.
+     * The collected dependencies are stored in order, so that the leaf dependencies are prioritized in front of direct dependencies.
+     * In addition, every non-leaf dependencies will exclude its own direct dependency, since all transitive dependencies
+     * will be collected.
+	 *
+     * Transitive dependencies are all going to be collected and become a direct dependency. Maven should already resolve
+     * versions properly because now the transitive dependencies are closer to the artifact. However, when this artifact is
+     * being consumed, Maven Enforcer Convergence rule will fail because there may be multiple versions for the same transitive dependency.
+	 *
+     * Typically, exclusion can be done by using the wildcard. However, a known Maven issue prevents convergence enforcer from
+     * working properly w/ wildcard exclusions. Thus, this will exclude each dependencies explicitly rather than using the wildcard.
+     *
+     * @param projectDependencies is the effective POM {@link Model}'s current dependencies
+     * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
+     * @throws DependencyTreeBuilderException
+     * @throws ArtifactDescriptorException
+     */
     private void createFlattenedDependenciesAll( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
             throws DependencyTreeBuilderException, ArtifactDescriptorException {
         final Stack<DependencyNode> dependencyNodeStack = new Stack<>();
@@ -1021,11 +1039,10 @@ public class FlattenMojo
             // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
             String dependencyString = dependency.toString();
 
-            if (processedDependencies.contains(dependencyString)) {
+            if (!processedDependencies.add(dependencyString)) {
                 continue;
             }
 
-            processedDependencies.add(dependencyString);
             Dependency flattenedDependency = createFlattenedDependency( dependency );
             if (flattenedDependency != null) {
                 flattenedDependencies.add(flattenedDependency);

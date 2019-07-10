@@ -40,6 +40,7 @@ import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.interpolation.ModelInterpolator;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
@@ -62,6 +63,7 @@ import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.impl.ArtifactDescriptorReader;
 import org.eclipse.aether.resolution.ArtifactDescriptorException;
@@ -75,6 +77,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -551,6 +554,7 @@ public class FlattenMojo
         Model originalPom = this.project.getOriginalModel();
         Model resolvedPom = this.project.getModel();
         Model interpolatedPom = createResolvedPom( buildingRequest );
+        Model rawPom = getRawPom(pomFile);
 
         // copy the configured additional POM elements...
 
@@ -559,7 +563,7 @@ public class FlattenMojo
             if ( property.isElement() )
             {
                 Model sourceModel = getSourceModel( descriptor, property, effectivePom, originalPom, resolvedPom,
-                                                    interpolatedPom, cleanPom );
+                                                    interpolatedPom, cleanPom, rawPom );
                 if ( sourceModel == null )
                 {
                     if ( property.isRequired() )
@@ -576,6 +580,20 @@ public class FlattenMojo
         }
 
         return flattenedPom;
+    }
+
+    private Model getRawPom(File pomFile) throws MojoExecutionException
+    {
+        MavenXpp3Reader reader = new MavenXpp3Reader();
+        Model rawPom = null;
+        try
+        {
+            rawPom = reader.read(new FileReader(pomFile));
+        }
+        catch(IOException | XmlPullParserException e) {
+            throw new MojoExecutionException("Error reading raw model.", e);
+        }
+        return rawPom;
     }
 
     private Model createResolvedPom( ModelBuildingRequest buildingRequest )
@@ -658,7 +676,8 @@ public class FlattenMojo
     }
 
     private Model getSourceModel( FlattenDescriptor descriptor, PomProperty<?> property, Model effectivePom,
-                                  Model originalPom, Model resolvedPom, Model interpolatedPom, Model cleanPom )
+                                  Model originalPom, Model resolvedPom, Model interpolatedPom, Model cleanPom,
+                                  Model rawPom )
     {
 
         ElementHandling handling = descriptor.getHandling( property );
@@ -678,6 +697,8 @@ public class FlattenMojo
                 return cleanPom;
             case remove:
                 return null;
+            case keepRaw:
+                return rawPom;
             default:
                 throw new IllegalStateException( handling.toString() );
         }

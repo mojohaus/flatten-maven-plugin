@@ -317,6 +317,22 @@ public class FlattenDescriptor
     }
 
     /**
+     * @return {@link ElementHandling} for {@link Model#getLicenses() licenses}.
+     */
+    public ElementHandling getLicenses()
+    {
+        return getHandling( PomProperty.LICENSES );
+    }
+
+    /**
+     * @param licenses the {@link #getLicenses() licenses} to set.
+     */
+    public void setLicenses( ElementHandling licenses )
+    {
+        setHandling( PomProperty.LICENSES, licenses );
+    }
+
+    /**
      * @return {@link ElementHandling} for {@link Model#getCiManagement() ciManagement}.
      */
     public ElementHandling getCiManagement()

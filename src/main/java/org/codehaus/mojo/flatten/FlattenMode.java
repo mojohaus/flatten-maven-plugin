@@ -77,8 +77,12 @@ public enum FlattenMode
     /** Only resolves variables revision, sha1 and changelist. Keeps everything else. 
      * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details. 
      */
-    resolveCiFriendliesOnly;
+    resolveCiFriendliesOnly,
 
+    /**
+     * Fix for {@link #resolveCiFriendliesOnly}
+     */
+    version;
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
@@ -146,6 +150,34 @@ public enum FlattenMode
                 descriptor.setScm( ElementHandling.interpolate );
                 descriptor.setUrl( ElementHandling.interpolate );
                 descriptor.setVersion( ElementHandling.resolve );
+                break;
+            case version:
+                descriptor.setBuild(ElementHandling.keepRaw);
+                descriptor.setCiManagement(ElementHandling.keepRaw);
+                descriptor.setContributors(ElementHandling.keepRaw);
+                descriptor.setDependencies(ElementHandling.keepRaw);
+                descriptor.setDependencyManagement(ElementHandling.keepRaw);
+                descriptor.setDescription(ElementHandling.keepRaw);
+                descriptor.setDevelopers(ElementHandling.keepRaw);
+                descriptor.setDistributionManagement(ElementHandling.keepRaw);
+                descriptor.setInceptionYear(ElementHandling.keepRaw);
+                descriptor.setIssueManagement(ElementHandling.keepRaw);
+                descriptor.setLicenses(ElementHandling.keepRaw);
+                descriptor.setMailingLists(ElementHandling.keepRaw);
+                descriptor.setModules(ElementHandling.keepRaw);
+                descriptor.setName(ElementHandling.keepRaw);
+                descriptor.setOrganization(ElementHandling.keepRaw);
+                descriptor.setParent(ElementHandling.resolve);
+                descriptor.setPluginManagement(ElementHandling.keepRaw);
+                descriptor.setPluginRepositories(ElementHandling.keepRaw);
+                descriptor.setPrerequisites(ElementHandling.keepRaw);
+                descriptor.setProfiles(ElementHandling.keepRaw);
+                descriptor.setProperties(ElementHandling.keepRaw);
+                descriptor.setReporting(ElementHandling.keepRaw);
+                descriptor.setRepositories(ElementHandling.keepRaw);
+                descriptor.setScm(ElementHandling.keepRaw);
+                descriptor.setUrl(ElementHandling.keepRaw);
+                descriptor.setVersion(ElementHandling.resolve);
                 break;
             case clean:
                 // nothing to do...

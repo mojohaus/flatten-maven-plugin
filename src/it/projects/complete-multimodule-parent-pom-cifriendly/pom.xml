@@ -16,6 +16,8 @@
 				<artifactId>flatten-maven-plugin</artifactId>
 				<configuration>
 					<flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <!-- Use this instead to fix interpolation bug
+                    <flattenMode>version</flattenMode>-->
 				</configuration>
 			</plugin>
 		</plugins>
@@ -100,6 +102,8 @@
 		<revision>1.2.3.0</revision>
 
 		<key>value</key>
+        <repoHost>foo</repoHost>
+        <repoPath>bar</repoPath>
 	</properties>
 
 	<reporting>
@@ -114,4 +118,19 @@
 
 	<url>http://mojo.codehaus.org</url>
 
+    <profiles>
+        <profile>
+            <id>cifriendly-profile-bug</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>myrepo</id>
+                    <name>myrepo</name>
+                    <url>https://${repoHost}/${repoPath}</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 </project>

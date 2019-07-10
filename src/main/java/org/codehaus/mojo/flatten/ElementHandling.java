@@ -47,6 +47,9 @@ public enum ElementHandling
     keep,
 
     /** Remove the element entirely so it will not be present in flattened POM. */
-    remove
+    remove,
+
+    /** Take the element untouched from the original POM. Fix for {@link #keep} */
+    keepRaw
 
 }

@@ -82,3 +82,6 @@ assert 'org.codehaus.mojo.flatten.its' == flattendChildWithParentProject.groupId
 assert 'multimodule-module-with-parent-cifriendly' == flattendChildWithParentProject.artifactId.text()
 assert '1.2.3.4' == flattendChildWithParentProject.version.text()
 assert '1.2.3.4' == flattendChildWithParentProject.parent.version.text()
+
+// CiFriendly interpolation bug
+assert 'https://${repoHost}/${repoPath}' == flattendProject.profiles.profile[0].repositories.repository[0].url.text()

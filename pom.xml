@@ -32,7 +32,7 @@
   <!-- Custom patch to org.codehaus.mojo:flatten-maven-plugin:1.1.0
        For more details please see "git diff flatten-maven-plugin-1.1.0 flatten-maven-plugin-1.1.x"
        or visit https://github.com/nruzic/flatten-maven-plugin -->
-  <version>1.1.0.1</version>
+  <version>1.1.0.2</version>
   <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>

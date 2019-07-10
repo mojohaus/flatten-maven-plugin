@@ -77,6 +77,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.apache.maven.model.building.ModelBuilder;
+import org.codehaus.plexus.component.annotations.Requirement;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -282,6 +284,11 @@ public class FlattenMojo
      * <td>Removes all {@link FlattenDescriptor optional POM elements} and all {@link Model#getDependencies()
      * dependencies}.</td>
      * </tr>
+     * <tr>
+     * <td>resolveCiFriendliesOnly</td>
+     * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else. 
+	 * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
+     * </tr>
      * </tbody>
      * </table>
      */
@@ -308,6 +315,9 @@ public class FlattenMojo
     @Component
     private DependencyResolver dependencyResolver;
 
+    @Component(role = ModelBuilder.class)
+    private DefaultModelBuilder defaultModelBuilder;
+    
     /**
      * The constructor.
      */
@@ -738,7 +748,7 @@ public class FlattenMojo
      * @return the parsed and calculated effective POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected static Model createEffectivePom( ModelBuildingRequest buildingRequest,
+    protected Model createEffectivePom( ModelBuildingRequest buildingRequest,
                                                final boolean embedBuildProfileDependencies, final FlattenMode flattenMode )
         throws MojoExecutionException
     {
@@ -780,7 +790,7 @@ public class FlattenMojo
                     return activeProfiles;
                 }
             };
-            DefaultModelBuilder defaultModelBuilder = new DefaultModelBuilderFactory().newInstance();
+            
             defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
             //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
             //	defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());

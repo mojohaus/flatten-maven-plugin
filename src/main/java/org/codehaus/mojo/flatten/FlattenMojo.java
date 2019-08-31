@@ -31,14 +31,16 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.model.building.DefaultModelBuilder;
-import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelProblemCollector;
+import org.apache.maven.model.building.ModelProblemCollectorRequest;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.model.profile.DefaultProfileActivationContext;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
@@ -52,7 +54,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
-import org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -72,10 +73,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import org.apache.maven.model.building.ModelBuilder;
-import org.codehaus.plexus.component.annotations.Requirement;
+import java.util.Set;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -312,6 +313,9 @@ public class FlattenMojo
     @Component
     private DependencyResolver dependencyResolver;
 
+    @Component
+    private ProfileSelector profileSelector;
+
     @Component(role = ModelBuilder.class)
     private DefaultModelBuilder defaultModelBuilder;
     
@@ -480,7 +484,7 @@ public class FlattenMojo
         }
         flattenedPom.setModelEncoding( modelEncoding );
 
-        Model cleanPom = createCleanPom( effectivePom );
+        Model cleanPom = createCleanPom( effectivePom, buildingRequest);
 
         FlattenDescriptor descriptor = getFlattenDescriptor();
         Model originalPom = this.project.getOriginalModel();
@@ -531,9 +535,10 @@ public class FlattenMojo
      * to be kept in flattened POM.
      *
      * @param effectivePom is the effective POM.
+     * @param buildingRequest
      * @return the clean POM.
      */
-    protected Model createCleanPom( Model effectivePom )
+    protected Model createCleanPom(Model effectivePom, ModelBuildingRequest buildingRequest)
     {
         Model cleanPom = new Model();
 
@@ -587,7 +592,7 @@ public class FlattenMojo
         }
 
         // transform dependencies...
-        List<Dependency> dependencies = createFlattenedDependencies( effectivePom );
+        List<Dependency> dependencies = createFlattenedDependencies( effectivePom, buildingRequest );
         cleanPom.setDependencies( dependencies );
         return cleanPom;
     }
@@ -846,7 +851,7 @@ public class FlattenMojo
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @return the {@link List} of {@link Dependency dependencies}.
      */
-    protected List<Dependency> createFlattenedDependencies( Model effectiveModel )
+    protected List<Dependency> createFlattenedDependencies(final Model effectiveModel, final ModelBuildingRequest modelBuildingRequest )
     {
 
         List<Dependency> flattenedDependencies = new ArrayList<Dependency>();
@@ -854,13 +859,16 @@ public class FlattenMojo
         createFlattenedDependencies( effectiveModel, flattenedDependencies );
         if ( isEmbedBuildProfileDependencies() )
         {
-            Model projectModel = this.project.getModel();
+            final Model projectModel = this.project.getModel();
             Dependencies modelDependencies = new Dependencies();
             modelDependencies.addAll( projectModel.getDependencies() );
+
+            Set<String> activeProfile = resolveActiveProfileIds(effectiveModel, modelBuildingRequest);
+
             for ( Profile profile : projectModel.getProfiles() )
             {
                 // build-time driven activation (by property or file)?
-                if ( isBuildTimeDriven( profile.getActivation() ) )
+                if ( isBuildTimeDriven( profile.getActivation() ) && activeProfile.contains(profile.getId()))
                 {
                     List<Dependency> profileDependencies = profile.getDependencies();
                     for ( Dependency profileDependency : profileDependencies )
@@ -880,6 +888,29 @@ public class FlattenMojo
             getLog().debug( "Resolved " + flattenedDependencies.size() + " dependency/-ies for flattened POM." );
         }
         return flattenedDependencies;
+    }
+
+    private Set<String> resolveActiveProfileIds(final Model effectiveModel, final ModelBuildingRequest buildingRequest) {
+        DefaultProfileActivationContext context = new DefaultProfileActivationContext();
+        context.setActiveProfileIds(buildingRequest.getActiveProfileIds());
+        context.setInactiveProfileIds(buildingRequest.getInactiveProfileIds());
+        context.setSystemProperties(buildingRequest.getSystemProperties());
+        context.setUserProperties(buildingRequest.getUserProperties());
+        context.setProjectDirectory(buildingRequest.getPomFile() != null ? buildingRequest.getPomFile().getParentFile() : null);
+
+        List<Profile> activeProfiles = profileSelector.getActiveProfiles(effectiveModel.getProfiles(), context, new ModelProblemCollector() {
+            @Override
+            public void add(ModelProblemCollectorRequest modelProblemCollectorRequest) {
+
+            }
+        });
+
+
+        Set<String> activeProfile = new HashSet<String>();
+        for(Profile p : activeProfiles) {
+            activeProfile.add(p.getId());
+        }
+        return activeProfile;
     }
 
     /**

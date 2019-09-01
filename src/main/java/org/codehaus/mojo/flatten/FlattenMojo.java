@@ -880,7 +880,12 @@ public class FlattenMojo
                             // Non build-time driven profiles will remain in the flattened POM with their dependencies
                             // and
                             // allow dynamic dependencies due to OS or JDK.
-                            flattenedDependencies.add( profileDependency );
+                            int depIndex = findDependencyToOverride(flattenedDependencies, profileDependency);
+                            if (depIndex == -1) {
+                                flattenedDependencies.add(profileDependency);
+                            } else {
+                                flattenedDependencies.set(depIndex, profileDependency);
+                            }
                         }
                     }
                 }
@@ -888,6 +893,25 @@ public class FlattenMojo
             getLog().debug( "Resolved " + flattenedDependencies.size() + " dependency/-ies for flattened POM." );
         }
         return flattenedDependencies;
+    }
+
+    private int findDependencyToOverride(List<Dependency> dependencies, Dependency override) {
+
+        for( int i = 0; i < dependencies.size(); i++ )
+        {
+            Dependency candidate = dependencies.get(i);
+            if (isOverrideOf(override, candidate))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private boolean isOverrideOf(Dependency override, Dependency candidate) {
+        Dependency clone = candidate.clone();
+        clone.setVersion(override.getVersion());
+        return clone.getManagementKey().equals(override.getManagementKey());
     }
 
     private Set<String> resolveActiveProfileIds(final Model effectiveModel, final ModelBuildingRequest buildingRequest) {

@@ -72,6 +72,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import org.apache.maven.model.building.ModelBuilder;
@@ -708,7 +709,7 @@ public class FlattenMojo
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
-            this.dependencyResolver, this.session.getProjectBuildingRequest(), this.session.getAllProjects() );
+            this.dependencyResolver, this.session.getProjectBuildingRequest(), getReactorModelsFromSession() );
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
@@ -717,6 +718,21 @@ public class FlattenMojo
             new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles );
         // @formatter:on
         return buildingRequest;
+    }
+
+    private List<MavenProject> getReactorModelsFromSession()
+    {
+        // robust approach for 'special' environments like m2e (Eclipse plugin) which don't provide allProjects
+        List<MavenProject> models = this.session.getAllProjects();
+        if ( models == null )
+        {
+            models = this.session.getProjects();
+        }
+        if ( models == null )
+        {
+            models = Collections.emptyList();
+        }
+        return models;
     }
 
     /**

@@ -359,6 +359,12 @@ public class FlattenMojo
     @Component
     private DependencyResolver dependencyResolver;
 
+    @Component( hint = "default" )
+    private DependencyTreeBuilder dependencyTreeBuilder;
+
+    @Component(role = ArtifactDescriptorReader.class)
+    private ArtifactDescriptorReader artifactDescriptorReader;
+
     @Component(role = ModelBuilder.class)
     private DefaultModelBuilder defaultModelBuilder;
     

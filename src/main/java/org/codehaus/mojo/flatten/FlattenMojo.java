@@ -315,7 +315,13 @@ public class FlattenMojo
 
     @Component(role = ModelBuilder.class)
     private DefaultModelBuilder defaultModelBuilder;
-    
+
+    @Component
+    private ProfileSelector profileSelector;
+
+    @Component
+    private ProfileInjector profileInjector;
+
     /**
      * The constructor.
      */
@@ -750,9 +756,8 @@ public class FlattenMojo
         ModelBuildingResult buildingResult;
         try
         {
-            ProfileInjector profileInjector = new ProfileInjector()
+            ProfileInjector injector = new ProfileInjector()
             {
-
                 public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
@@ -766,7 +771,7 @@ public class FlattenMojo
                     }
                 }
             };
-            ProfileSelector profileSelector = new ProfileSelector()
+            ProfileSelector selector = new ProfileSelector()
             {
                 public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
                                                         ModelProblemCollector problems )
@@ -785,12 +790,24 @@ public class FlattenMojo
                     return activeProfiles;
                 }
             };
-            
-            defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
-            //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
-            //	defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
-            //}
-            buildingResult = defaultModelBuilder.build( buildingRequest );
+
+            // brief modification of singleton defaultModelBuilder needs to be limited to one thread/execution at a time
+            synchronized( defaultModelBuilder )
+            {
+                try
+                {
+                    defaultModelBuilder.setProfileInjector( injector ).setProfileSelector( selector );
+                    //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+                    //  defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
+                    //}
+                    buildingResult = defaultModelBuilder.build( buildingRequest );
+                }
+                finally
+                {
+                    // reset profileInjector and profileSelector
+                    defaultModelBuilder.setProfileInjector( this.profileInjector ).setProfileSelector( this.profileSelector );
+                }
+            }
         }
         catch ( ModelBuildingException e )
         {

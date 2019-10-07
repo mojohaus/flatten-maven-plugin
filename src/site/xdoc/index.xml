@@ -7,8 +7,8 @@
 
   <body>
     <section name="Flatten Maven Plugin">
-      Flatten Maven Plugin generates a flattened version of your pom.xml and makes maven to install
-      and deploy this one instead of the original pom.xml. The flattened POM has the following characteristics:
+      <p>The Flatten Maven Plugin generates a flattened version of the pom.xml that Maven installs
+        and deploys instead of the original. The flattened POM has the following characteristics:</p>
       <ul>
         <li>Build specific elements are removed</li>
         <li>Development specific elements are removed by default</li>
@@ -18,14 +18,14 @@
         <li>Its build time driven profiles <b>can</b> be evaluated so their impact gets embedded</li>
         <li>JDK or OS driven profiles still remain allowing dynamic dependencies if needed</li>
       </ul>
-      For a complete specification of how the flattened POM is build see <a href="flatten-mojo.html">here</a>.
-      This allows the following possibilities and features:
+      <p>For a complete specification of how the flattened POM is built see <a href="flatten-mojo.html">here</a>.
+        This allows the following possibilities and features:</p>
       <ul>
         <li>You can keep the versions of parent POMs fixed and use them for development only distributed
         via version control only instead of maven repositories. This way you can use centralized
         variables and dependencyManagement without maintaining and releasing parent POM versions.</li>
         <li>You can use a lot of the flexibility of maven but avoid various mistakes resulting in
-        installing or deploying POMs that are inconsistent.</li>
+        installing or deploying inconsistent POMs.</li>
       </ul>      
       <subsection name="Goals">
       <ul>
@@ -36,17 +36,16 @@
       <subsection name="Usage">
         <p>General instructions on how to use the Flatten Maven Plugin can be found on the <a href="usage.html">usage page</a>.</p>
         
-        <p>In case you still have questions regarding the plugin's usage, please feel
-            free to contact the <a href="mail-lists.html">user mailing list</a>. The posts to the mailing list are archived and could
+        <p>If you have questions regarding the plugin's usage, contact the <a href="mail-lists.html">user mailing list</a>. Posts to the mailing list are archived and could
             already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
             the <a href="mail-lists.html">mail archive</a>.
         </p>
 
-       <p>If you feel like the plugin is missing a feature or has a defect, you can fill a feature request or bug report in our
+       <p>You can fill a feature request or bug report in our
           <a href="issue-tracking.html">issue tracker</a>. When creating a new issue, please provide a comprehensive description of your
-          concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. For this reason,
-          entire debug logs, POMs or most preferably little demo projects attached to the issue are very much appreciated.
-          Of course, patches are most welcome too. Contributors can check out the project from our
+          concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. 
+          Entire debug logs, POMs and most preferably little demo projects attached to the issue are very much appreciated.
+          Of course, patches are welcome too. Contributors can check out the project from our
           <a href="source-repository.html">source repository</a> and will find supplementary information in the
           <a href="http://maven.apache.org/guides/development/guide-helping.html">guide to helping with Maven</a>. 
        </p>

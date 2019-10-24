@@ -82,6 +82,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -367,6 +368,12 @@ public class FlattenMojo
 
     @Component(role = ArtifactDescriptorReader.class)
     private ArtifactDescriptorReader artifactDescriptorReader;
+
+    @Component
+    private ProfileSelector profileSelector;
+
+    @Component
+    private ProfileInjector profileInjector;
 
     /**
      * The constructor.
@@ -766,7 +773,7 @@ public class FlattenMojo
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
-            this.dependencyResolver, this.session.getProjectBuildingRequest(), this.session.getAllProjects() );
+            this.dependencyResolver, this.session.getProjectBuildingRequest(), getReactorModelsFromSession() );
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
@@ -775,6 +782,21 @@ public class FlattenMojo
             new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles );
         // @formatter:on
         return buildingRequest;
+    }
+
+    private List<MavenProject> getReactorModelsFromSession()
+    {
+        // robust approach for 'special' environments like m2e (Eclipse plugin) which don't provide allProjects
+        List<MavenProject> models = this.session.getAllProjects();
+        if ( models == null )
+        {
+            models = this.session.getProjects();
+        }
+        if ( models == null )
+        {
+            models = Collections.emptyList();
+        }
+        return models;
     }
 
     /**
@@ -792,9 +814,8 @@ public class FlattenMojo
         ModelBuildingResult buildingResult;
         try
         {
-            ProfileInjector profileInjector = new ProfileInjector()
+            ProfileInjector injector = new ProfileInjector()
             {
-
                 public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
@@ -808,7 +829,7 @@ public class FlattenMojo
                     }
                 }
             };
-            ProfileSelector profileSelector = new ProfileSelector()
+            ProfileSelector selector = new ProfileSelector()
             {
                 public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
                                                         ModelProblemCollector problems )
@@ -828,11 +849,23 @@ public class FlattenMojo
                 }
             };
             
-            defaultModelBuilder.setProfileInjector( profileInjector ).setProfileSelector( profileSelector );
-            //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
-            // defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
-            //}
-            buildingResult = defaultModelBuilder.build( buildingRequest );
+            // brief modification of singleton defaultModelBuilder needs to be limited to one thread/execution at a time
+            synchronized( defaultModelBuilder )
+            {
+                try
+                {
+                    defaultModelBuilder.setProfileInjector( injector ).setProfileSelector( selector );
+                    //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+                    //  defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
+                    //}
+                    buildingResult = defaultModelBuilder.build( buildingRequest );
+                }
+                finally
+                {
+                    // reset profileInjector and profileSelector
+                    defaultModelBuilder.setProfileInjector( this.profileInjector ).setProfileSelector( this.profileSelector );
+                }
+            }
         }
         catch ( ModelBuildingException e )
         {

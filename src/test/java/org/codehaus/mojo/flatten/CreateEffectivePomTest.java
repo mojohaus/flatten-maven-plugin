@@ -28,18 +28,13 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.internal.DefaultVersionRangeResolver;
 import org.apache.maven.shared.dependencies.resolve.internal.DefaultDependencyResolver;
-import org.assertj.core.api.Assertions;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.impl.VersionRangeResolver;
 import org.junit.Test;
 
 import java.io.File;
@@ -48,7 +43,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.maven.model.building.DefaultModelBuilderFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test-Case for {@link FlattenMojo}.
@@ -56,7 +52,6 @@ import org.apache.maven.model.building.DefaultModelBuilderFactory;
  * @author hohwille
  */
 public class CreateEffectivePomTest
-    extends Assertions
 {
 
     FlattenMojo tested = new FlattenMojo();

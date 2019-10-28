@@ -434,7 +434,7 @@ public class FlattenMojo
         throws MojoExecutionException
     {
 
-         OutputStream outStream = null;
+        OutputStream outStream = null;
         try
         {
             byte[] binaryData = data.getBytes( encoding );
@@ -453,7 +453,7 @@ public class FlattenMojo
                 }
                 catch ( IOException e )
                 {
-                    // ignore those exceptions, we well overwrite the file
+                    // ignore those exceptions, we will overwrite the file
                 }
                 finally
                 {

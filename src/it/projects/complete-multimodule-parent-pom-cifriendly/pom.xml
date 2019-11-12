@@ -118,19 +118,20 @@
 
 	<url>http://mojo.codehaus.org</url>
 
-    <profiles>
-        <profile>
-            <id>cifriendly-profile-bug</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>myrepo</id>
-                    <name>myrepo</name>
-                    <url>https://${repoHost}/${repoPath}</url>
-                </repository>
-            </repositories>
-        </profile>
-    </profiles>
+	<profiles>
+		<profile>
+			<id>cifriendly-profile-bug</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>myrepo</id>
+					<name>myrepo</name>
+					<url>https://${repoHost}/${repoPath}</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+
 </project>

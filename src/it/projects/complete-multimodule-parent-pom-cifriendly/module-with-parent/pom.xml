@@ -10,4 +10,14 @@
     <artifactId>complete-multimodule-parent-pom-cifriendly</artifactId>
     <version>${revision}</version>
   </parent>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.mojo.flatten.its</groupId>
+      <artifactId>dep</artifactId>
+      <version>${revision}</version>
+    </dependency>
+  </dependencies>
+
 </project>

@@ -70,7 +70,6 @@ assert '4.0.0' ==  flattendChildProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == flattendChildProject.groupId.text()
 assert 'multimodule-module-cifriendly' == flattendChildProject.artifactId.text()
 assert '1.2.3.4' == flattendChildProject.version.text()
-assert '1.2.3.4' == flattendChildProject.dependencies.dependency[0].version.text()
 
 // Child module: module-with-parent
 File flattendChildWithParentPom = new File( basedir, 'module-with-parent/.flattened-pom.xml' )
@@ -83,5 +82,3 @@ assert 'org.codehaus.mojo.flatten.its' == flattendChildWithParentProject.groupId
 assert 'multimodule-module-with-parent-cifriendly' == flattendChildWithParentProject.artifactId.text()
 assert '1.2.3.4' == flattendChildWithParentProject.version.text()
 assert '1.2.3.4' == flattendChildWithParentProject.parent.version.text()
-assert '1.2.3.4' == flattendChildWithParentProject.dependencies.dependency[0].version.text()
-assert '1.2.3.4' == flattendChildWithParentProject.dependencyManagement.dependencies.dependency[0].version.text()

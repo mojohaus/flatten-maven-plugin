@@ -11,7 +11,6 @@
     <version>${revision}</version>
   </parent>
 
-
   <dependencies>
     <dependency>
       <groupId>org.codehaus.mojo.flatten.its</groupId>

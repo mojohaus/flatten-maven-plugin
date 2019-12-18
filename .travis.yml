@@ -9,7 +9,7 @@ jdk:
   - oraclejdk8
 
 env:
-  - MAVEN_VERSION=3.6.3
+  - MAVEN_VERSION=3.5.4
 
 install:
   - "mvn -N io.takari:maven:wrapper -Dmaven=${MAVEN_VERSION} -Dhttps.protocols=TLSv1.2"

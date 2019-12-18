@@ -97,7 +97,7 @@
 
 	<properties>
 		<!-- Default revision -->
-		<revision>1.2.3.4</revision>
+		<revision>1.2.3.0</revision>
 
 		<key>value</key>
 	</properties>

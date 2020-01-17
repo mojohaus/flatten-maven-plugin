@@ -29,7 +29,7 @@
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0</version>
   <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
   <prerequisites>
@@ -282,7 +282,7 @@
     <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
     <url>https://github.com/mojohaus/flatten-maven-plugin</url>
-    <tag>flatten-maven-plugin-1.1.0</tag>
+    <tag>flatten-maven-plugin-1.2.0</tag>
   </scm>
   <issueManagement>
     <system>github</system>

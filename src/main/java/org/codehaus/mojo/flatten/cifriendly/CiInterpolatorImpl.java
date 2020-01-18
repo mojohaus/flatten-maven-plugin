@@ -125,8 +125,6 @@ public class CiInterpolatorImpl implements Interpolator {
 	    /**
 	     * Entry point for recursive resolution of an expression and all of its
 	     * nested expressions.
-	     *
-	     * @todo Ensure unresolvable expressions don't trigger infinite recursion.
 	     */
 	    public String interpolate( String input, RecursionInterceptor recursionInterceptor )
 	        throws InterpolationException

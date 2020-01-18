@@ -23,10 +23,10 @@ under the License.
     <link>http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin</link>
     <description>Maven Flatten Plugin - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2014 - 2018 MojoHaus</copyright>
+    <copyright>&#169;2014 - 2020 MojoHaus</copyright>
     <item>
-      <title>File: 14,
-             Errors: 1460,
+      <title>File: 16,
+             Errors: 1560,
              Warnings: 30,
              Infos: 2
       </title>
@@ -111,7 +111,7 @@ under the License.
                   14
                 </td>
                 <td>
-                  276
+                  274
                 </td>
               </tr>
                           <tr>
@@ -126,6 +126,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.HelpMojo.java">org/codehaus/mojo/flatten/HelpMojo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
                 </td>
               </tr>
                           <tr>
@@ -192,10 +206,10 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
                 <td>
-                  9
+                  134
                 </td>
               </tr>
                           <tr>
@@ -228,16 +242,30 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenDependencyMode.java">org/codehaus/mojo/flatten/FlattenDependencyMode.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver.java">org/codehaus/mojo/flatten/model/resolution/FlattenModelResolver.java</a>
                 </td>
                 <td>
                   0
                 </td>
                 <td>
-                  3
+                  2
                 </td>
                 <td>
-                  25
+                  0
                 </td>
               </tr>
                       </tbody>

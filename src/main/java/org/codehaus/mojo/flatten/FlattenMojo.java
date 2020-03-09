@@ -19,6 +19,8 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
+import java.util.Deque;
+import java.util.Queue;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -91,6 +93,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import org.apache.maven.model.building.ModelBuilder;
+import sun.awt.image.ImageWatched.Link;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -1039,7 +1042,7 @@ public class FlattenMojo
      */
     private void createFlattenedDependenciesAll( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
             throws DependencyTreeBuilderException, ArtifactDescriptorException {
-        final Stack<DependencyNode> dependencyNodeStack = new Stack<>();
+        final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<DependencyNode>() {};
         final Set<String> processedDependencies = new HashSet<>();
 
         final Artifact projectArtifact = this.project.getArtifact();
@@ -1053,7 +1056,7 @@ public class FlattenMojo
                     return true;
                 }
                 if (node.getState() != DependencyNode.INCLUDED) return true;
-                dependencyNodeStack.push(node);
+                dependencyNodeLinkedList.add(node);
                 return true;
             }
 
@@ -1062,8 +1065,8 @@ public class FlattenMojo
             }
         });
 
-        while (!dependencyNodeStack.isEmpty()) {
-            DependencyNode node = dependencyNodeStack.pop();
+        while (!dependencyNodeLinkedList.isEmpty()) {
+            DependencyNode node = dependencyNodeLinkedList.poll();
 
             Artifact artifact = node.getArtifact();
 
@@ -1111,6 +1114,7 @@ public class FlattenMojo
 
     /**
      * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
+     *
      *
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.

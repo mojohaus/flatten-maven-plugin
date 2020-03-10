@@ -19,7 +19,6 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.util.Deque;
 import java.util.Queue;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -91,9 +90,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Stack;
-import org.apache.maven.model.building.ModelBuilder;
-import sun.awt.image.ImageWatched.Link;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()

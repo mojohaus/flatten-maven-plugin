@@ -1095,7 +1095,7 @@ public class FlattenMojo
             dependency.setExclusions(exclusions);
 
             // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
-            String dependencyString = dependency.toString() + dependency.getClassifier();
+            String dependencyString = dependency.getManagementKey();
 
             if (!processedDependencies.add(dependencyString)) {
                 continue;

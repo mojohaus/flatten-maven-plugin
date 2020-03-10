@@ -1115,7 +1115,6 @@ public class FlattenMojo
     /**
      * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
      *
-     *
      * @param effectiveModel is the effective POM {@link Model} to process.
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      * @throws MojoExecutionException if anything goes wrong.

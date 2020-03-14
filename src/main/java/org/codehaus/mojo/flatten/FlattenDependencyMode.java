@@ -19,8 +19,6 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import org.apache.maven.model.Model;
-
 /**
  * This enum contains the predefined modes on how to flatten the dependencies.
  *

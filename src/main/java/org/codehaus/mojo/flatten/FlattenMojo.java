@@ -492,19 +492,16 @@ public class FlattenMojo
     protected void writeStringToFile( String data, File file, String encoding )
         throws MojoExecutionException
     {
-
-        OutputStream outStream = null;
-        try
+        try (OutputStream outStream = new FileOutputStream( file ))
         {
             byte[] binaryData = data.getBytes( encoding );
 
             if ( file.isFile() && file.canRead() && file.length() == binaryData.length )
             {
-                InputStream inputStream = null;
-                try
+
+                try (InputStream inputStream = new FileInputStream( file ))
                 {
                     byte[] buffer = new byte[ binaryData.length ];
-                    inputStream = new FileInputStream( file );
                     inputStream.read( buffer );
                     if ( Arrays.equals( buffer, binaryData ) ) {
                         return;
@@ -513,25 +510,14 @@ public class FlattenMojo
                 catch ( IOException e )
                 {
                     // ignore those exceptions, we will overwrite the file
-                }
-                finally
-                {
-                    IOUtil.close( inputStream );
+                    getLog().debug( "Issue reading file: " + file.getPath(), e );
                 }
             }
-
-            outStream = new FileOutputStream( file );
             outStream.write( binaryData );
         }
         catch ( IOException e )
         {
             throw new MojoExecutionException( "Failed to write to " + file, e );
-        }
-        finally
-        {
-            // resource-handling not perfectly solved but we do not want to require java 1.7
-            // and this is not a server application.
-            IOUtil.close( outStream );
         }
     }
 

@@ -235,6 +235,7 @@
               </goals>
               <projectsDirectory>src/it/projects</projectsDirectory>
               <postBuildHookScript>verify</postBuildHookScript>
+              <preBuildHookScript>setup</preBuildHookScript>
             </configuration>
           </plugin>
           <plugin>

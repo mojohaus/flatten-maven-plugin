@@ -492,20 +492,25 @@ public class FlattenMojo
     protected void writeStringToFile( String data, File file, String encoding )
         throws MojoExecutionException
     {
-        try (OutputStream outStream = new FileOutputStream( file ))
+
+        byte[] binaryData;
+
+        try
         {
-            byte[] binaryData = data.getBytes( encoding );
+            binaryData = data.getBytes( encoding );
 
             if ( file.isFile() && file.canRead() && file.length() == binaryData.length )
             {
-
                 try (InputStream inputStream = new FileInputStream( file ))
                 {
-                    byte[] buffer = new byte[ binaryData.length ];
+                    byte[] buffer = new byte[binaryData.length];
                     inputStream.read( buffer );
-                    if ( Arrays.equals( buffer, binaryData ) ) {
+                    if ( Arrays.equals( buffer, binaryData ) )
+                    {
+                        getLog().debug( "Arrays.equals( buffer, binaryData ) " );
                         return;
                     }
+                    getLog().debug( "Not Arrays.equals( buffer, binaryData ) " );
                 }
                 catch ( IOException e )
                 {
@@ -513,6 +518,16 @@ public class FlattenMojo
                     getLog().debug( "Issue reading file: " + file.getPath(), e );
                 }
             }
+            else
+            {
+                getLog().debug( "file: " + file + ",file.length(): " + file.length() + ", binaryData.length: " + binaryData.length );
+            }
+        } catch ( IOException e )
+        {
+            throw new MojoExecutionException( "cannot read String as bytes" , e );
+        }
+        try (OutputStream outStream = new FileOutputStream( file ))
+        {
             outStream.write( binaryData );
         }
         catch ( IOException e )

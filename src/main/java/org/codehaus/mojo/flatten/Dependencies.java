@@ -101,6 +101,17 @@ public class Dependencies
     }
 
     /**
+     * 
+     * @param dependency the {@link Dependency} to resolve.
+     * @return a full declared {@link Dependency}
+     */
+    public Dependency resolve( Dependency dependency )
+    {
+        return this.key2DependencyMap.get( getKey( dependency ) );
+    }
+    
+    
+    /**
      * @return a {@link List} with the {@link Dependency} objects contained in these {@link Dependencies}.
      */
     public List<Dependency> toList()

@@ -991,7 +991,7 @@ public class FlattenMojo
                             // Non build-time driven profiles will remain in the flattened POM with their dependencies
                             // and
                             // allow dynamic dependencies due to OS or JDK.
-                            flattenedDependencies.add( profileDependency );
+                            flattenedDependencies.add( modelDependencies.resolve(profileDependency) );
                         }
                     }
                 }

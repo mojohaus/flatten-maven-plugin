@@ -26,7 +26,7 @@ under the License.
     <copyright>&#169;2014 - 2020 MojoHaus</copyright>
     <item>
       <title>File: 16,
-             Errors: 1560,
+             Errors: 1568,
              Warnings: 30,
              Infos: 2
       </title>
@@ -172,20 +172,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.Dependencies.java">org/codehaus/mojo/flatten/Dependencies.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenDescriptor.java">org/codehaus/mojo/flatten/FlattenDescriptor.java</a>
                 </td>
                 <td>
@@ -200,6 +186,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.Dependencies.java">org/codehaus/mojo/flatten/Dependencies.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="http://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenMojo.java">org/codehaus/mojo/flatten/FlattenMojo.java</a>
                 </td>
                 <td>
@@ -209,7 +209,7 @@ under the License.
                   2
                 </td>
                 <td>
-                  134
+                  143
                 </td>
               </tr>
                           <tr>
@@ -251,7 +251,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  0
                 </td>
               </tr>
                           <tr>

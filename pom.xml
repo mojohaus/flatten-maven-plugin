@@ -301,14 +301,6 @@
     <url>https://travis-ci.org/mojohaus/flatten-maven-plugin</url>
   </ciManagement>
   <distributionManagement>
-    <repository>
-      <id>ossrh-staging</id>
-      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-      <id>ossrh-snapshots</id>
-      <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <site>
       <id>github</id>
       <url>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</url>

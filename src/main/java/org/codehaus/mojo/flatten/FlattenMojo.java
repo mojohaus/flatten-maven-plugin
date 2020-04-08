@@ -40,7 +40,7 @@ import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
-import org.apache.maven.model.profile.ProfileActivationContext;
+import org.apache.maven.model.profile.DefaultProfileSelector;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.MojoExecution;
@@ -866,38 +866,16 @@ public class FlattenMojo
         {
             ProfileInjector customInjector = new ProfileInjector()
             {
-                public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
+                public void injectProfile( Model model, Profile activeProfile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
-                    List<String> activeProfileIds = request.getActiveProfileIds();
-                    if ( activeProfileIds.contains( profile.getId() ) )
-                    {
-                        Properties merged = new Properties();
-                        merged.putAll( model.getProperties() );
-                        merged.putAll( profile.getProperties() );
-                        model.setProperties( merged );
-                    }
+                    // Note : only active profiles can be merged, not "isBuildTimeDriven" ones
+                    model.getProperties().putAll(activeProfile.getProperties());                    
                 }
             };
-            ProfileSelector customSelector = new ProfileSelector()
-            {
-                public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
-                                                        ModelProblemCollector problems )
-                {
-                    List<Profile> activeProfiles = new ArrayList<Profile>( profiles.size() );
-
-                    for ( Profile profile : profiles )
-                    {
-                        Activation activation = profile.getActivation();
-                        if ( !embedBuildProfileDependencies || isBuildTimeDriven( activation ) )
-                        {
-                            activeProfiles.add( profile );
-                        }
-                    }
-
-                    return activeProfiles;
-                }
-            };
+            
+            // Note : ProfileActivators can be added if necessary
+            ProfileSelector customSelector = new DefaultProfileSelector();
 
             buildingResult =  modelBuilderThreadSafetyWorkaround.build( buildingRequest, customInjector, customSelector );
         }
@@ -1269,3 +1247,4 @@ public class FlattenMojo
     }
 
 }
+

@@ -1,5 +1,21 @@
 package org.codehaus.mojo.flatten;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -20,6 +36,11 @@ package org.codehaus.mojo.flatten;
  */
 
 import java.util.Queue;
+import java.util.Set;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -42,7 +63,6 @@ import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
-import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.MojoExecution;
@@ -60,7 +80,6 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -71,25 +90,6 @@ import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -839,45 +839,22 @@ public class FlattenMojo
         {
             ProfileInjector injector = new ProfileInjector()
             {
-                public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
+                public void injectProfile( Model model, Profile activeProfile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
                 {
-                    List<String> activeProfileIds = request.getActiveProfileIds();
-                    if ( activeProfileIds.contains( profile.getId() ) )
-                    {
-                        Properties merged = new Properties();
-                        merged.putAll( model.getProperties() );
-                        merged.putAll( profile.getProperties() );
-                        model.setProperties( merged );
-                    }
+                    Properties merged = new Properties();
+                    merged.putAll( model.getProperties() );
+                    merged.putAll( activeProfile.getProperties() );
+                    model.setProperties( merged );
                 }
             };
-            ProfileSelector selector = new ProfileSelector()
-            {
-                public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
-                                                        ModelProblemCollector problems )
-                {
-                    List<Profile> activeProfiles = new ArrayList<Profile>( profiles.size() );
 
-                    for ( Profile profile : profiles )
-                    {
-                        Activation activation = profile.getActivation();
-                        if ( !embedBuildProfileDependencies || isBuildTimeDriven( activation ) )
-                        {
-                            activeProfiles.add( profile );
-                        }
-                    }
-
-                    return activeProfiles;
-                }
-            };
-            
             // brief modification of singleton defaultModelBuilder needs to be limited to one thread/execution at a time
             synchronized( defaultModelBuilder )
             {
                 try
                 {
-                    defaultModelBuilder.setProfileInjector( injector ).setProfileSelector( selector );
+                    defaultModelBuilder.setProfileInjector( injector );
                     //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
                     //  defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
                     //}
@@ -886,7 +863,7 @@ public class FlattenMojo
                 finally
                 {
                     // reset profileInjector and profileSelector
-                    defaultModelBuilder.setProfileInjector( this.profileInjector ).setProfileSelector( this.profileSelector );
+                    defaultModelBuilder.setProfileInjector( this.profileInjector );
                 }
             }
         }

@@ -19,7 +19,7 @@ This plugin generates a flattened version of your pom.xml and makes maven to ins
         <executions>
           <execution>
             <goals>
-              <goal>generate</goal>
+              <goal>flatten</goal>
             </goals>
           </execution>
         </executions>

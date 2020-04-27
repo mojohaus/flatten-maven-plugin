@@ -30,7 +30,11 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuildingResult;
+import org.apache.maven.model.profile.ProfileInjector;
+import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.dependencies.resolve.internal.DefaultDependencyResolver;
@@ -84,7 +88,7 @@ public class CreateEffectivePomTest
                 depencencyResolver, projectBuildingRequest, Collections.<MavenProject>emptyList() );
         ModelBuildingRequest buildingRequest =
             new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
-        setDeclaredField(tested, "defaultModelBuilder", new DefaultModelBuilderFactory().newInstance());
+        setDeclaredField( tested, "modelBuilderThreadSafetyWorkaround", buildModelBuilderThreadSafetyWorkaroundForTest() );
         Model effectivePom = tested.createEffectivePom( buildingRequest, false, FlattenMode.defaults );
         assertThat( effectivePom.getName() ).isEqualTo( magicValue );
     }
@@ -95,5 +99,23 @@ public class CreateEffectivePomTest
         Field field = pojo.getClass().getDeclaredField( fieldName );
         field.setAccessible( true );
         field.set( pojo, propertyValue );
+    }
+
+    /**
+     * @return ModelBuilderThreadSafetyWorkaround with a reduced scope for this simple test
+     */
+    private ModelBuilderThreadSafetyWorkaround buildModelBuilderThreadSafetyWorkaroundForTest()
+    {
+        return new ModelBuilderThreadSafetyWorkaround() {
+            @Override
+            public ModelBuildingResult build(ModelBuildingRequest buildingRequest, ProfileInjector customInjector, ProfileSelector customSelector)
+                    throws ModelBuildingException {
+
+                return new DefaultModelBuilderFactory().newInstance()
+                    .setProfileInjector( customInjector )
+                    .setProfileSelector( customSelector )
+                    .build( buildingRequest );
+            }
+        };
     }
 }

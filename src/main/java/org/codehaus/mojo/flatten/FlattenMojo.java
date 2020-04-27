@@ -33,9 +33,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.RepositoryPolicy;
-import org.apache.maven.model.building.DefaultModelBuilder;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
-import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
@@ -60,7 +58,6 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -72,6 +69,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
 
+import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
@@ -359,20 +357,14 @@ public class FlattenMojo
     @Component
     private DependencyResolver dependencyResolver;
 
-    @Component(role = ModelBuilder.class)
-    private DefaultModelBuilder defaultModelBuilder;
-    
     @Component( hint = "default" )
     private DependencyTreeBuilder dependencyTreeBuilder;
 
     @Component(role = ArtifactDescriptorReader.class)
     private ArtifactDescriptorReader artifactDescriptorReader;
 
-    @Component
-    private ProfileSelector profileSelector;
-
-    @Component
-    private ProfileInjector profileInjector;
+    @Inject
+    private ModelBuilderThreadSafetyWorkaround modelBuilderThreadSafetyWorkaround;
 
     /**
      * The constructor.
@@ -872,7 +864,7 @@ public class FlattenMojo
         ModelBuildingResult buildingResult;
         try
         {
-            ProfileInjector injector = new ProfileInjector()
+            ProfileInjector customInjector = new ProfileInjector()
             {
                 public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
                                            ModelProblemCollector problems )
@@ -887,7 +879,7 @@ public class FlattenMojo
                     }
                 }
             };
-            ProfileSelector selector = new ProfileSelector()
+            ProfileSelector customSelector = new ProfileSelector()
             {
                 public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
                                                         ModelProblemCollector problems )
@@ -906,24 +898,8 @@ public class FlattenMojo
                     return activeProfiles;
                 }
             };
-            
-            // brief modification of singleton defaultModelBuilder needs to be limited to one thread/execution at a time
-            synchronized( defaultModelBuilder )
-            {
-                try
-                {
-                    defaultModelBuilder.setProfileInjector( injector ).setProfileSelector( selector );
-                    //if (flattenMode == FlattenMode.resolveCiFriendliesOnly) {
-                    //  defaultModelBuilder.setModelInterpolator(new CiModelInterpolator());
-                    //}
-                    buildingResult = defaultModelBuilder.build( buildingRequest );
-                }
-                finally
-                {
-                    // reset profileInjector and profileSelector
-                    defaultModelBuilder.setProfileInjector( this.profileInjector ).setProfileSelector( this.profileSelector );
-                }
-            }
+
+            buildingResult =  modelBuilderThreadSafetyWorkaround.build( buildingRequest, customInjector, customSelector );
         }
         catch ( ModelBuildingException e )
         {

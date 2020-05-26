@@ -16,9 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+String mavenVersion = "mvn -v".execute().text.split()[2]
+String[] mavenVersionArray = mavenVersion.split("\\.")
+int[] versionArray = new int[3]
+for (int i = 0; i < 3; i++)
+    versionArray[i] = Integer.valueOf(mavenVersionArray[i])
+boolean isValid = versionArray[0] > 3\
+ || versionArray[0] == 3 && versionArray[1] > 6\
+ || versionArray[0] == 3 && versionArray[1] == 6 && versionArray[2] >= 3
+if (isValid) {
+    File flattendPom = new File( basedir, '.flattened-pom.xml' )
+    assert flattendPom.exists()
+    long now = System.currentTimeMillis()
+    assert now - flattendPom.lastModified() > 20*1000
+}
 
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
-assert flattendPom.exists()
-long now = System.currentTimeMillis()
-assert now - flattendPom.lastModified() > 20*1000
 

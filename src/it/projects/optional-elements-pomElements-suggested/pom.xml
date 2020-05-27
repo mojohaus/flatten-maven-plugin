@@ -65,5 +65,16 @@
         </configuration>
       </plugin>
     </plugins>
-  </build>  
+  </build>
+  <profiles>
+    <profile>
+      <id>test</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.mojo.flatten.its</groupId>
+          <artifactId>dep</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

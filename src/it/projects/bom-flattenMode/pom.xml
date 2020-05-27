@@ -17,13 +17,13 @@
   <build>
     <defaultGoal>verify</defaultGoal>
     <plugins>
-      <plugin>
+      <plugin>                    <!-- ensure proper cleanup -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
         <configuration>
           <updatePomFile>true</updatePomFile>
           <flattenMode>bom</flattenMode>
-        </configuration>
+        </configuration>                    <!-- ensure proper cleanup -->
       </plugin>
     </plugins>
   </build>

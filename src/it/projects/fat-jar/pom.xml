@@ -4,6 +4,20 @@
   <!-- https://github.com/mojohaus/flatten-maven-plugin/issues/47 -->
   <artifactId>fatjar-dependency-remove</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <parent>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>parent-depMngt</artifactId>
+    <version>2</version>
+  </parent>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.mojo.flatten.its</groupId>
+        <artifactId>dep1</artifactId>
+        <version>2.2</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.codehaus.mojo.flatten.its</groupId>
@@ -11,6 +25,17 @@
       <version>2.0</version>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id> test2 </id>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.mojo.flatten.its</groupId>
+          <artifactId>dep</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
   <build>
     <defaultGoal>verify</defaultGoal>
     <plugins>

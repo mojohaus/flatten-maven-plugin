@@ -541,31 +541,8 @@ public class FlattenMojo
 
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
         Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode );
-        //Map<String, String> properties = System.getenv();
-        // What Nuoyu add in here
-//        if (effectivePom.getProfiles() != null)
-//        {
-//            for (Profile prof : effectivePom.getProfiles())
-//            {
-//                if (prof.getDependencies() == null)
-//                    continue;
-//                for (Dependency dep : prof.getDependencies())
-//                {
-//                    if (effectivePom.getDependencyManagement() == null
-//                            || effectivePom.getDependencyManagement().getDependencies() == null)
-//                        break;
-//                    for (Dependency rely : effectivePom.getDependencyManagement().getDependencies())
-//                    {
-//                        if (dep.getVersion() == null
-//                                && dep.getArtifactId().equals(rely.getArtifactId())
-//                                && dep.getGroupId().equals(rely.getGroupId()))
-//                            dep.setVersion(rely.getVersion());
-//                    }
-//                }
-//            }
-//        }
 
-        //another approach
+        // parse dependency version in <profile>
         Dependencies managedDependencies = new Dependencies();
         if (effectivePom.getDependencyManagement() != null
                 && effectivePom.getDependencyManagement().getDependencies() != null)

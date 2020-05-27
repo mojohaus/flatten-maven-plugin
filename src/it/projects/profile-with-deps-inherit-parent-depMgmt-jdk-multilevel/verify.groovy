@@ -14,4 +14,3 @@ assert 0 ==  flattendProject.dependencies.size()
 assert 2 ==  flattendProject.profiles.profile.dependencies.dependency.size()
 assert '1.3.2' ==  flattendProject.profiles.profile.dependencies.dependency[0].version.text()
 assert '1.1' ==  flattendProject.profiles.profile.dependencies.dependency[1].version.text()
-

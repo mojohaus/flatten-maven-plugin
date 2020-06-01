@@ -542,28 +542,6 @@ public class FlattenMojo
         ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
         Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode );
 
-        // parse dependency version in <profile>
-        Dependencies managedDependencies = new Dependencies();
-        if (effectivePom.getDependencyManagement() != null
-                && effectivePom.getDependencyManagement().getDependencies() != null)
-            managedDependencies.addAll(effectivePom.getDependencyManagement().getDependencies());
-        if (effectivePom.getProfiles() != null) {
-            for (Profile prof : effectivePom.getProfiles()) {
-                if (prof.getDependencies() == null)
-                    continue;
-                for (Dependency dep : prof.getDependencies()) {
-                    if (managedDependencies.contains(dep)) {
-                        dep.setVersion(managedDependencies.resolve(dep).getVersion());
-                        dep.setScope(managedDependencies.resolve(dep).getScope());
-                        dep.setOptional(managedDependencies.resolve(dep).getOptional());
-                    }
-                }
-            }
-        }
-
-
-        //end
-
         Model flattenedPom = new Model();
 
         // keep original encoding (we could also normalize to UTF-8 here)
@@ -671,6 +649,11 @@ public class FlattenMojo
         }
 
         // transform profiles...
+        Dependencies managedDependencies = new Dependencies();
+        if (effectivePom.getDependencyManagement() != null
+                && effectivePom.getDependencyManagement().getDependencies() != null)
+            managedDependencies.addAll(effectivePom.getDependencyManagement().getDependencies());
+
         for ( Profile profile : effectivePom.getProfiles() )
         {
             if ( !isEmbedBuildProfileDependencies() || !isBuildTimeDriven( profile.getActivation() ) )
@@ -679,20 +662,26 @@ public class FlattenMojo
                 {
                     List<Dependency> strippedDependencies = new ArrayList<>();
                     for (Dependency dep : profile.getDependencies()) {
-                        Dependency flattenedDep = createFlattenedDependency( dep );
+                        Dependency parsedDep = dep.clone();
+                        if (managedDependencies.contains(parsedDep)) {
+                            parsedDep.setVersion(managedDependencies.resolve(parsedDep).getVersion());
+                            parsedDep.setScope(managedDependencies.resolve(parsedDep).getScope());
+                            parsedDep.setOptional(managedDependencies.resolve(parsedDep).getOptional());
+                        }
+                        Dependency flattenedDep = createFlattenedDependency( parsedDep );
                         if ( flattenedDep != null )
                         {
                             strippedDependencies.add( flattenedDep );
                         }
                     }
-                    if (strippedDependencies.isEmpty() && isEmpty(profile.getRepositories()))
-                        continue;
-                    Profile strippedProfile = new Profile();
-                    strippedProfile.setId( profile.getId() );
-                    strippedProfile.setActivation( profile.getActivation() );
-                    strippedProfile.setDependencies( strippedDependencies.isEmpty() ? null : strippedDependencies);
-                    strippedProfile.setRepositories( profile.getRepositories() );
-                    cleanPom.addProfile( strippedProfile );
+                    if (!strippedDependencies.isEmpty() || !isEmpty(profile.getRepositories())) {
+                        Profile strippedProfile = new Profile();
+                        strippedProfile.setId(profile.getId());
+                        strippedProfile.setActivation(profile.getActivation());
+                        strippedProfile.setDependencies(strippedDependencies.isEmpty() ? null : strippedDependencies);
+                        strippedProfile.setRepositories(profile.getRepositories());
+                        cleanPom.addProfile(strippedProfile);
+                    }
                 }
             }
         }

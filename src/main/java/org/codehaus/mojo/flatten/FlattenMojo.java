@@ -20,7 +20,6 @@ package org.codehaus.mojo.flatten;
  */
 
 import java.util.Queue;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;

@@ -6,14 +6,11 @@
     <artifactId>profile-with-deps-inherit-parent-depMgmt-flatten-dep-all-oss</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>test</name>
-    <url>http://mojo.codehaus.org</url>
-    <description>test</description>
     <parent>
         <groupId>org.codehaus.mojo.flatten.its</groupId>
-        <artifactId>profile-with-deps-inherit-parent-depMgmt-flatten-dep-all-oss-bom</artifactId>
+        <artifactId>profile-with-deps-inherit-parent-depMgmt-flatten-dep-all-oss-parent</artifactId>
         <version>0.1-SNAPSHOT</version>
-        <relativePath>bom</relativePath>
+        <relativePath>parent</relativePath>
     </parent>
     <build>
         <plugins>
@@ -51,14 +48,11 @@
 
     <profiles>
         <profile>
-            <id>java9</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
+            <id>test</id>
             <dependencies>
                 <dependency>
-                    <groupId>javax.annotation</groupId>
-                    <artifactId>javax.annotation-api</artifactId>
+                    <groupId>org.codehaus.mojo.flatten.its</groupId>
+                    <artifactId>dep</artifactId>
                 </dependency>
             </dependencies>
         </profile>

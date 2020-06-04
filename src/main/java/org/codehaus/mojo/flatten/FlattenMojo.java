@@ -658,9 +658,10 @@ public class FlattenMojo
 
         // transform profiles...
         Dependencies managedDependencies = new Dependencies();
-        if (effectivePom.getDependencyManagement() != null
-                && effectivePom.getDependencyManagement().getDependencies() != null)
-            managedDependencies.addAll(effectivePom.getDependencyManagement().getDependencies());
+        if ( effectivePom.getDependencyManagement() != null && effectivePom.getDependencyManagement().getDependencies() != null )
+        {
+            managedDependencies.addAll( effectivePom.getDependencyManagement().getDependencies() );
+        }
 
         for ( Profile profile : effectivePom.getProfiles() )
         {
@@ -669,12 +670,14 @@ public class FlattenMojo
                 if ( !isEmpty( profile.getDependencies() ) || !isEmpty( profile.getRepositories() ) )
                 {
                     List<Dependency> strippedDependencies = new ArrayList<>();
-                    for (Dependency dep : profile.getDependencies()) {
+                    for ( Dependency dep : profile.getDependencies() )
+                    {
                         Dependency parsedDep = dep.clone();
-                        if (managedDependencies.contains(parsedDep)) {
-                            parsedDep.setVersion(managedDependencies.resolve(parsedDep).getVersion());
-                            parsedDep.setScope(managedDependencies.resolve(parsedDep).getScope());
-                            parsedDep.setOptional(managedDependencies.resolve(parsedDep).getOptional());
+                        if ( managedDependencies.contains( parsedDep ) )
+                        {
+                            parsedDep.setVersion( managedDependencies.resolve( parsedDep ).getVersion() );
+                            parsedDep.setScope( managedDependencies.resolve( parsedDep ).getScope() );
+                            parsedDep.setOptional( managedDependencies.resolve( parsedDep ).getOptional() );
                         }
                         Dependency flattenedDep = createFlattenedDependency( parsedDep );
                         if ( flattenedDep != null )
@@ -682,13 +685,14 @@ public class FlattenMojo
                             strippedDependencies.add( flattenedDep );
                         }
                     }
-                    if (!strippedDependencies.isEmpty() || !isEmpty(profile.getRepositories())) {
+                    if ( !strippedDependencies.isEmpty() || !isEmpty( profile.getRepositories() ) )
+                    {
                         Profile strippedProfile = new Profile();
-                        strippedProfile.setId(profile.getId());
-                        strippedProfile.setActivation(profile.getActivation());
-                        strippedProfile.setDependencies(strippedDependencies.isEmpty() ? null : strippedDependencies);
-                        strippedProfile.setRepositories(profile.getRepositories());
-                        cleanPom.addProfile(strippedProfile);
+                        strippedProfile.setId( profile.getId() );
+                        strippedProfile.setActivation( profile.getActivation() );
+                        strippedProfile.setDependencies( strippedDependencies.isEmpty() ? null : strippedDependencies );
+                        strippedProfile.setRepositories( profile.getRepositories() );
+                        cleanPom.addProfile( strippedProfile );
                     }
                 }
             }

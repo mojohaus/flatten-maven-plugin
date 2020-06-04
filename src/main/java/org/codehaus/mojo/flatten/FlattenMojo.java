@@ -677,7 +677,15 @@ public class FlattenMojo
                         {
                             parsedDep.setVersion( managedDependencies.resolve( parsedDep ).getVersion() );
                             parsedDep.setScope( managedDependencies.resolve( parsedDep ).getScope() );
-                            parsedDep.setOptional( managedDependencies.resolve( parsedDep ).getOptional() );
+                            if ( parsedDep.getScope() == null )
+                            {
+                                parsedDep.setScope("compile");
+                            }
+                            parsedDep.setOptional(managedDependencies.resolve(parsedDep).getOptional());
+                            if ( parsedDep.getOptional() == null )
+                            {
+                                parsedDep.setOptional("false");
+                            }
                         }
                         Dependency flattenedDep = createFlattenedDependency( parsedDep );
                         if ( flattenedDep != null )

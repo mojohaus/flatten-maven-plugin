@@ -657,18 +657,51 @@ public class FlattenMojo
         }
 
         // transform profiles...
+        Dependencies managedDependencies = new Dependencies();
+        if ( effectivePom.getDependencyManagement() != null && effectivePom.getDependencyManagement().getDependencies() != null )
+        {
+            managedDependencies.addAll( effectivePom.getDependencyManagement().getDependencies() );
+        }
+
         for ( Profile profile : effectivePom.getProfiles() )
         {
             if ( !isEmbedBuildProfileDependencies() || !isBuildTimeDriven( profile.getActivation() ) )
             {
                 if ( !isEmpty( profile.getDependencies() ) || !isEmpty( profile.getRepositories() ) )
                 {
-                    Profile strippedProfile = new Profile();
-                    strippedProfile.setId( profile.getId() );
-                    strippedProfile.setActivation( profile.getActivation() );
-                    strippedProfile.setDependencies( profile.getDependencies() );
-                    strippedProfile.setRepositories( profile.getRepositories() );
-                    cleanPom.addProfile( strippedProfile );
+                    List<Dependency> strippedDependencies = new ArrayList<>();
+                    for ( Dependency dep : profile.getDependencies() )
+                    {
+                        Dependency parsedDep = dep.clone();
+                        if ( managedDependencies.contains( parsedDep ) )
+                        {
+                            parsedDep.setVersion( managedDependencies.resolve( parsedDep ).getVersion() );
+                            parsedDep.setScope( managedDependencies.resolve( parsedDep ).getScope() );
+                            if ( parsedDep.getScope() == null )
+                            {
+                                parsedDep.setScope( "compile" );
+                            }
+                            parsedDep.setOptional( managedDependencies.resolve( parsedDep ).getOptional() );
+                            if ( parsedDep.getOptional() == null )
+                            {
+                                parsedDep.setOptional( "false" );
+                            }
+                        }
+                        Dependency flattenedDep = createFlattenedDependency( parsedDep );
+                        if ( flattenedDep != null )
+                        {
+                            strippedDependencies.add( flattenedDep );
+                        }
+                    }
+                    if ( !strippedDependencies.isEmpty() || !isEmpty( profile.getRepositories() ) )
+                    {
+                        Profile strippedProfile = new Profile();
+                        strippedProfile.setId( profile.getId() );
+                        strippedProfile.setActivation( profile.getActivation() );
+                        strippedProfile.setDependencies( strippedDependencies.isEmpty() ? null : strippedDependencies );
+                        strippedProfile.setRepositories( profile.getRepositories() );
+                        cleanPom.addProfile( strippedProfile );
+                    }
                 }
             }
         }

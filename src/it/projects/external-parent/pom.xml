@@ -28,7 +28,19 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
     </dependency>
-  </dependencies>    
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id> test </id>
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 
   
   <dependencyManagement>

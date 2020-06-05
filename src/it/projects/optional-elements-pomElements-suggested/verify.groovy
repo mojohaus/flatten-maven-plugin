@@ -78,3 +78,11 @@ assert 0 == flattendProject.properties.size()
 assert 0 == flattendProject.reporting.size()
 assert 0 == flattendProject.reports.size()
 
+assert 1 == flattendProject.profiles.size()
+assert 1 == flattendProject.profiles.profile.size()
+assert 'test' == flattendProject.profiles.profile.id.text()
+assert 1 == flattendProject.profiles.profile.dependencies.size()
+assert 1 == flattendProject.profiles.profile.dependencies.dependency.size()
+assert 'dep' == flattendProject.profiles.profile.dependencies.dependency.artifactId.text()
+assert '1.1' == flattendProject.profiles.profile.dependencies.dependency.version.text()
+

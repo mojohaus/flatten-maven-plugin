@@ -323,7 +323,7 @@ public class FlattenMojo
      * <td><p>Flatten both direct and transitive dependencies. This will examine the full dependency tree, and pull up
      * all transitive dependencies as a direct dependency, and setting their versions appropriately.</p>
      * <p>This is recommended if you are releasing a library that uses dependency management to manage dependency
-     * versions.</p>/td>
+     * versions.</p></td>
      * </tr>
      * </tbody>
      * </table>

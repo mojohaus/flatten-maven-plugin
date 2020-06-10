@@ -501,9 +501,6 @@ public class FlattenMojo
         try
         {
             binaryData = data.getBytes( encoding );
-            boolean a = file.isFile();
-            boolean b = file.canRead();
-            long c = file.length();
             if ( file.isFile() && file.canRead() && file.length() == binaryData.length )
             {
                 try (InputStream inputStream = new FileInputStream( file ))

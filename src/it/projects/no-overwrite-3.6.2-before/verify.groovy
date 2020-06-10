@@ -17,7 +17,8 @@
  * under the License.
  */
 String os = System.getProperty("os.name");
-String mavenVersion = os.contains("Windows") ? "mvnw.cmd -v".execute().text.split()[2] : "./mvnw -v".execute().text.split()[3]
+String[] mavenWords = os.contains("Windows") ? "mvnw.cmd -v".execute().text.split() : "./mvnw -v".execute().text.split()
+String mavenVersion = mavenWords[1] == "Maven" ? mavenWords[2] : mavenWords[3]
 String[] mavenVersionArray = mavenVersion.split("\\.")
 int[] versionArray = new int[3]
 for (int i = 0; i < 3; i++)

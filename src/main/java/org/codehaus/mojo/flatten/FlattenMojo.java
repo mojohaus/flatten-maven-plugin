@@ -492,7 +492,10 @@ public class FlattenMojo
     protected void writeStringToFile( String data, File file, String encoding )
         throws MojoExecutionException
     {
-
+        if (System.getProperty("os.name").contains("Windows"))
+        {
+            data = data.replaceAll("\n","\r\n");
+        }
         byte[] binaryData;
 
         try

@@ -1049,8 +1049,9 @@ public class FlattenMojo
      * @throws ArtifactDescriptorException
      */
     private void createFlattenedDependenciesAll( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
-            throws DependencyTreeBuilderException, ArtifactDescriptorException {
-        final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<DependencyNode>() {};
+            throws DependencyTreeBuilderException, ArtifactDescriptorException
+    {
+        final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<DependencyNode>();
         final Set<String> processedDependencies = new HashSet<>();
 
         final Artifact projectArtifact = this.project.getArtifact();
@@ -1058,22 +1059,33 @@ public class FlattenMojo
         final DependencyNode dependencyNode = this.dependencyTreeBuilder.buildDependencyTree(this.project,
                 this.localRepository, null);
 
-        dependencyNode.accept(new DependencyNodeVisitor() {
-            @Override public boolean visit(DependencyNode node) {
-                if (node.getArtifact().getGroupId().equals(projectArtifact.getGroupId()) && node.getArtifact().getArtifactId().equals(projectArtifact.getArtifactId())) {
+        dependencyNode.accept(new DependencyNodeVisitor()
+        {
+            @Override public boolean visit(DependencyNode node)
+            {
+                if (node.getArtifact().getGroupId().equals(projectArtifact.getGroupId()) && node.getArtifact().getArtifactId().equals(projectArtifact.getArtifactId()))
+                {
                     return true;
                 }
-                if (node.getState() != DependencyNode.INCLUDED) return true;
+                if (node.getState() != DependencyNode.INCLUDED) {
+                    return true;
+                }
+                if (node.getParent().getArtifact().isOptional())
+                {
+                    node.getArtifact().setOptional(true);
+                }
                 dependencyNodeLinkedList.add(node);
                 return true;
             }
 
-            @Override public boolean endVisit(DependencyNode node) {
+            @Override public boolean endVisit(DependencyNode node)
+            {
                 return true;
             }
         });
 
-        while (!dependencyNodeLinkedList.isEmpty()) {
+        while (!dependencyNodeLinkedList.isEmpty())
+        {
             DependencyNode node = dependencyNodeLinkedList.poll();
 
             Artifact artifact = node.getArtifact();
@@ -1094,8 +1106,10 @@ public class FlattenMojo
             ArtifactDescriptorResult artifactDescriptorResult = this.artifactDescriptorReader
                     .readArtifactDescriptor(this.session.getRepositorySession(), request);
 
-            for (org.eclipse.aether.graph.Dependency artifactDependency: artifactDescriptorResult.getDependencies()) {
-                if ("test".equals(artifactDependency.getScope())) {
+            for (org.eclipse.aether.graph.Dependency artifactDependency: artifactDescriptorResult.getDependencies())
+            {
+                if ("test".equals(artifactDependency.getScope()))
+                {
                     continue;
                 }
                 Exclusion exclusion = new Exclusion();
@@ -1109,12 +1123,14 @@ public class FlattenMojo
             // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
             String dependencyString = dependency.getManagementKey();
 
-            if (!processedDependencies.add(dependencyString)) {
+            if (!processedDependencies.add(dependencyString))
+            {
                 continue;
             }
 
             Dependency flattenedDependency = createFlattenedDependency( dependency );
-            if (flattenedDependency != null) {
+            if (flattenedDependency != null)
+            {
                 flattenedDependencies.add(flattenedDependency);
             }
         }

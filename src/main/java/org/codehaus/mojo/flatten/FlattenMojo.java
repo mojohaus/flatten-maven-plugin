@@ -1070,9 +1070,8 @@ public class FlattenMojo
                 if (node.getState() != DependencyNode.INCLUDED) {
                     return true;
                 }
-                if (node.getParent().getArtifact().isOptional())
-                {
-                    node.getArtifact().setOptional(true);
+                if (node.getArtifact().isOptional()) {
+                    return false;
                 }
                 dependencyNodeLinkedList.add(node);
                 return true;

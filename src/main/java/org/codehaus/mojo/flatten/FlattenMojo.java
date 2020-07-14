@@ -200,7 +200,7 @@ import java.util.Set;
 @Mojo( name = "flatten", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME, threadSafe = true )
 // CHECKSTYLE_ON: LineLength
 public class FlattenMojo
-        extends AbstractFlattenMojo
+    extends AbstractFlattenMojo
 {
 
     private static final int INITIAL_POM_WRITER_SIZE = 4096;
@@ -295,7 +295,7 @@ public class FlattenMojo
      * </tr>
      * <tr>
      * <td>resolveCiFriendliesOnly</td>
-     * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else.
+     * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else. 
      * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
      * </tr>
      * </tbody>
@@ -341,7 +341,7 @@ public class FlattenMojo
      */
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
-
+    
     /**
      * The {@link ModelInterpolator} used to resolve variables.
      */
@@ -378,7 +378,7 @@ public class FlattenMojo
      * {@inheritDoc}
      */
     public void execute()
-            throws MojoExecutionException, MojoFailureException
+        throws MojoExecutionException, MojoFailureException
     {
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
@@ -405,7 +405,7 @@ public class FlattenMojo
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected String extractHeaderComment( File xmlFile )
-            throws MojoExecutionException
+        throws MojoExecutionException
     {
 
         try
@@ -433,7 +433,7 @@ public class FlattenMojo
      * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
      */
     protected void writePom( Model pom, File pomFile, String headerComment )
-            throws MojoExecutionException
+        throws MojoExecutionException
     {
 
         File parentFile = pomFile.getParentFile();
@@ -482,7 +482,7 @@ public class FlattenMojo
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected void writeStringToFile( String data, File file, String encoding )
-            throws MojoExecutionException
+        throws MojoExecutionException
     {
         if (System.getProperty("os.name").contains("Windows"))
         {
@@ -574,13 +574,13 @@ public class FlattenMojo
             if ( property.isElement() )
             {
                 Model sourceModel = getSourceModel( descriptor, property, effectivePom, originalPom, resolvedPom,
-                        interpolatedPom, cleanPom );
+                                                    interpolatedPom, cleanPom );
                 if ( sourceModel == null )
                 {
                     if ( property.isRequired() )
                     {
                         throw new MojoFailureException( "Property " + property.getName()
-                                + " is required and can not be removed!" );
+                            + " is required and can not be removed!" );
                     }
                 }
                 else
@@ -599,10 +599,10 @@ public class FlattenMojo
         Model originalModel = this.project.getOriginalModel().clone();
         if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
             return this.modelCiFriendlyInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
-                    buildingRequest, problems );
+                                                            buildingRequest, problems );
         }
         return this.modelInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
-                buildingRequest, problems );
+                                                        buildingRequest, problems );
     }
 
     /**
@@ -712,7 +712,7 @@ public class FlattenMojo
 
         ElementHandling handling = descriptor.getHandling( property );
         getLog().debug( "Property " + property.getName() + " will be handled using " + handling
-                + " in flattened POM." );
+            + " in flattened POM." );
         switch ( handling )
         {
             case expand:
@@ -758,7 +758,7 @@ public class FlattenMojo
     }
 
     private FlattenDescriptor getFlattenDescriptor()
-            throws MojoFailureException
+        throws MojoFailureException
     {
         FlattenDescriptor descriptor = this.pomElements;
         if ( descriptor == null )
@@ -822,13 +822,13 @@ public class FlattenMojo
     {
 
         FlattenModelResolver resolver = new FlattenModelResolver( this.localRepository, this.artifactFactory,
-                this.dependencyResolver, this.session.getProjectBuildingRequest(), getReactorModelsFromSession() );
+            this.dependencyResolver, this.session.getProjectBuildingRequest(), getReactorModelsFromSession() );
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
         // @formatter:off
         ModelBuildingRequest buildingRequest =
-                new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles );
+            new DefaultModelBuildingRequest().setUserProperties( userProperties ).setSystemProperties( System.getProperties() ).setPomFile( pomFile ).setModelResolver( resolver ).setActiveProfileIds( activeProfiles );
         // @formatter:on
         return buildingRequest;
     }
@@ -858,8 +858,8 @@ public class FlattenMojo
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected Model createEffectivePom( ModelBuildingRequest buildingRequest,
-                                        final boolean embedBuildProfileDependencies, final FlattenMode flattenMode )
-            throws MojoExecutionException
+                                               final boolean embedBuildProfileDependencies, final FlattenMode flattenMode )
+        throws MojoExecutionException
     {
         ModelBuildingResult buildingResult;
         try
@@ -1035,11 +1035,11 @@ public class FlattenMojo
      * The collected dependencies are stored in order, so that the leaf dependencies are prioritized in front of direct dependencies.
      * In addition, every non-leaf dependencies will exclude its own direct dependency, since all transitive dependencies
      * will be collected.
-     *
+	 *
      * Transitive dependencies are all going to be collected and become a direct dependency. Maven should already resolve
      * versions properly because now the transitive dependencies are closer to the artifact. However, when this artifact is
      * being consumed, Maven Enforcer Convergence rule will fail because there may be multiple versions for the same transitive dependency.
-     *
+	 *
      * Typically, exclusion can be done by using the wildcard. However, a known Maven issue prevents convergence enforcer from
      * working properly w/ wildcard exclusions. Thus, this will exclude each dependencies explicitly rather than using the wildcard.
      *
@@ -1187,7 +1187,7 @@ public class FlattenMojo
      * document.
      */
     private class SaxHeaderCommentHandler
-            extends DefaultHandler2
+        extends DefaultHandler2
     {
 
         /** <code>true</code> if root tag has already been visited, <code>false</code> otherwise. */
@@ -1220,7 +1220,7 @@ public class FlattenMojo
          */
         @Override
         public void comment( char[] ch, int start, int length )
-                throws SAXException
+            throws SAXException
         {
 
             if ( !this.rootTagSeen )
@@ -1241,7 +1241,7 @@ public class FlattenMojo
          */
         @Override
         public void startElement( String uri, String localName, String qName, Attributes atts )
-                throws SAXException
+            throws SAXException
         {
 
             this.rootTagSeen = true;

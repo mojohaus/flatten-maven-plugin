@@ -1068,7 +1068,7 @@ public class FlattenMojo
                     return true;
                 }
                 if (node.getState() != DependencyNode.INCLUDED) {
-                    return true;
+                    return false;
                 }
                 if (node.getArtifact().isOptional()) {
                     return false;

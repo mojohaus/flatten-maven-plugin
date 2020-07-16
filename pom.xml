@@ -163,7 +163,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>2.0.0</version>
+      <version>3.16.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -241,7 +241,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>mrm-maven-plugin</artifactId>
-            <version>1.0.0</version>
+            <version>1.2.0</version>
             <executions>
               <execution>
                 <goals>

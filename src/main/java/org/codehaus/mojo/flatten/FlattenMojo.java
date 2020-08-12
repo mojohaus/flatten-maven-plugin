@@ -1067,10 +1067,20 @@ public class FlattenMojo
                 {
                     return true;
                 }
-                if (node.getState() != DependencyNode.INCLUDED) {
+                if ("provided".equals(node.getArtifact().getScope()))
+                {
+                    DependencyNode parent = node.getParent();
+                    if(!parent.getArtifact().getGroupId().equals(projectArtifact.getGroupId()) || !parent.getArtifact().getArtifactId().equals(projectArtifact.getArtifactId()))
+                    {
+                        return false;
+                    }
+                }
+                if (node.getState() != DependencyNode.INCLUDED)
+                {
                     return false;
                 }
-                if (node.getArtifact().isOptional()) {
+                if (node.getArtifact().isOptional())
+                {
                     return false;
                 }
                 dependencyNodeLinkedList.add(node);

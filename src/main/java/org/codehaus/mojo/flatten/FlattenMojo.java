@@ -39,6 +39,7 @@ import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.interpolation.ModelInterpolator;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
@@ -60,6 +61,7 @@ import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.impl.ArtifactDescriptorReader;
 import org.eclipse.aether.resolution.ArtifactDescriptorException;
@@ -563,7 +565,7 @@ public class FlattenMojo
         }
 
         FlattenDescriptor descriptor = getFlattenDescriptor();
-        Model originalPom = this.project.getOriginalModel();
+        Model originalPom = getOriginalModel();
         Model resolvedPom = this.project.getModel();
         Model interpolatedPom = createResolvedPom( buildingRequest );
 
@@ -593,16 +595,25 @@ public class FlattenMojo
         return flattenedPom;
     }
 
-    private Model createResolvedPom( ModelBuildingRequest buildingRequest )
-    {
+    private Model createResolvedPom( ModelBuildingRequest buildingRequest ) throws MojoExecutionException {
         LoggingModelProblemCollector problems = new LoggingModelProblemCollector( getLog() );
-        Model originalModel = this.project.getOriginalModel().clone();
+        Model originalModel = getOriginalModel();
         if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
             return this.modelCiFriendlyInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
                                                             buildingRequest, problems );
         }
         return this.modelInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
                                                         buildingRequest, problems );
+    }
+
+    private Model getOriginalModel() throws MojoExecutionException {
+        MavenXpp3Reader reader = new MavenXpp3Reader();
+        try {
+            return reader.read( new FileInputStream( this.project.getFile() ) );
+        }
+        catch ( IOException | XmlPullParserException e ) {
+            throw new MojoExecutionException( "Error reading raw model.", e );
+        }
     }
 
     /**

@@ -68,9 +68,9 @@ public class FlattenMojoTest {
     }
 
     private static Model readPom(String pomFilePath) throws IOException, XmlPullParserException {
-        MavenXpp3Reader reader = new MavenXpp3Reader();
-
-        return reader.read( new FileInputStream( new File( pomFilePath ) ) );
+        try ( FileInputStream input = new FileInputStream( new File( pomFilePath ) ) ) {
+            return new MavenXpp3Reader().read( input );
+        }
     }
 
     /**
@@ -83,7 +83,7 @@ public class FlattenMojoTest {
         File flattenedPom = new File( FLATTENED_POM );
         if ( flattenedPom.exists() ) {
             if ( !flattenedPom.delete() ) {
-                throw new IOException( "Can't delete %s" +  flattenedPom );
+                throw new IOException( "Can't delete" +  flattenedPom );
             }
         }
     }

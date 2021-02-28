@@ -76,7 +76,7 @@ public class FlattenMojoTest {
     /**
      * After test method. Removes flattened-pom.xml file which is created during test.
      *
-     * @throws RuntimeException if can't remove file.
+     * @throws IOException if can't remove file.
      */
     @After
     public void removeFlattenedPom() throws IOException {

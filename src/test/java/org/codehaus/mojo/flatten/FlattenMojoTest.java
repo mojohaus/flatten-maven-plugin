@@ -83,7 +83,7 @@ public class FlattenMojoTest {
         File flattenedPom = new File( FLATTENED_POM );
         if ( flattenedPom.exists() ) {
             if ( !flattenedPom.delete() ) {
-                throw new IOException( "Can't delete" +  flattenedPom );
+                throw new IOException( "Can't delete " +  flattenedPom );
             }
         }
     }

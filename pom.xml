@@ -26,12 +26,14 @@
     <artifactId>mojo-parent</artifactId>
     <version>50</version>
   </parent>
+
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.2.3-SNAPSHOT</version>
+  <version>1.2.6-SNAPSHOT</version>
   <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
+
   <prerequisites>
     <maven>${mavenVersion}</maven>
   </prerequisites>
@@ -114,6 +116,7 @@
       </roles>
     </developer>
   </developers>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -291,6 +294,7 @@
       </plugin>
     </plugins>
   </reporting>
+
   <licenses>
     <license>
       <name>Apache Software Licenese</name>
@@ -302,7 +306,7 @@
     <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
     <url>https://github.com/mojohaus/flatten-maven-plugin</url>
-    <tag>flatten-maven-plugin-1.1.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>github</system>

@@ -330,6 +330,10 @@ public class FlattenMojo
      */
     @Parameter( property = "flatten.dependency.mode", required = false )
     private FlattenDependencyMode flattenDependencyMode;
+    
+    @Inject
+    private DirectDependenciesInheritanceAssembler inheritanceAssembler;
+
 
     /**
      * The ArtifactFactory required to resolve POM using {@link #modelBuilder}.
@@ -384,6 +388,8 @@ public class FlattenMojo
     {
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
+
+        inheritanceAssembler.flattenDependencyMode=this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
         Model flattenedPom = createFlattenedPom( originalPomFile );

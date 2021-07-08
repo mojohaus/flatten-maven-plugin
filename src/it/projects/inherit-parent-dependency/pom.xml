@@ -9,5 +9,16 @@
   </parent>
   <artifactId>resolve-properties</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <configuration>
+            <flattenDependencyMode>all</flattenDependencyMode>
+          </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -116,6 +116,20 @@
         <role>contributor</role>
       </roles>
     </developer>
+    <developer>
+      <id>kso</id>
+      <name>Kemal Soysal</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>lbk</id>
+      <name>Ralf Lübeck</name>
+      <roles>
+        <role>contributor</role>
+      </roles>
+    </developer>
   </developers>
 
   <dependencies>

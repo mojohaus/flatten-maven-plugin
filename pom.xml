@@ -30,7 +30,8 @@
   <artifactId>flatten-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven Flatten Plugin</name>
-  <version>1.2.7.BF220</version>
+  <version>1.2.8-SNAPSHOT</version>
+
   <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
   <inceptionYear>2014</inceptionYear>
 
@@ -39,7 +40,7 @@
   </prerequisites>
   <properties>
     <mavenVersion>3.2.5</mavenVersion>
-    <project.build.outputTimestamp>2021-03-01T20:22:18Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2021-03-01T20:31:11Z</project.build.outputTimestamp>
   </properties>
   <developers>
     <developer>
@@ -171,7 +172,7 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-artifact-transfer</artifactId>
-      <version>0.9.0</version>
+      <version>0.13.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -181,7 +182,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.18.1</version>
+      <version>3.20.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -210,7 +211,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-invoker-plugin</artifactId>
-          <version>3.2.1</version>
+          <version>3.2.2</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -321,7 +322,7 @@
     <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
     <url>https://github.com/mojohaus/flatten-maven-plugin</url>
-    <tag>flatten-maven-plugin-1.2.7</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>github</system>

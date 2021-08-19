@@ -52,11 +52,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
+import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
@@ -297,7 +297,7 @@ public class FlattenMojo
      * </tr>
      * <tr>
      * <td>resolveCiFriendliesOnly</td>
-     * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else. 
+     * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else.
      * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
      * </tr>
      * </tbody>

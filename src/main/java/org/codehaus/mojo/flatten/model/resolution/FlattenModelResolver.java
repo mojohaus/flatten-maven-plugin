@@ -33,9 +33,9 @@ import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.shared.artifact.resolve.ArtifactResult;
-import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
-import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
+import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
+import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
+import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolverException;
 
 import java.io.File;
 import java.util.List;

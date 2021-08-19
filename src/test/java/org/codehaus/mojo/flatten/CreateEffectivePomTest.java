@@ -37,7 +37,8 @@ import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.dependencies.resolve.internal.DefaultDependencyResolver;
+import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
+import org.apache.maven.shared.transfer.dependencies.resolve.internal.DefaultTestDependencyResolver;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.junit.Test;
 
@@ -82,7 +83,7 @@ public class CreateEffectivePomTest
         setDeclaredField( artifactFactory, "artifactHandlerManager", artifactHandlerManager );
         Map<String, ArtifactHandler> artifactHandlers = new HashMap<String, ArtifactHandler>();
         setDeclaredField( artifactHandlerManager, "artifactHandlers", artifactHandlers );
-        DefaultDependencyResolver depencencyResolver = new DefaultDependencyResolver();
+        DependencyResolver depencencyResolver = new DefaultTestDependencyResolver();
         DefaultProjectBuildingRequest projectBuildingRequest = new DefaultProjectBuildingRequest();
         FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory,
                 depencencyResolver, projectBuildingRequest, Collections.<MavenProject>emptyList() );

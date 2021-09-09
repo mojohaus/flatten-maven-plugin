@@ -33,6 +33,15 @@ import org.apache.maven.model.inheritance.DefaultInheritanceAssembler;
 import org.apache.maven.model.merge.MavenModelMerger;
 
 /**
+ * The DefaultInheritanceAssembler is encapsulating the InheritanceModelMerger.
+ * The only way to override functionality needed is to define an own InheritanceAssembler 
+ * to provide the needed ModelMerger.
+ * The container is providing the InheritanceAssembler.
+ * This class needs to be configured in the 
+ * src/main/resources/META-INF/sisu/javax.inject.Named to be loaded by the container.
+ *
+ * see issue https://github.com/mojohaus/flatten-maven-plugin/issues/220
+ *
  * @author kemalsoysal
  * @author ralfluebeck
  *

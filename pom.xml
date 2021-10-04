@@ -38,7 +38,7 @@
     <maven>${mavenVersion}</maven>
   </prerequisites>
   <properties>
-    <mavenVersion>3.2.5</mavenVersion>
+    <mavenVersion>3.8.3</mavenVersion>
     <project.build.outputTimestamp>2021-03-01T20:31:11Z</project.build.outputTimestamp>
   </properties>
   <developers>

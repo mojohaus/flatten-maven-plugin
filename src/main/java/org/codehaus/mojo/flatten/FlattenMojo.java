@@ -98,7 +98,8 @@ import java.util.Set;
  * of the original POM with the focus to contain only the important information for consuming it. Therefore information
  * that is only required for maintenance by developers and to build the project artifact(s) are stripped. Starting from
  * here we specify how the flattened POM is created from the original POM and its project:<br>
- * <table border="1" summary="">
+ * <table>
+ * <caption></caption>
  * <tr>
  * <th>Element</th>
  * <th>Transformation</th>

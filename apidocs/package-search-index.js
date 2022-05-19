@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.codehaus.mojo.flatten"},{"l":"org.codehaus.mojo.flatten.cifriendly"},{"l":"org.codehaus.mojo.flatten.model.resolution"}];updateSearchResults();

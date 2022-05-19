@@ -17,7 +17,7 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *     <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *     <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -74,9 +74,9 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_comment"> * Based on StringSearchModelInterpolator in maven-model-builder</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  @Component(role = CiInterpolator.<strong class="jxr_keyword">class</strong>)
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CiModelInterpolator</a> <strong class="jxr_keyword">implements</strong> CiInterpolator, ModelInterpolator {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CiModelInterpolator" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html#CiModelInterpolator">CiModelInterpolator</a> <strong class="jxr_keyword">implements</strong> CiInterpolator, ModelInterpolator {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  	
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CiModelInterpolator</a>()
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <a name="CiModelInterpolator" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html#CiModelInterpolator">CiModelInterpolator</a>()
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          interpolator = createInterpolator();
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          recursionInterceptor = <strong class="jxr_keyword">new</strong> PrefixAwareRecursionInterceptor( PROJECT_PREFIXES );
@@ -132,7 +132,7 @@
 <a class="jxr_linenumber" name="L124" href="#L124">124</a> 			List&lt;? <strong class="jxr_keyword">extends</strong> ValueSource&gt; valueSources = createValueSources(model, projectDir, config, problems);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> 			List&lt;? <strong class="jxr_keyword">extends</strong> InterpolationPostProcessor&gt; postProcessors = createPostProcessors(model, projectDir, config);
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> 			InterpolateObjectAction action = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a>(obj, valueSources, postProcessors, <strong class="jxr_keyword">this</strong>,
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 			InterpolateObjectAction action = <strong class="jxr_keyword">new</strong> InterpolateObjectAction(obj, valueSources, postProcessors, <strong class="jxr_keyword">this</strong>,
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> 					problems);
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> 
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> 			AccessController.doPrivileged(action);
@@ -182,17 +182,17 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> 	}
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> 	<strong class="jxr_keyword">protected</strong> Interpolator createInterpolator() {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 		CiInterpolatorImpl interpolator = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.html">CiInterpolatorImpl</a>();
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 		CiInterpolatorImpl interpolator = <strong class="jxr_keyword">new</strong> <a name="CiInterpolatorImpl" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.html#CiInterpolatorImpl">CiInterpolatorImpl</a>();
 <a class="jxr_linenumber" name="L178" href="#L178">178</a> 		interpolator.setCacheAnswers(<strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a> 
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> 		<strong class="jxr_keyword">return</strong> interpolator;
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> 	}
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> 
-<a class="jxr_linenumber" name="L183" href="#L183">183</a> 	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> <strong class="jxr_keyword">implements</strong> PrivilegedAction&lt;Object&gt; {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> 	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> InterpolateObjectAction <strong class="jxr_keyword">implements</strong> PrivilegedAction&lt;Object&gt; {
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> 
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> LinkedList&lt;Object&gt; interpolationTargets;
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> 
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CiModelInterpolator</a> modelInterpolator;
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="CiModelInterpolator" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html#CiModelInterpolator">CiModelInterpolator</a> modelInterpolator;
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> 
 <a class="jxr_linenumber" name="L189" href="#L189">189</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;? <strong class="jxr_keyword">extends</strong> ValueSource&gt; valueSources;
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> 
@@ -200,8 +200,8 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> 
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ModelProblemCollector problems;
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 		<strong class="jxr_keyword">public</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a>(Object target, List&lt;? <strong class="jxr_keyword">extends</strong> ValueSource&gt; valueSources,
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> 				List&lt;? <strong class="jxr_keyword">extends</strong> InterpolationPostProcessor&gt; postProcessors, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CiModelInterpolator</a> modelInterpolator,
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 		<strong class="jxr_keyword">public</strong> InterpolateObjectAction(Object target, List&lt;? <strong class="jxr_keyword">extends</strong> ValueSource&gt; valueSources,
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 				List&lt;? <strong class="jxr_keyword">extends</strong> InterpolationPostProcessor&gt; postProcessors, <a name="CiModelInterpolator" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html#CiModelInterpolator">CiModelInterpolator</a> modelInterpolator,
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> 				ModelProblemCollector problems) {
 <a class="jxr_linenumber" name="L198" href="#L198">198</a> 			<strong class="jxr_keyword">this</strong>.valueSources = valueSources;
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> 			<strong class="jxr_keyword">this</strong>.postProcessors = postProcessors;
@@ -243,16 +243,16 @@
 <a class="jxr_linenumber" name="L235" href="#L235">235</a> 			}
 <a class="jxr_linenumber" name="L236" href="#L236">236</a> 		}
 <a class="jxr_linenumber" name="L237" href="#L237">237</a> 
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> 		<strong class="jxr_keyword">private</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheItem</a> getCacheEntry(Class&lt;?&gt; cls) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> 		<strong class="jxr_keyword">private</strong> CacheItem getCacheEntry(Class&lt;?&gt; cls) {
 <a class="jxr_linenumber" name="L239" href="#L239">239</a> 			CacheItem cacheItem = CACHED_ENTRIES.get(cls);
 <a class="jxr_linenumber" name="L240" href="#L240">240</a> 			<strong class="jxr_keyword">if</strong> (cacheItem == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> 				cacheItem = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheItem</a>(cls);
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 				cacheItem = <strong class="jxr_keyword">new</strong> CacheItem(cls);
 <a class="jxr_linenumber" name="L242" href="#L242">242</a> 				CACHED_ENTRIES.put(cls, cacheItem);
 <a class="jxr_linenumber" name="L243" href="#L243">243</a> 			}
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> 			<strong class="jxr_keyword">return</strong> cacheItem;
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> 		}
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> 
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> evaluateArray(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> ctx) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> evaluateArray(Object target, InterpolateObjectAction ctx) {
 <a class="jxr_linenumber" name="L248" href="#L248">248</a> 			<strong class="jxr_keyword">int</strong> len = Array.getLength(target);
 <a class="jxr_linenumber" name="L249" href="#L249">249</a> 			<strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; len; i++) {
 <a class="jxr_linenumber" name="L250" href="#L250">250</a> 				Object value = Array.get(target, i);
@@ -270,12 +270,12 @@
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> 			}
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> 		}
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> 
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheItem</a> {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> CacheItem {
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> 			<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isArray;
 <a class="jxr_linenumber" name="L267" href="#L267">267</a> 
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> 			<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isQualifiedForInterpolation;
 <a class="jxr_linenumber" name="L269" href="#L269">269</a> 
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> 			<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a>[] fields;
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> 			<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> CacheField[] fields;
 <a class="jxr_linenumber" name="L271" href="#L271">271</a> 
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> 			<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isQualifiedForInterpolation(Class&lt;?&gt; cls) {
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> 				<strong class="jxr_keyword">return</strong> !cls.getName().startsWith(<span class="jxr_string">"java"</span>);
@@ -303,25 +303,25 @@
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> 					<strong class="jxr_keyword">if</strong> (isQualifiedForInterpolation(currentField, type)) {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a> 						<strong class="jxr_keyword">if</strong> (String.<strong class="jxr_keyword">class</strong> == type) {
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> 							<strong class="jxr_keyword">if</strong> (!Modifier.isFinal(currentField.getModifiers())) {
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> 								fields.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">StringField</a>(currentField));
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> 								fields.add(<strong class="jxr_keyword">new</strong> StringField(currentField));
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> 							}
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> 						} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (List.<strong class="jxr_keyword">class</strong>.isAssignableFrom(type)) {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> 							fields.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ListField</a>(currentField));
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> 							fields.add(<strong class="jxr_keyword">new</strong> ListField(currentField));
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> 						} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Collection.<strong class="jxr_keyword">class</strong>.isAssignableFrom(type)) {
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> 							<strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"We dont interpolate into collections, use a list instead"</span>);
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> 						} <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Map.<strong class="jxr_keyword">class</strong>.isAssignableFrom(type)) {
-<a class="jxr_linenumber" name="L305" href="#L305">305</a> 							fields.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">MapField</a>(currentField));
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> 							fields.add(<strong class="jxr_keyword">new</strong> MapField(currentField));
 <a class="jxr_linenumber" name="L306" href="#L306">306</a> 						} <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a> 							fields.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ObjectField</a>(currentField));
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 							fields.add(<strong class="jxr_keyword">new</strong> ObjectField(currentField));
 <a class="jxr_linenumber" name="L308" href="#L308">308</a> 						}
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> 					}
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> 
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> 				}
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 				<strong class="jxr_keyword">this</strong>.fields = fields.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a>[fields.size()]);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> 				<strong class="jxr_keyword">this</strong>.fields = fields.toArray(<strong class="jxr_keyword">new</strong> CacheField[fields.size()]);
 <a class="jxr_linenumber" name="L313" href="#L313">313</a> 
 <a class="jxr_linenumber" name="L314" href="#L314">314</a> 			}
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> 
-<a class="jxr_linenumber" name="L316" href="#L316">316</a> 			<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> interpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> interpolateObjectAction) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> 			<strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> interpolate(Object target, InterpolateObjectAction interpolateObjectAction) {
 <a class="jxr_linenumber" name="L317" href="#L317">317</a> 				<strong class="jxr_keyword">for</strong> (CacheField field : fields) {
 <a class="jxr_linenumber" name="L318" href="#L318">318</a> 					field.interpolate(target, interpolateObjectAction);
 <a class="jxr_linenumber" name="L319" href="#L319">319</a> 				}
@@ -332,14 +332,14 @@
 <a class="jxr_linenumber" name="L324" href="#L324">324</a> 			}
 <a class="jxr_linenumber" name="L325" href="#L325">325</a> 		}
 <a class="jxr_linenumber" name="L326" href="#L326">326</a> 
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 		<strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a> {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a> 		<strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> CacheField {
 <a class="jxr_linenumber" name="L328" href="#L328">328</a> 			<strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> Field field;
 <a class="jxr_linenumber" name="L329" href="#L329">329</a> 
 <a class="jxr_linenumber" name="L330" href="#L330">330</a> 			CacheField(Field field) {
 <a class="jxr_linenumber" name="L331" href="#L331">331</a> 				<strong class="jxr_keyword">this</strong>.field = field;
 <a class="jxr_linenumber" name="L332" href="#L332">332</a> 			}
 <a class="jxr_linenumber" name="L333" href="#L333">333</a> 
-<a class="jxr_linenumber" name="L334" href="#L334">334</a> 			<strong class="jxr_keyword">void</strong> interpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> interpolateObjectAction) {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> 			<strong class="jxr_keyword">void</strong> interpolate(Object target, InterpolateObjectAction interpolateObjectAction) {
 <a class="jxr_linenumber" name="L335" href="#L335">335</a> 				<strong class="jxr_keyword">synchronized</strong> (field) {
 <a class="jxr_linenumber" name="L336" href="#L336">336</a> 					<strong class="jxr_keyword">boolean</strong> isAccessible = field.isAccessible();
 <a class="jxr_linenumber" name="L337" href="#L337">337</a> 					field.setAccessible(<strong class="jxr_keyword">true</strong>);
@@ -365,16 +365,16 @@
 <a class="jxr_linenumber" name="L357" href="#L357">357</a> 
 <a class="jxr_linenumber" name="L358" href="#L358">358</a> 			}
 <a class="jxr_linenumber" name="L359" href="#L359">359</a> 
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> 			<strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> doInterpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException;
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> 			<strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">void</strong> doInterpolate(Object target, InterpolateObjectAction ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException;
 <a class="jxr_linenumber" name="L361" href="#L361">361</a> 		}
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> 
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">StringField</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a> {
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> StringField <strong class="jxr_keyword">extends</strong> CacheField {
 <a class="jxr_linenumber" name="L364" href="#L364">364</a> 			StringField(Field field) {
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> 				<strong class="jxr_keyword">super</strong>(field);
 <a class="jxr_linenumber" name="L366" href="#L366">366</a> 			}
 <a class="jxr_linenumber" name="L367" href="#L367">367</a> 
 <a class="jxr_linenumber" name="L368" href="#L368">368</a> 			@Override
-<a class="jxr_linenumber" name="L369" href="#L369">369</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, InterpolateObjectAction ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
 <a class="jxr_linenumber" name="L370" href="#L370">370</a> 				String value = (String) field.get(target);
 <a class="jxr_linenumber" name="L371" href="#L371">371</a> 				<strong class="jxr_keyword">if</strong> (value == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L372" href="#L372">372</a> 					<strong class="jxr_keyword">return</strong>;
@@ -388,13 +388,13 @@
 <a class="jxr_linenumber" name="L380" href="#L380">380</a> 			}
 <a class="jxr_linenumber" name="L381" href="#L381">381</a> 		}
 <a class="jxr_linenumber" name="L382" href="#L382">382</a> 
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ListField</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a> {
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> ListField <strong class="jxr_keyword">extends</strong> CacheField {
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> 			ListField(Field field) {
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> 				<strong class="jxr_keyword">super</strong>(field);
 <a class="jxr_linenumber" name="L386" href="#L386">386</a> 			}
 <a class="jxr_linenumber" name="L387" href="#L387">387</a> 
 <a class="jxr_linenumber" name="L388" href="#L388">388</a> 			@Override
-<a class="jxr_linenumber" name="L389" href="#L389">389</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, InterpolateObjectAction ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
 <a class="jxr_linenumber" name="L390" href="#L390">390</a> 				@SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
 <a class="jxr_linenumber" name="L391" href="#L391">391</a> 				List&lt;Object&gt; c = (List&lt;Object&gt;) field.get(target);
 <a class="jxr_linenumber" name="L392" href="#L392">392</a> 				<strong class="jxr_keyword">if</strong> (c == <strong class="jxr_keyword">null</strong>) {
@@ -430,13 +430,13 @@
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> 			}
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> 		}
 <a class="jxr_linenumber" name="L424" href="#L424">424</a> 
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">MapField</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a> {
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> MapField <strong class="jxr_keyword">extends</strong> CacheField {
 <a class="jxr_linenumber" name="L426" href="#L426">426</a> 			MapField(Field field) {
 <a class="jxr_linenumber" name="L427" href="#L427">427</a> 				<strong class="jxr_keyword">super</strong>(field);
 <a class="jxr_linenumber" name="L428" href="#L428">428</a> 			}
 <a class="jxr_linenumber" name="L429" href="#L429">429</a> 
 <a class="jxr_linenumber" name="L430" href="#L430">430</a> 			@Override
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, InterpolateObjectAction ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
 <a class="jxr_linenumber" name="L432" href="#L432">432</a> 				@SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> 				Map&lt;Object, Object&gt; m = (Map&lt;Object, Object&gt;) field.get(target);
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> 				<strong class="jxr_keyword">if</strong> (m == <strong class="jxr_keyword">null</strong> || m.isEmpty()) {
@@ -469,7 +469,7 @@
 <a class="jxr_linenumber" name="L461" href="#L461">461</a> 			}
 <a class="jxr_linenumber" name="L462" href="#L462">462</a> 		}
 <a class="jxr_linenumber" name="L463" href="#L463">463</a> 
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ObjectField</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">CacheField</a> {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a> 		<strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> ObjectField <strong class="jxr_keyword">extends</strong> CacheField {
 <a class="jxr_linenumber" name="L465" href="#L465">465</a> 			<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isArray;
 <a class="jxr_linenumber" name="L466" href="#L466">466</a> 
 <a class="jxr_linenumber" name="L467" href="#L467">467</a> 			ObjectField(Field field) {
@@ -478,7 +478,7 @@
 <a class="jxr_linenumber" name="L470" href="#L470">470</a> 			}
 <a class="jxr_linenumber" name="L471" href="#L471">471</a> 
 <a class="jxr_linenumber" name="L472" href="#L472">472</a> 			@Override
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">InterpolateObjectAction</a> ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> 			<strong class="jxr_keyword">void</strong> doInterpolate(Object target, InterpolateObjectAction ctx) <strong class="jxr_keyword">throws</strong> IllegalAccessException {
 <a class="jxr_linenumber" name="L474" href="#L474">474</a> 				Object value = field.get(target);
 <a class="jxr_linenumber" name="L475" href="#L475">475</a> 				<strong class="jxr_keyword">if</strong> (value != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L476" href="#L476">476</a> 					<strong class="jxr_keyword">if</strong> (isArray) {
@@ -498,12 +498,12 @@
 <a class="jxr_linenumber" name="L490" href="#L490">490</a> 
 <a class="jxr_linenumber" name="L491" href="#L491">491</a> 		ValueSource modelValueSource1 = <strong class="jxr_keyword">new</strong> PrefixedObjectValueSource(PROJECT_PREFIXES, model, false);
 <a class="jxr_linenumber" name="L492" href="#L492">492</a> 		<strong class="jxr_keyword">if</strong> (config.getValidationLevel() &gt;= ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0) {
-<a class="jxr_linenumber" name="L493" href="#L493">493</a> 			modelValueSource1 = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ProblemDetectingValueSource</a>(modelValueSource1, <span class="jxr_string">"pom."</span>, <span class="jxr_string">"project."</span>, problems);
+<a class="jxr_linenumber" name="L493" href="#L493">493</a> 			modelValueSource1 = <strong class="jxr_keyword">new</strong> ProblemDetectingValueSource(modelValueSource1, <span class="jxr_string">"pom."</span>, <span class="jxr_string">"project."</span>, problems);
 <a class="jxr_linenumber" name="L494" href="#L494">494</a> 		}
 <a class="jxr_linenumber" name="L495" href="#L495">495</a> 
 <a class="jxr_linenumber" name="L496" href="#L496">496</a> 		ValueSource modelValueSource2 = <strong class="jxr_keyword">new</strong> ObjectBasedValueSource(model);
 <a class="jxr_linenumber" name="L497" href="#L497">497</a> 		<strong class="jxr_keyword">if</strong> (config.getValidationLevel() &gt;= ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0) {
-<a class="jxr_linenumber" name="L498" href="#L498">498</a> 			modelValueSource2 = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ProblemDetectingValueSource</a>(modelValueSource2, <span class="jxr_string">""</span>, <span class="jxr_string">"project."</span>, problems);
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> 			modelValueSource2 = <strong class="jxr_keyword">new</strong> ProblemDetectingValueSource(modelValueSource2, <span class="jxr_string">""</span>, <span class="jxr_string">"project."</span>, problems);
 <a class="jxr_linenumber" name="L499" href="#L499">499</a> 		}
 <a class="jxr_linenumber" name="L500" href="#L500">500</a> 
 <a class="jxr_linenumber" name="L501" href="#L501">501</a> 		<em class="jxr_comment">// NOTE: Order counts here!</em>
@@ -529,7 +529,7 @@
 <a class="jxr_linenumber" name="L521" href="#L521">521</a> 				}
 <a class="jxr_linenumber" name="L522" href="#L522">522</a> 			}, PROJECT_PREFIXES, false);
 <a class="jxr_linenumber" name="L523" href="#L523">523</a> 			valueSources.add(baseUriValueSource);
-<a class="jxr_linenumber" name="L524" href="#L524">524</a> 			valueSources.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">BuildTimestampValueSource</a>(config.getBuildStartTime(), modelProperties));
+<a class="jxr_linenumber" name="L524" href="#L524">524</a> 			valueSources.add(<strong class="jxr_keyword">new</strong> BuildTimestampValueSource(config.getBuildStartTime(), modelProperties));
 <a class="jxr_linenumber" name="L525" href="#L525">525</a> 		}
 <a class="jxr_linenumber" name="L526" href="#L526">526</a> 
 <a class="jxr_linenumber" name="L527" href="#L527">527</a> 		valueSources.add(modelValueSource1);
@@ -555,10 +555,10 @@
 <a class="jxr_linenumber" name="L547" href="#L547">547</a> 			<strong class="jxr_keyword">final</strong> ModelBuildingRequest config) {
 <a class="jxr_linenumber" name="L548" href="#L548">548</a> 		List&lt;InterpolationPostProcessor&gt; processors = <strong class="jxr_keyword">new</strong> ArrayList&lt;InterpolationPostProcessor&gt;(2);
 <a class="jxr_linenumber" name="L549" href="#L549">549</a> 		<strong class="jxr_keyword">if</strong> (projectDir != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L550" href="#L550">550</a> 			processors.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">PathTranslatingPostProcessor</a>(PROJECT_PREFIXES, TRANSLATED_PATH_EXPRESSIONS, projectDir,
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> 			processors.add(<strong class="jxr_keyword">new</strong> PathTranslatingPostProcessor(PROJECT_PREFIXES, TRANSLATED_PATH_EXPRESSIONS, projectDir,
 <a class="jxr_linenumber" name="L551" href="#L551">551</a> 					pathTranslator));
 <a class="jxr_linenumber" name="L552" href="#L552">552</a> 		}
-<a class="jxr_linenumber" name="L553" href="#L553">553</a> 		processors.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">UrlNormalizingPostProcessor</a>(urlNormalizer));
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> 		processors.add(<strong class="jxr_keyword">new</strong> UrlNormalizingPostProcessor(urlNormalizer));
 <a class="jxr_linenumber" name="L554" href="#L554">554</a> 		<strong class="jxr_keyword">return</strong> processors;
 <a class="jxr_linenumber" name="L555" href="#L555">555</a> 	}
 <a class="jxr_linenumber" name="L556" href="#L556">556</a> 
@@ -574,10 +574,10 @@
 <a class="jxr_linenumber" name="L566" href="#L566">566</a> 		<strong class="jxr_keyword">return</strong> interpolator;
 <a class="jxr_linenumber" name="L567" href="#L567">567</a> 	}
 <a class="jxr_linenumber" name="L568" href="#L568">568</a> 
-<a class="jxr_linenumber" name="L569" href="#L569">569</a> 	<strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">BuildTimestampValueSource</a> <strong class="jxr_keyword">extends</strong> AbstractValueSource {
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> 	<strong class="jxr_keyword">class</strong> BuildTimestampValueSource <strong class="jxr_keyword">extends</strong> AbstractValueSource {
 <a class="jxr_linenumber" name="L570" href="#L570">570</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> MavenBuildTimestamp mavenBuildTimestamp;
 <a class="jxr_linenumber" name="L571" href="#L571">571</a> 
-<a class="jxr_linenumber" name="L572" href="#L572">572</a> 		<strong class="jxr_keyword">public</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">BuildTimestampValueSource</a>(Date startTime, Properties properties) {
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> 		<strong class="jxr_keyword">public</strong> BuildTimestampValueSource(Date startTime, Properties properties) {
 <a class="jxr_linenumber" name="L573" href="#L573">573</a> 			<strong class="jxr_keyword">super</strong>(false);
 <a class="jxr_linenumber" name="L574" href="#L574">574</a> 			<strong class="jxr_keyword">this</strong>.mavenBuildTimestamp = <strong class="jxr_keyword">new</strong> MavenBuildTimestamp(startTime, properties);
 <a class="jxr_linenumber" name="L575" href="#L575">575</a> 		}
@@ -590,7 +590,7 @@
 <a class="jxr_linenumber" name="L582" href="#L582">582</a> 		}
 <a class="jxr_linenumber" name="L583" href="#L583">583</a> 	}
 <a class="jxr_linenumber" name="L584" href="#L584">584</a> 
-<a class="jxr_linenumber" name="L585" href="#L585">585</a> 	<strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ProblemDetectingValueSource</a> <strong class="jxr_keyword">implements</strong> ValueSource {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a> 	<strong class="jxr_keyword">class</strong> ProblemDetectingValueSource <strong class="jxr_keyword">implements</strong> ValueSource {
 <a class="jxr_linenumber" name="L586" href="#L586">586</a> 
 <a class="jxr_linenumber" name="L587" href="#L587">587</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ValueSource valueSource;
 <a class="jxr_linenumber" name="L588" href="#L588">588</a> 
@@ -600,7 +600,7 @@
 <a class="jxr_linenumber" name="L592" href="#L592">592</a> 
 <a class="jxr_linenumber" name="L593" href="#L593">593</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ModelProblemCollector problems;
 <a class="jxr_linenumber" name="L594" href="#L594">594</a> 
-<a class="jxr_linenumber" name="L595" href="#L595">595</a> 		<strong class="jxr_keyword">public</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">ProblemDetectingValueSource</a>(ValueSource valueSource, String bannedPrefix, String newPrefix,
+<a class="jxr_linenumber" name="L595" href="#L595">595</a> 		<strong class="jxr_keyword">public</strong> ProblemDetectingValueSource(ValueSource valueSource, String bannedPrefix, String newPrefix,
 <a class="jxr_linenumber" name="L596" href="#L596">596</a> 				ModelProblemCollector problems) {
 <a class="jxr_linenumber" name="L597" href="#L597">597</a> 			<strong class="jxr_keyword">this</strong>.valueSource = valueSource;
 <a class="jxr_linenumber" name="L598" href="#L598">598</a> 			<strong class="jxr_keyword">this</strong>.bannedPrefix = bannedPrefix;
@@ -633,14 +633,14 @@
 <a class="jxr_linenumber" name="L625" href="#L625">625</a> 
 <a class="jxr_linenumber" name="L626" href="#L626">626</a> 	}
 <a class="jxr_linenumber" name="L627" href="#L627">627</a> 
-<a class="jxr_linenumber" name="L628" href="#L628">628</a> 	<strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">PathTranslatingPostProcessor</a> <strong class="jxr_keyword">implements</strong> InterpolationPostProcessor {
+<a class="jxr_linenumber" name="L628" href="#L628">628</a> 	<strong class="jxr_keyword">class</strong> PathTranslatingPostProcessor <strong class="jxr_keyword">implements</strong> InterpolationPostProcessor {
 <a class="jxr_linenumber" name="L629" href="#L629">629</a> 
 <a class="jxr_linenumber" name="L630" href="#L630">630</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Collection&lt;String&gt; unprefixedPathKeys;
 <a class="jxr_linenumber" name="L631" href="#L631">631</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> File projectDir;
 <a class="jxr_linenumber" name="L632" href="#L632">632</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> PathTranslator pathTranslator;
 <a class="jxr_linenumber" name="L633" href="#L633">633</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; expressionPrefixes;
 <a class="jxr_linenumber" name="L634" href="#L634">634</a> 
-<a class="jxr_linenumber" name="L635" href="#L635">635</a> 		<strong class="jxr_keyword">public</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">PathTranslatingPostProcessor</a>(List&lt;String&gt; expressionPrefixes, Collection&lt;String&gt; unprefixedPathKeys,
+<a class="jxr_linenumber" name="L635" href="#L635">635</a> 		<strong class="jxr_keyword">public</strong> PathTranslatingPostProcessor(List&lt;String&gt; expressionPrefixes, Collection&lt;String&gt; unprefixedPathKeys,
 <a class="jxr_linenumber" name="L636" href="#L636">636</a> 				File projectDir, PathTranslator pathTranslator) {
 <a class="jxr_linenumber" name="L637" href="#L637">637</a> 			<strong class="jxr_keyword">this</strong>.expressionPrefixes = expressionPrefixes;
 <a class="jxr_linenumber" name="L638" href="#L638">638</a> 			<strong class="jxr_keyword">this</strong>.unprefixedPathKeys = unprefixedPathKeys;
@@ -662,12 +662,12 @@
 <a class="jxr_linenumber" name="L654" href="#L654">654</a> 
 <a class="jxr_linenumber" name="L655" href="#L655">655</a> 	}
 <a class="jxr_linenumber" name="L656" href="#L656">656</a> 
-<a class="jxr_linenumber" name="L657" href="#L657">657</a> 	<strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">UrlNormalizingPostProcessor</a> <strong class="jxr_keyword">implements</strong> InterpolationPostProcessor {
+<a class="jxr_linenumber" name="L657" href="#L657">657</a> 	<strong class="jxr_keyword">class</strong> UrlNormalizingPostProcessor <strong class="jxr_keyword">implements</strong> InterpolationPostProcessor {
 <a class="jxr_linenumber" name="L658" href="#L658">658</a> 
 <a class="jxr_linenumber" name="L659" href="#L659">659</a> 
 <a class="jxr_linenumber" name="L660" href="#L660">660</a> 		<strong class="jxr_keyword">private</strong> UrlNormalizer normalizer;
 <a class="jxr_linenumber" name="L661" href="#L661">661</a> 
-<a class="jxr_linenumber" name="L662" href="#L662">662</a> 		<strong class="jxr_keyword">public</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.html">UrlNormalizingPostProcessor</a>(UrlNormalizer normalizer) {
+<a class="jxr_linenumber" name="L662" href="#L662">662</a> 		<strong class="jxr_keyword">public</strong> UrlNormalizingPostProcessor(UrlNormalizer normalizer) {
 <a class="jxr_linenumber" name="L663" href="#L663">663</a> 			<strong class="jxr_keyword">this</strong>.normalizer = normalizer;
 <a class="jxr_linenumber" name="L664" href="#L664">664</a> 		}
 <a class="jxr_linenumber" name="L665" href="#L665">665</a> 
@@ -691,6 +691,6 @@
 <a class="jxr_linenumber" name="L683" href="#L683">683</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2014&#x2013;2020 <a href="http://www.mojohaus.org">MojoHaus</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2014&#x2013;2022 <a href="https://www.mojohaus.org">MojoHaus</a>. All rights reserved.</div>
 </body>
 </html>

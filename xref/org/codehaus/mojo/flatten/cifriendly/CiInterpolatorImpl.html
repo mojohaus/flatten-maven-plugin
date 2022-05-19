@@ -17,7 +17,7 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *     <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *     <a href="http://www.apache.org/licenses/LICENSE-2.0" target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.0</a></em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> *</em>
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
@@ -47,7 +47,7 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_comment"> * see {@link org.codehaus.plexus.interpolation.StringSearchInterpolator}.</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_comment"> * This interpolates only the Maven CI Friendly variables revision, sha1 and changelist.</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_comment"> */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.html">CiInterpolatorImpl</a> <strong class="jxr_keyword">implements</strong> Interpolator {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="CiInterpolatorImpl" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.html#CiInterpolatorImpl">CiInterpolatorImpl</a> <strong class="jxr_keyword">implements</strong> Interpolator {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  	    <strong class="jxr_keyword">private</strong> Map existingAnswers = <strong class="jxr_keyword">new</strong> HashMap();
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
@@ -67,13 +67,13 @@
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  	    <strong class="jxr_keyword">private</strong> String escapeString;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  	    <strong class="jxr_keyword">public</strong> CiInterpolatorImpl()
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  	    <strong class="jxr_keyword">public</strong> <a name="CiInterpolatorImpl" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.html#CiInterpolatorImpl">CiInterpolatorImpl</a>()
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  	    {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  	        <strong class="jxr_keyword">this</strong>.startExpr = DEFAULT_START_EXPR;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  	        <strong class="jxr_keyword">this</strong>.endExpr = DEFAULT_END_EXPR;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  	    }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  	    <strong class="jxr_keyword">public</strong> CiInterpolatorImpl( String startExpr, String endExpr )
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  	    <strong class="jxr_keyword">public</strong> <a name="CiInterpolatorImpl" href="../../../../../org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.html#CiInterpolatorImpl">CiInterpolatorImpl</a>( String startExpr, String endExpr )
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  	    {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  	        <strong class="jxr_keyword">this</strong>.startExpr = startExpr;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  	        <strong class="jxr_keyword">this</strong>.endExpr = endExpr;
@@ -359,6 +359,6 @@
 <a class="jxr_linenumber" name="L351" href="#L351">351</a> 
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2014&#x2013;2020 <a href="http://www.mojohaus.org">MojoHaus</a>. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2014&#x2013;2022 <a href="https://www.mojohaus.org">MojoHaus</a>. All rights reserved.</div>
 </body>
 </html>

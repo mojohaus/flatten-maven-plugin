@@ -422,6 +422,7 @@ public class FlattenMojo
         if ( isUpdatePomFile() )
         {
             this.project.setPomFile( flattenedPomFile );
+            this.project.setOriginalModel( flattenedPom );
         }
     }
 

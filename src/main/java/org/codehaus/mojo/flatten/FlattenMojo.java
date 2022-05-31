@@ -397,6 +397,11 @@ public class FlattenMojo
         {
             this.project.setPomFile( flattenedPomFile );
         }
+
+        // fix https://github.com/mojohaus/flatten-maven-plugin/issues/100
+        if (this.project.getOriginalModel().getParent() != null && this.project.getModel().getParent() != null) {
+            this.project.getOriginalModel().getParent().setVersion(this.project.getModel().getParent().getVersion());
+        }
     }
 
     /**

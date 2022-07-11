@@ -253,6 +253,16 @@ public class FlattenMojo
     private FlattenDescriptor pomElements;
 
     /**
+     * Dictates whether dependency exclusions stanzas should be included in the flattened POM. By default exclusions
+     * will be included in the flattened POM but if you wish to omit exclusions stanzas from being present then set
+     * this configuration property to <code>true</code>.
+     *
+     * @since 1.3.0
+     */
+    @Parameter( defaultValue = "false", required = false )
+    private boolean omitExclusions;
+
+    /**
      * The different possible values for flattenMode:
      * <table border="1" summary="">
      * <thead>
@@ -1014,7 +1024,12 @@ public class FlattenMojo
                             // Non build-time driven profiles will remain in the flattened POM with their dependencies
                             // and
                             // allow dynamic dependencies due to OS or JDK.
-                            flattenedDependencies.add( modelDependencies.resolve(profileDependency) );
+                            Dependency resolvedProfileDependency = modelDependencies.resolve(profileDependency);
+                            if ( omitExclusions )
+                            {
+                                resolvedProfileDependency.setExclusions(Collections.emptyList());
+                            }
+                            flattenedDependencies.add( resolvedProfileDependency );
                         }
                     }
                 }
@@ -1120,26 +1135,29 @@ public class FlattenMojo
             dependency.setScope(artifact.getScope());
             dependency.setType(artifact.getType());
 
-            List<Exclusion> exclusions = new LinkedList<>();
+            if ( !omitExclusions )
+            {
+                List<Exclusion> exclusions = new LinkedList<>();
 
-            org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
-            ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
-            ArtifactDescriptorResult artifactDescriptorResult = this.artifactDescriptorReader
+                org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
+                ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
+                ArtifactDescriptorResult artifactDescriptorResult = this.artifactDescriptorReader
                     .readArtifactDescriptor(this.session.getRepositorySession(), request);
 
-            for (org.eclipse.aether.graph.Dependency artifactDependency: artifactDescriptorResult.getDependencies())
-            {
-                if ("test".equals(artifactDependency.getScope()))
+                for (org.eclipse.aether.graph.Dependency artifactDependency: artifactDescriptorResult.getDependencies())
                 {
+                  if ("test".equals(artifactDependency.getScope()))
+                  {
                     continue;
+                  }
+                  Exclusion exclusion = new Exclusion();
+                  exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
+                  exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());
+                  exclusions.add(exclusion);
                 }
-                Exclusion exclusion = new Exclusion();
-                exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
-                exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());
-                exclusions.add(exclusion);
-            }
 
-            dependency.setExclusions(exclusions);
+                dependency.setExclusions(exclusions);
+            }
 
             // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
             String dependencyString = dependency.getManagementKey();
@@ -1190,7 +1208,17 @@ public class FlattenMojo
      */
     protected Dependency createFlattenedDependency( Dependency projectDependency )
     {
-        return "test".equals( projectDependency.getScope() ) ? null : projectDependency;
+        if ( "test".equals( projectDependency.getScope() ) )
+        {
+            return null;
+        }
+
+        if ( omitExclusions )
+        {
+            projectDependency.setExclusions(Collections.emptyList());
+        }
+
+        return projectDependency;
     }
 
     /**

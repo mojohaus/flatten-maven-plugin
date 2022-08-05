@@ -28,19 +28,28 @@
   </parent>
 
   <artifactId>flatten-maven-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
-  <name>Maven Flatten Plugin</name>
   <version>1.2.8-SNAPSHOT</version>
-  <description>Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories) and to use (install, sign, deploy) it instead of original pom.xml.</description>
+  <packaging>maven-plugin</packaging>
+
+  <name>Maven Flatten Plugin</name>
+
+  <description>
+    Plugin to generate flattened POM (reduced and resolved information required for consumers of maven repositories)
+    and to use (install, sign, deploy) it instead of original pom.xml.
+  </description>
+
+  <url>https://www.mojohaus.org/flatten-maven-plugin/</url>
+
   <inceptionYear>2014</inceptionYear>
 
-  <prerequisites>
-    <maven>${mavenVersion}</maven>
-  </prerequisites>
-  <properties>
-    <mavenVersion>3.2.5</mavenVersion>
-    <project.build.outputTimestamp>2021-03-01T20:31:11Z</project.build.outputTimestamp>
-  </properties>
+  <licenses>
+    <license>
+      <name>Apache Software Licenese</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <comments />
+    </license>
+  </licenses>
+
   <developers>
     <developer>
       <id>hohwille</id>
@@ -117,6 +126,22 @@
       </roles>
     </developer>
   </developers>
+
+  <prerequisites>
+    <maven>${mavenVersion}</maven>
+  </prerequisites>
+
+  <scm>
+    <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
+    <url>https://github.com/mojohaus/flatten-maven-plugin/tree/master</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <mavenVersion>3.2.5</mavenVersion>
+    <project.build.outputTimestamp>2021-03-01T20:31:11Z</project.build.outputTimestamp>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -211,6 +236,21 @@
     </plugins>
   </build>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <links combine.self="override">
+            <link>http://junit.org/junit4/javadoc/latest</link>
+            <link>http://maven.apache.org/ref/${mavenVersion}/apidocs/</link>
+          </links>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <profiles>
     <profile>
       <id>run-its</id>
@@ -254,10 +294,10 @@
               <preBuildHookScript>setup</preBuildHookScript>
             </configuration>
           </plugin>
+
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>mrm-maven-plugin</artifactId>
-            <version>1.4.1</version>
             <executions>
               <execution>
                 <goals>
@@ -281,46 +321,4 @@
     </profile>
   </profiles>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <links combine.self="override">
-            <link>http://junit.org/junit4/javadoc/latest</link>
-            <link>http://maven.apache.org/ref/${mavenVersion}/apidocs/</link>
-          </links>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <licenses>
-    <license>
-      <name>Apache Software Licenese</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <comments />
-    </license>
-  </licenses>
-  <scm>
-    <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
-    <url>https://github.com/mojohaus/flatten-maven-plugin</url>
-    <tag>HEAD</tag>
-  </scm>
-  <issueManagement>
-    <system>github</system>
-    <url>https://github.com/mojohaus/flatten-maven-plugin/issues</url>
-  </issueManagement>
-  <ciManagement>
-    <system>travis</system>
-    <url>https://travis-ci.org/mojohaus/flatten-maven-plugin</url>
-  </ciManagement>
-  <distributionManagement>
-    <site>
-      <id>github</id>
-      <url>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</url>
-    </site>
-  </distributionManagement>
 </project>

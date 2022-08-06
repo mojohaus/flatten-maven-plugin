@@ -36,19 +36,19 @@
       <subsection name="Usage">
         <p>General instructions on how to use the Flatten Maven Plugin can be found on the <a href="usage.html">usage page</a>.</p>
         
-        <p>If you have questions regarding the plugin's usage, contact the <a href="https://www.mojohaus.org/flatten-maven-plugin/mailing-lists.html">user mailing list</a>.
+        <p>If you have questions regarding the plugin's usage, contact the <a href="mailing-lists.html">user mailing list</a>.
             Posts to the mailing list are archived and could
             already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
             the mail archive.
         </p>
 
        <p>You can fill a feature request or bug report in our
-          <a href="https://github.com/mojohaus/flatten-maven-plugin/issues">issue tracker</a>.
+          <a href="issue-management.html">issue tracker</a>.
           When creating a new issue, please provide a comprehensive description of your
           concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. 
           Entire debug logs, POMs and most preferably little demo projects attached to the issue are very much appreciated.
           Of course, patches are welcome too. Contributors can check out the project from our
-          <a href="https://github.com/mojohaus/flatten-maven-plugin">source repository</a> and will find supplementary information in the
+          <a href="scm.html">source repository</a> and will find supplementary information in the
           <a href="https://maven.apache.org/guides/development/guide-helping.html">guide to helping with Maven</a>.
        </p>
       

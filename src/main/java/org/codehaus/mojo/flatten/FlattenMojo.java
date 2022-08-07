@@ -343,6 +343,12 @@ public class FlattenMojo
     private FlattenDependencyMode flattenDependencyMode;
 
     /**
+     * Order dependencies by their groupId and artifactId after they are flattened
+     */
+    @Parameter( defaultValue = "false" )
+    private boolean orderDependencies;
+
+    /**
      * The ArtifactFactory required to resolve POM using {@link #modelBuilder}.
      */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
@@ -354,7 +360,7 @@ public class FlattenMojo
      */
     @Component( role = ModelInterpolator.class )
     private ModelInterpolator modelInterpolator;
-    
+
     /**
      * The {@link ModelInterpolator} used to resolve variables.
      */
@@ -399,6 +405,11 @@ public class FlattenMojo
         File originalPomFile = this.project.getFile();
         Model flattenedPom = createFlattenedPom( originalPomFile );
         String headerComment = extractHeaderComment( originalPomFile );
+
+        if ( orderDependencies )
+        {
+            Collections.sort( flattenedPom.getDependencies(), new DependencyComparator() );
+        }
 
         File flattenedPomFile = getFlattenedPomFile();
         writePom( flattenedPom, flattenedPomFile, headerComment );

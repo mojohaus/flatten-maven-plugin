@@ -76,56 +76,31 @@
         <role>developer</role>
       </roles>
     </developer>
-    <developer>
-      <id>cboehme</id>
-      <name>Christoph Böhme</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>mguillet</id>
-      <name>Michel Guillet</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>mariuszs</id>
-      <name>Mariusz Smykuła</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>sleicht</id>
-      <name>Stephan Leicht Vogt</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>erwint</id>
-      <name>Erwin Tratar</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>gdelafosse</id>
-      <name>Guillaume Delafosse</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>flabodotes</id>
-      <name>Flabo</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
   </developers>
+
+  <contributors>
+    <contributor>
+      <name>Christoph Böhme</name>
+    </contributor>
+    <contributor>
+      <name>Michel Guillet</name>
+    </contributor>
+    <contributor>
+      <name>Mariusz Smykuła</name>
+    </contributor>
+    <contributor>
+      <name>Stephan Leicht Vogt</name>
+    </contributor>
+    <contributor>
+      <name>Erwin Tratar</name>
+    </contributor>
+    <contributor>
+      <name>Guillaume Delafosse</name>
+    </contributor>
+    <contributor>
+      <name>Flabo</name>
+    </contributor>
+  </contributors>
 
   <prerequisites>
     <maven>${mavenVersion}</maven>

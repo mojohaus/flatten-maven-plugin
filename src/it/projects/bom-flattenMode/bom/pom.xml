@@ -69,7 +69,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>17.0</version>
+        <version>31.1-jre</version>
       </dependency>
       <!-- Library with general utilities as well as I18N and exception support -->
       <dependency>

@@ -1,3 +1,5 @@
+package org.codehaus.mojo.flatten.model.resolution;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,15 +18,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.codehaus.mojo.flatten.model.resolution;
 
-import com.google.common.base.Objects;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Holds a list of models and allows to retrieve them by their coordinates.
@@ -52,7 +53,7 @@ class ReactorModelPool
     public void addProject( MavenProject project )
     {
         Coordinates coordinates = new Coordinates( project.getGroupId(), project.getArtifactId(),
-                project.getVersion() );
+                                                   project.getVersion() );
         models.put( coordinates, project.getFile() );
     }
 
@@ -62,28 +63,33 @@ class ReactorModelPool
         final String artifactId;
         final String version;
 
-        Coordinates( String groupId, String artifactId, String version ) {
+        Coordinates( String groupId, String artifactId, String version )
+        {
             this.groupId = groupId;
             this.artifactId = artifactId;
             this.version = version;
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
+        public boolean equals( Object obj )
+        {
+            if ( obj == this )
+            {
                 return true;
             }
-            if (obj instanceof Coordinates) {
+            if ( obj instanceof Coordinates )
+            {
                 Coordinates other = (Coordinates) obj;
-                return artifactId.equals(other.artifactId) && groupId.equals(other.groupId)
-                        && version.equals(other.version);
+                return artifactId.equals( other.artifactId ) && groupId.equals( other.groupId )
+                    && version.equals( other.version );
             }
             return false;
         }
 
         @Override
-        public int hashCode() {
-            return Objects.hashCode(artifactId, groupId, version);
+        public int hashCode()
+        {
+            return Objects.hash( artifactId, groupId, version );
         }
 
     }

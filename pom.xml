@@ -225,27 +225,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-invoker-plugin</artifactId>
-          <version>3.3.0</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <configuration>
-          <goalPrefix>flatten</goalPrefix>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <reporting>
     <plugins>
@@ -254,8 +233,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.self="override">
-            <link>http://junit.org/junit4/javadoc/latest</link>
-            <link>http://maven.apache.org/ref/${mavenVersion}/apidocs/</link>
+            <link>https://junit.org/junit4/javadoc/latest</link>
+            <link>https://maven.apache.org/ref/${mavenVersion}/apidocs/</link>
           </links>
         </configuration>
       </plugin>
@@ -323,6 +302,9 @@
                 <mockRepo>
                   <source>src/it/mrm/repository</source>
                 </mockRepo>
+                <localRepo>
+                  <source>${project.build.directory}/local-repo</source>
+                </localRepo>
                 <proxyRepo />
               </repositories>
             </configuration>

@@ -1,28 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
-  <custom>
-    <fluidoSkin>
-      <googleSearch>
-        <sitesearch>www.mojohaus.org</sitesearch>
-      </googleSearch>
-      <ohloh>
-        <projectId>5211</projectId>
-        <widget>thin-badge</widget>
-      </ohloh>
-      <gitHub>
-        <projectId>mojohaus/${project.artifactId}</projectId>
-        <ribbonOrientation>right</ribbonOrientation>
-        <ribbonColor>gray</ribbonColor>
-      </gitHub>
-    </fluidoSkin>
-  </custom>
+<project xmlns="http://maven.apache.org/DECORATION/1.8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
   <body>
+    <breadcrumbs>
+      <item name="MojoHaus" href="https://www.mojohaus.org/"/>
+      <item name="${this.name}" href="${this.url}" />
+    </breadcrumbs>
+
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
       <item name="Usage" href="usage.html"/>
       <item name="FAQ" href="faq.html"/>
     </menu>
+
     <menu name="Examples">
       <item name="Simple Project" href="examples/example-simple-project.html"/>
       <item name="Central Version" href="examples/example-central-version.html"/>

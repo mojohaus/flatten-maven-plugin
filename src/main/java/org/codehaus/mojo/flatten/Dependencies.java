@@ -46,7 +46,7 @@ public class Dependencies
     {
 
         super();
-        this.key2DependencyMap = new HashMap<String, Dependency>();
+        this.key2DependencyMap = new HashMap<>();
     }
 
     /**
@@ -117,7 +117,7 @@ public class Dependencies
     public List<Dependency> toList()
     {
 
-        List<Dependency> result = new ArrayList<Dependency>( this.key2DependencyMap.values() );
+        List<Dependency> result = new ArrayList<>( this.key2DependencyMap.values() );
         return result;
     }
 

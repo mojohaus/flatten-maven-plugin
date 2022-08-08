@@ -79,7 +79,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
 	private static final Collection<String> TRANSLATED_PATH_EXPRESSIONS;
 
 	static {
-		Collection<String> translatedPrefixes = new HashSet<String>();
+		Collection<String> translatedPrefixes = new HashSet<>();
 
 		// MNG-1927, MNG-2124, MNG-3355:
 		// If the build section is present and the project directory is
@@ -107,7 +107,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
     @Requirement
     private UrlNormalizer urlNormalizer;
 
-	private static final Map<Class<?>, InterpolateObjectAction.CacheItem> CACHED_ENTRIES = new ConcurrentHashMap<Class<?>, InterpolateObjectAction.CacheItem>(
+	private static final Map<Class<?>, InterpolateObjectAction.CacheItem> CACHED_ENTRIES = new ConcurrentHashMap<>(
 			80, 0.75f, 2);
 	// Empirical data from 3.x, actual =40
 
@@ -198,7 +198,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
 			this.valueSources = valueSources;
 			this.postProcessors = postProcessors;
 
-			this.interpolationTargets = new LinkedList<Object>();
+			this.interpolationTargets = new LinkedList<>();
 			interpolationTargets.add(target);
 
 			this.modelInterpolator = modelInterpolator;
@@ -289,7 +289,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
 			CacheItem(Class clazz) {
 				this.isQualifiedForInterpolation = isQualifiedForInterpolation(clazz);
 				this.isArray = clazz.isArray();
-				List<CacheField> fields = new ArrayList<CacheField>();
+				List<CacheField> fields = new ArrayList<>();
 				for (Field currentField : clazz.getDeclaredFields()) {
 					Class<?> type = currentField.getType();
 					if (isQualifiedForInterpolation(currentField, type)) {
@@ -499,7 +499,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
 		}
 
 		// NOTE: Order counts here!
-		List<ValueSource> valueSources = new ArrayList<ValueSource>(9);
+		List<ValueSource> valueSources = new ArrayList<>(9);
 
 		if (projectDir != null) {
 			ValueSource basedirValueSource = new PrefixedValueSourceWrapper(new AbstractValueSource(false) {
@@ -545,7 +545,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
 
 	protected List<? extends InterpolationPostProcessor> createPostProcessors(final Model model, final File projectDir,
 			final ModelBuildingRequest config) {
-		List<InterpolationPostProcessor> processors = new ArrayList<InterpolationPostProcessor>(2);
+		List<InterpolationPostProcessor> processors = new ArrayList<>(2);
 		if (projectDir != null) {
 			processors.add(new PathTranslatingPostProcessor(PROJECT_PREFIXES, TRANSLATED_PATH_EXPRESSIONS, projectDir,
 					pathTranslator));
@@ -664,7 +664,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
 		}
 
 		public Object execute(String expression, Object value) {
-			Set<String> expressions = new HashSet<String>();
+			Set<String> expressions = new HashSet<>();
 			expressions.add("project.url");
 			expressions.add("project.scm.url");
 			expressions.add("project.scm.connection");

@@ -43,9 +43,9 @@ public class CiInterpolatorImpl implements Interpolator {
 
 	    private Map existingAnswers = new HashMap();
 
-	    private List<ValueSource> valueSources = new ArrayList<ValueSource>();
+	    private List<ValueSource> valueSources = new ArrayList<>();
 
-	    private List<InterpolationPostProcessor> postProcessors = new ArrayList<InterpolationPostProcessor>();
+	    private List<InterpolationPostProcessor> postProcessors = new ArrayList<>();
 
 	    private boolean cacheAnswers = false;
 
@@ -131,7 +131,7 @@ public class CiInterpolatorImpl implements Interpolator {
 	    {
 	        try
 	        {
-	            return interpolate( input, recursionInterceptor, new HashSet<String>() );
+	            return interpolate( input, recursionInterceptor, new HashSet<>() );
 	        }
 	        finally
 	        {

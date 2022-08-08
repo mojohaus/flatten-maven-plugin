@@ -43,7 +43,7 @@ public class FlattenDescriptor
     public FlattenDescriptor()
     {
         super();
-        this.name2handlingMap = new HashMap<String, ElementHandling>();
+        this.name2handlingMap = new HashMap<>();
     }
 
     /**

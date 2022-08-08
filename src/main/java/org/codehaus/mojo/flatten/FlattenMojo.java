@@ -765,7 +765,7 @@ public class FlattenMojo
     {
         if ( repositories != null )
         {
-            List<Repository> flattenedRepositories = new ArrayList<Repository>( repositories.size() );
+            List<Repository> flattenedRepositories = new ArrayList<>( repositories.size() );
             for ( Repository repo : repositories )
             {
                 // filter inherited repository section from super POM (see MOJO-2042)...
@@ -906,7 +906,7 @@ public class FlattenMojo
                 public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
                                                         ModelProblemCollector problems )
                 {
-                    List<Profile> activeProfiles = new ArrayList<Profile>( profiles.size() );
+                    List<Profile> activeProfiles = new ArrayList<>( profiles.size() );
 
                     for ( Profile profile : profiles )
                     {
@@ -996,7 +996,7 @@ public class FlattenMojo
      */
     protected List<Dependency> createFlattenedDependencies( Model effectiveModel )
             throws MojoExecutionException {
-        List<Dependency> flattenedDependencies = new ArrayList<Dependency>();
+        List<Dependency> flattenedDependencies = new ArrayList<>();
         // resolve all direct and inherited dependencies...
         try {
             createFlattenedDependencies( effectiveModel, flattenedDependencies );
@@ -1078,7 +1078,7 @@ public class FlattenMojo
     private void createFlattenedDependenciesAll( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
             throws DependencyTreeBuilderException, ArtifactDescriptorException
     {
-        final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<DependencyNode>();
+        final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<>();
         final Set<String> processedDependencies = new HashSet<>();
 
         final Artifact projectArtifact = this.project.getArtifact();

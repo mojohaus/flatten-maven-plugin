@@ -19,7 +19,6 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.util.Queue;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -51,11 +50,13 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.dependency.tree.DependencyNode;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
-import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
+import org.apache.maven.shared.dependency.graph.traversal.DependencyNodeVisitor;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
@@ -89,6 +90,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -224,7 +226,7 @@ public class FlattenMojo
     @Parameter( property = "updatePomFile" )
     private Boolean updatePomFile;
 
-    /** The {@link ArtifactRepository} required to resolve POM using {@link #modelBuilder}. */
+    /** The {@link ArtifactRepository} required to resolve POM. */
     @Parameter( defaultValue = "${localRepository}", readonly = true, required = true )
     private ArtifactRepository localRepository;
 
@@ -284,7 +286,7 @@ public class FlattenMojo
      * </tr>
      * <tr>
      * <td>bom</td>
-     * <td>Like {@link #ossrh} but additionally keeps {@link Model#getDependencyManagement() dependencyManagement} and
+     * <td>Like <code>ossrh</code> but additionally keeps {@link Model#getDependencyManagement() dependencyManagement} and
      * {@link Model#getProperties() properties}. Especially it will keep the {@link Model#getDependencyManagement()
      * dependencyManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
      * useful if your POM represents a <a href=
@@ -343,7 +345,7 @@ public class FlattenMojo
     private FlattenDependencyMode flattenDependencyMode;
 
     /**
-     * The ArtifactFactory required to resolve POM using {@link #modelBuilder}.
+     * The ArtifactFactory required to resolve POM.
      */
     // Neither ArtifactFactory nor DefaultArtifactFactory tells what to use instead
     @Component
@@ -371,7 +373,7 @@ public class FlattenMojo
     private DependencyResolver dependencyResolver;
 
     @Component( hint = "default" )
-    private DependencyTreeBuilder dependencyTreeBuilder;
+    private DependencyGraphBuilder dependencyGraphBuilder;
 
     @Component(role = ArtifactDescriptorReader.class)
     private ArtifactDescriptorReader artifactDescriptorReader;
@@ -1080,19 +1082,21 @@ public class FlattenMojo
      *
      * @param projectDependencies is the effective POM {@link Model}'s current dependencies
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
-     * @throws DependencyTreeBuilderException
+     * @throws DependencyGraphBuilderException
      * @throws ArtifactDescriptorException
      */
     private void createFlattenedDependenciesAll( List<Dependency> projectDependencies, List<Dependency> flattenedDependencies )
-            throws DependencyTreeBuilderException, ArtifactDescriptorException
+        throws ArtifactDescriptorException, DependencyGraphBuilderException
     {
         final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<>();
         final Set<String> processedDependencies = new HashSet<>();
 
         final Artifact projectArtifact = this.project.getArtifact();
 
-        final DependencyNode dependencyNode = this.dependencyTreeBuilder.buildDependencyTree(this.project,
-                this.localRepository, null);
+        ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest( session.getProjectBuildingRequest() );
+        buildingRequest.setProject( project );
+
+        final DependencyNode dependencyNode = this.dependencyGraphBuilder.buildDependencyGraph( buildingRequest, null);
 
         dependencyNode.accept(new DependencyNodeVisitor()
         {
@@ -1109,10 +1113,6 @@ public class FlattenMojo
                     {
                         return false;
                     }
-                }
-                if (node.getState() != DependencyNode.INCLUDED)
-                {
-                    return false;
                 }
                 if (node.getArtifact().isOptional())
                 {

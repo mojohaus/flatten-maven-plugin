@@ -369,6 +369,16 @@ public class FlattenMojo
     @Parameter( defaultValue = "${session}", readonly = true, required = true )
     private MavenSession session;
 
+    /**
+     * The core maven model readers/writers are discarding the comments of the pom.xml.
+     * By setting keepCommentsInPom to true the current comments are moved to the flattened pom.xml.
+     * Default value is false (= not re-adding comments).
+     * 
+     * @since 1.3.0
+     */
+    @Parameter( property = "flatten.dependency.keepComments", required = false , defaultValue = "false")
+    private boolean keepCommentsInPom;
+
     @Component
     private DependencyResolver dependencyResolver;
 
@@ -399,11 +409,15 @@ public class FlattenMojo
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
 
         File originalPomFile = this.project.getFile();
+        KeepCommentsInPom commentsOfOriginalPomFile = null;
+        if (keepCommentsInPom) {
+        	commentsOfOriginalPomFile = KeepCommentsInPom.create(getLog(), originalPomFile);
+        }
         Model flattenedPom = createFlattenedPom( originalPomFile );
         String headerComment = extractHeaderComment( originalPomFile );
 
         File flattenedPomFile = getFlattenedPomFile();
-        writePom( flattenedPom, flattenedPomFile, headerComment );
+        writePom( flattenedPom, flattenedPomFile, headerComment , commentsOfOriginalPomFile);
 
         if ( isUpdatePomFile() )
         {
@@ -411,7 +425,9 @@ public class FlattenMojo
         }
     }
 
-    /**
+	
+
+	/**
      * This method extracts the XML header comment if available.
      *
      * @param xmlFile is the XML {@link File} to parse.
@@ -447,7 +463,7 @@ public class FlattenMojo
      *                      before root tag). May be <code>null</code> if not present and to be omitted in target POM.
      * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
      */
-    protected void writePom( Model pom, File pomFile, String headerComment )
+    protected void writePom( Model pom, File pomFile, String headerComment,  KeepCommentsInPom anOriginalCommentsPath )
         throws MojoExecutionException
     {
 
@@ -485,10 +501,16 @@ public class FlattenMojo
                 getLog().warn( "POM XML post-processing failed: no project tag found!" );
             }
         }
-        writeStringToFile( buffer.toString(), pomFile, pom.getModelEncoding() );
+        String xmlString;
+        if (anOriginalCommentsPath == null) {
+        	xmlString = buffer.toString();
+        } else {
+        	xmlString = anOriginalCommentsPath.restoreOriginalComments(buffer.toString(), pom.getModelEncoding());
+        }
+        writeStringToFile( xmlString, pomFile, pom.getModelEncoding() );
     }
 
-    /**
+	/**
      * Writes the given <code>data</code> to the given <code>file</code> using the specified <code>encoding</code>.
      *
      * @param data     is the {@link String} to write.

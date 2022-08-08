@@ -35,7 +35,7 @@ import java.util.Objects;
 class ReactorModelPool
 {
 
-    private Map<Coordinates, File> models = new HashMap<Coordinates, File>();
+    private Map<Coordinates, File> models = new HashMap<>();
 
     public File find( String groupId, String artifactId, String version )
     {

@@ -499,7 +499,7 @@ public class FlattenMojo
     {
         if (System.getProperty("os.name").contains("Windows"))
         {
-            data = data.replaceAll("\n","\r\n");
+            data = data.replace("\n","\r\n");
         }
         byte[] binaryData;
 

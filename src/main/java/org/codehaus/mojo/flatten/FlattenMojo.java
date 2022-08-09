@@ -87,6 +87,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -1094,11 +1095,11 @@ public class FlattenMojo
      * The collected dependencies are stored in order, so that the leaf dependencies are prioritized in front of direct dependencies.
      * In addition, every non-leaf dependencies will exclude its own direct dependency, since all transitive dependencies
      * will be collected.
-	 *
+     *
      * Transitive dependencies are all going to be collected and become a direct dependency. Maven should already resolve
      * versions properly because now the transitive dependencies are closer to the artifact. However, when this artifact is
      * being consumed, Maven Enforcer Convergence rule will fail because there may be multiple versions for the same transitive dependency.
-	 *
+     *
      * Typically, exclusion can be done by using the wildcard. However, a known Maven issue prevents convergence enforcer from
      * working properly w/ wildcard exclusions. Thus, this will exclude each dependencies explicitly rather than using the wildcard.
      *
@@ -1116,7 +1117,7 @@ public class FlattenMojo
         final Artifact projectArtifact = this.project.getArtifact();
 
         ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest( session.getProjectBuildingRequest() );
-        buildingRequest.setProject( project );
+        buildingRequest.setProject( cloneProjectWithoutTestDependencies( project ) );
 
         final DependencyNode dependencyNode = this.dependencyGraphBuilder.buildDependencyGraph( buildingRequest, null);
 
@@ -1203,6 +1204,43 @@ public class FlattenMojo
                 flattenedDependencies.add(flattenedDependency);
             }
         }
+    }
+
+    /**
+     * Returns a cloned project that does not have direct test-scope dependencies.
+     *
+     * Test-scope project dependencies may hinder transitive dependencies by marking them as 'omitted for duplicate' when
+     * building dependency tree. This was a problem when the transitive dependency is actually needed by another non-test dependency
+     * of the project (See https://github.com/mojohaus/flatten-maven-plugin/issues/185). To avoid this interference of
+     * test-scope project dependencies, this plugin builds a dependency tree of the project without direct, test-scope dependencies.
+     *
+     * Removal of test scope dependencies is safe because these dependencies do not appear in library users' class path in
+     * any case.
+     *
+     * @param project is the original project to clone.
+     * @return a cloned project without direct test-scope dependencies.
+     */
+    private static MavenProject cloneProjectWithoutTestDependencies( MavenProject project )
+    {
+        final Set<String> testScopeProjectDependencyKeys = new HashSet<>();
+        for ( Dependency projectDependency : project.getDependencies() )
+        {
+            if ( "test".equals( projectDependency.getScope() ) )
+            {
+                testScopeProjectDependencyKeys.add( projectDependency.getManagementKey() );
+            }
+        }
+        // LinkedHashSet preserves the order.
+        final Set<Artifact> dependencyArtifactsWithoutTest = new LinkedHashSet<>( project.getDependencyArtifacts() );
+        dependencyArtifactsWithoutTest.removeIf(artifact -> {
+            // The same logic as org.apache.maven.model.Dependency.getManagementKey()
+            String managementKey = artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getType()
+                + ( artifact.getClassifier() != null ? ":" + artifact.getClassifier() : "" );
+            return testScopeProjectDependencyKeys.contains( managementKey );
+        });
+        final MavenProject projectWithoutTestScopeDeps = project.clone();
+        projectWithoutTestScopeDeps.setDependencyArtifacts( dependencyArtifactsWithoutTest );
+        return projectWithoutTestScopeDeps;
     }
 
     /**

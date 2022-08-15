@@ -127,6 +127,17 @@
     <project.build.outputTimestamp>2021-03-01T20:31:11Z</project.build.outputTimestamp>
   </properties>
 
+  <!-- override versions of some transitive dependencies -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <!-- plugin tools -->
     <dependency>

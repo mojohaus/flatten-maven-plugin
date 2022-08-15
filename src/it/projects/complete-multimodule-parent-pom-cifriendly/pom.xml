@@ -1,117 +1,118 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<!-- required -->
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.codehaus.mojo.flatten.its</groupId>
-	<artifactId>complete-multimodule-parent-pom-cifriendly</artifactId>
-	<version>${revision}</version>
-	<packaging>pom</packaging>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- required -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>complete-multimodule-parent-pom-cifriendly</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
 
-	<!-- banned -->
-	<build>
-		<defaultGoal>verify</defaultGoal>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>flatten-maven-plugin</artifactId>
-				<configuration>
-					<flattenMode>resolveCiFriendliesOnly</flattenMode>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+  <!-- banned -->
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-	<ciManagement>
-		<url>http://localhost</url>
-	</ciManagement>
+  <ciManagement>
+    <url>http://localhost</url>
+  </ciManagement>
 
-	<contributors>
-		<contributor>
-			<name>Robert Scholte</name>
-		</contributor>
-	</contributors>
+  <contributors>
+    <contributor>
+      <name>Robert Scholte</name>
+    </contributor>
+  </contributors>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.codehaus.mojo.flatten.its</groupId>
-				<artifactId>dep</artifactId>
-				<version>1.1</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.codehaus.mojo.flatten.its</groupId>
+        <artifactId>dep</artifactId>
+        <version>1.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<description>This project contains only required, pom specific and ignorable elements</description>
+  <description>This project contains only required, pom specific and ignorable elements</description>
 
-	<developers>
-		<developer>
-			<id>hohwille</id>
-			<name>J&#246;rg Hohwiller</name>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <id>hohwille</id>
+      <name>J&#246;rg Hohwiller</name>
+    </developer>
+  </developers>
 
-	<distributionManagement>
-		<downloadUrl>http://mojo.codehaus.org/downloads</downloadUrl>
-	</distributionManagement>
+  <distributionManagement>
+    <downloadUrl>http://mojo.codehaus.org/downloads</downloadUrl>
+  </distributionManagement>
 
-	<inceptionYear>2014</inceptionYear>
+  <inceptionYear>2014</inceptionYear>
 
-	<issueManagement>
-		<system>jira</system>
-		<url>http://jira.codehaus.org/browse/MOJO</url>
-	</issueManagement>
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.codehaus.org/browse/MOJO</url>
+  </issueManagement>
 
-	<mailingLists>
-		<mailingList>
-			<name>announce</name>
-		</mailingList>
-	</mailingLists>
+  <mailingLists>
+    <mailingList>
+      <name>announce</name>
+    </mailingList>
+  </mailingLists>
 
-	<modules>
-		<module>module</module>
-		<module>module-with-parent</module>
-	</modules>
+  <modules>
+    <module>module</module>
+    <module>module-with-parent</module>
+  </modules>
 
-	<name>Complete POM</name>
-	<organization>
-		<name>Codehaus</name>
-	</organization>
+  <name>Complete POM</name>
+  <organization>
+    <name>Codehaus</name>
+  </organization>
 
-	<parent>
-		<groupId>org.codehaus.mojo.flatten.its</groupId>
-		<artifactId>parent-depMngt</artifactId>
-		<version>2</version>
-	</parent>
+  <parent>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>parent-depMngt</artifactId>
+    <version>2</version>
+  </parent>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>none</id>
-			<url>@repository.proxy.url@</url>
-		</pluginRepository>
-	</pluginRepositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>none</id>
+      <url>@repository.proxy.url@</url>
+    </pluginRepository>
+  </pluginRepositories>
 
-	<!-- this one is only required for maven-plugin packaging type -->
-	<prerequisites>
-		<maven>3.0</maven>
-	</prerequisites>
+  <!-- this one is only required for maven-plugin packaging type -->
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
 
-	<properties>
-		<!-- Default revision -->
-		<revision>1.2.3.0</revision>
+  <properties>
+    <!-- Default revision -->
+    <revision>1.2.3.0</revision>
 
-		<key>value</key>
-	</properties>
+    <key>value</key>
+  </properties>
 
-	<reporting>
-		<outputDirectory>target/site</outputDirectory>
-	</reporting>
+  <reporting>
+    <outputDirectory>target/site</outputDirectory>
+  </reporting>
 
-	<reports />
+  <reports/>
 
-	<scm>
-		<url>http://svn.codehaus.org/mojo</url>
-	</scm>
+  <scm>
+    <url>http://svn.codehaus.org/mojo</url>
+  </scm>
 
-	<url>http://mojo.codehaus.org</url>
+  <url>http://mojo.codehaus.org</url>
 
 </project>

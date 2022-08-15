@@ -251,7 +251,6 @@
                 <settingsFile>${project.build.directory}/it/interpolated-settings.xml</settingsFile>
               </properties>
               <goals>
-                <goal>clean</goal>
                 <goal>${project.groupId}:${project.artifactId}:${project.version}:flatten -Drevision=1.2.3.4</goal>
               </goals>
               <projectsDirectory>src/it/projects</projectsDirectory>

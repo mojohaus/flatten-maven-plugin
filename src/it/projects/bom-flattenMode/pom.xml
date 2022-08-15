@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- required -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.mojo.flatten.its</groupId>
@@ -12,7 +12,7 @@
     <spring.version>4.0.8.RELEASE</spring.version>
     <bom.project.version>0.9.1-beta1</bom.project.version>
   </properties>
-  
+
   <!-- banned -->
   <build>
     <defaultGoal>verify</defaultGoal>
@@ -20,6 +20,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
         <configuration>
           <updatePomFile>true</updatePomFile>
           <flattenMode>bom</flattenMode>
@@ -45,7 +46,7 @@
         <artifactId>dep</artifactId>
         <version>1.1</version>
       </dependency>
-    </dependencies>    
+    </dependencies>
   </dependencyManagement>
 
   <description>This project contains a module with a BOM.</description>
@@ -77,7 +78,7 @@
   <modules>
     <module>bom</module>
   </modules>
-  
+
   <organization>
     <name>Codehaus</name>
   </organization>
@@ -87,7 +88,7 @@
     <artifactId>parent-depMngt</artifactId>
     <version>2</version>
   </parent>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <id>none</id>
@@ -99,17 +100,17 @@
   <prerequisites>
     <maven>3.0</maven>
   </prerequisites>
-  
+
   <reporting>
     <outputDirectory>target/site</outputDirectory>
   </reporting>
-  
+
   <reports/>
-  
+
   <scm>
     <url>http://svn.codehaus.org/mojo</url>
-  </scm> 
-  
+  </scm>
+
   <url>http://mojo.codehaus.org</url>
 
 </project>

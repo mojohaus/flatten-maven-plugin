@@ -33,7 +33,7 @@ assert 1 ==  flattendProject.dependencies.dependency.size()
 def archiver = flattendProject.dependencies.dependency.find {
     it.groupId == 'org.apache.maven' && it.artifactId == 'maven-archiver'
 }
-assert '2.5' == archiver.version.text()
+assert '3.6.0' == archiver.version.text()
 assert 'compile' == archiver.scope.text()
 
 assert 0 == flattendProject.build.size()

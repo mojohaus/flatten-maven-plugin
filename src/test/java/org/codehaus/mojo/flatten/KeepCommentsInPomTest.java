@@ -20,11 +20,11 @@ package org.codehaus.mojo.flatten;
  */
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
@@ -112,14 +112,7 @@ public class KeepCommentsInPomTest
      */
     private String getContent( String aPomFile ) throws IOException
     {
-        String tempString;
-        try ( InputStream tempIn = new FileInputStream( aPomFile ) )
-        {
-            tempString = IOUtils.toString( tempIn );
-        }
-        // remove platform dependent CR/LF
-        tempString = tempString.replaceAll( "\r\n", "\n" );
-        return tempString;
+        return String.join( "\n", Files.readAllLines( Paths.get( aPomFile ), StandardCharsets.UTF_8 ) );
     }
 
 }

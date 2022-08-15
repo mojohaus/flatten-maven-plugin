@@ -46,11 +46,14 @@ import org.apache.maven.model.validation.ModelValidator;
 import org.eclipse.sisu.Nullable;
 
 /**
- * Works around thread safety issues when modifying the global singleton {@link org.apache.maven.model.building.DefaultModelBuilder DefaultModelBuilder}
- * with custom {@link ProfileInjector} and {@link ProfileSelector}. Instead of modifying the global {@code DefaultModelBuilder}, this class
- * creates a new {@code DefaultModelBuilder} and equips it with the currently active components like {@link ModelProcessor}, {@link ModelValidator} etc.
- * which might have been modified/provided by other Maven extensions. 
- * 
+ * Works around thread safety issues when modifying the global singleton
+ * {@link org.apache.maven.model.building.DefaultModelBuilder DefaultModelBuilder}
+ * with custom {@link ProfileInjector} and {@link ProfileSelector}. Instead of modifying the global
+ * {@code DefaultModelBuilder}, this class
+ * creates a new {@code DefaultModelBuilder} and equips it with the currently active components like
+ * {@link ModelProcessor}, {@link ModelValidator} etc.
+ * which might have been modified/provided by other Maven extensions.
+ *
  * @author Falko Modler
  * @since 1.2.3
  */
@@ -104,7 +107,8 @@ public class ModelBuilderThreadSafetyWorkaround
     @Inject
     private ReportingConverter reportingConverter;
 
-    public ModelBuildingResult build( ModelBuildingRequest buildingRequest, ProfileInjector customInjector, ProfileSelector customSelector )
+    public ModelBuildingResult build( ModelBuildingRequest buildingRequest, ProfileInjector customInjector,
+                                      ProfileSelector customSelector )
         throws ModelBuildingException
     {
         // note: there is neither DefaultModelBuilder.get*(), nor DefaultModelBuilder.clone()

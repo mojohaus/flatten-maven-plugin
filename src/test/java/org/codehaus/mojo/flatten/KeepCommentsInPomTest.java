@@ -1,7 +1,5 @@
 package org.codehaus.mojo.flatten;
 
-import static org.junit.Assert.*;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -34,92 +32,94 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Test-Case for {@link FlattenMojo}.
- *
  */
 public class KeepCommentsInPomTest
 {
 
-	private static final String PATH = "src/test/resources/keep-comments-in-pom/";
-	private static final String TEST_TARGET_PATH = "target/test/resources/keep-comments-in-pom/";
-	private static final String FLATTENED_POM = TEST_TARGET_PATH + ".flattened-pom.xml";
-	private static final String EXPECTED_FLATTENED_POM = PATH + "expected-flattened-pom.xml";
-	/**
-	 * Expected result since jdk11 with updated xml header and properties sequence.
-	 */
-	private static final String EXPECTED_FLATTENED_POM_JDK11 = PATH + "expected-flattened-pom-jdk11.xml";
+    private static final String PATH = "src/test/resources/keep-comments-in-pom/";
+    private static final String TEST_TARGET_PATH = "target/test/resources/keep-comments-in-pom/";
+    private static final String FLATTENED_POM = TEST_TARGET_PATH + ".flattened-pom.xml";
+    private static final String EXPECTED_FLATTENED_POM = PATH + "expected-flattened-pom.xml";
+    /**
+     * Expected result since jdk11 with updated xml header and properties sequence.
+     */
+    private static final String EXPECTED_FLATTENED_POM_JDK11 = PATH + "expected-flattened-pom-jdk11.xml";
 
-	@Rule
-	public MojoRule rule = new MojoRule();
+    @Rule
+    public MojoRule rule = new MojoRule();
 
-	@Before
-	public void setup()
-	{
-		new File(TEST_TARGET_PATH).mkdirs();
-	}
+    @Before
+    public void setup()
+    {
+        new File( TEST_TARGET_PATH ).mkdirs();
+    }
 
-	/**
-	 * Test method to check that profile activation file is not interpolated.
-	 *
-	 * @throws Exception if something goes wrong.
-	 */
-	@Test
-	public void keepsProfileActivationFile() throws Exception
-	{
-		MavenProject project = rule.readMavenProject(new File(PATH));
-		FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
+    /**
+     * Test method to check that profile activation file is not interpolated.
+     *
+     * @throws Exception if something goes wrong.
+     */
+    @Test
+    public void keepsProfileActivationFile() throws Exception
+    {
+        MavenProject project = rule.readMavenProject( new File( PATH ) );
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo( project, "flatten" );
 
-		DefaultPlexusConfiguration tempPluginConfiguration = new DefaultPlexusConfiguration("test");
-		tempPluginConfiguration.addChild("outputDirectory", TEST_TARGET_PATH);
-		tempPluginConfiguration.addChild("keepCommentsInPom", "true");
-		rule.configureMojo(flattenMojo, tempPluginConfiguration);
+        DefaultPlexusConfiguration tempPluginConfiguration = new DefaultPlexusConfiguration( "test" );
+        tempPluginConfiguration.addChild( "outputDirectory", TEST_TARGET_PATH );
+        tempPluginConfiguration.addChild( "keepCommentsInPom", "true" );
+        rule.configureMojo( flattenMojo, tempPluginConfiguration );
 
-		// execute writes new FLATTENED_POM
-		flattenMojo.execute();
+        // execute writes new FLATTENED_POM
+        flattenMojo.execute();
 
-		String tempExpectedContent;
-		if (isJdk8())
-		{
-			tempExpectedContent = getContent(EXPECTED_FLATTENED_POM);
-		} else
-		{
-			tempExpectedContent = getContent(EXPECTED_FLATTENED_POM_JDK11);
-		}
-		String tempActualContent = getContent(FLATTENED_POM);
-		assertEquals("Expected POM does not match, see " + FLATTENED_POM, tempExpectedContent, tempActualContent);
+        String tempExpectedContent;
+        if ( isJdk8() )
+        {
+            tempExpectedContent = getContent( EXPECTED_FLATTENED_POM );
+        }
+        else
+        {
+            tempExpectedContent = getContent( EXPECTED_FLATTENED_POM_JDK11 );
+        }
+        String tempActualContent = getContent( FLATTENED_POM );
+        assertEquals( "Expected POM does not match, see " + FLATTENED_POM, tempExpectedContent, tempActualContent );
 
-	}
+    }
 
-	/**
-	 * Check runtime version.
-	 * 
-	 * @return true when runtime is JDK11
-	 */
-	private boolean isJdk8()
-	{
-		// With Java 9 can be switched to java.lang.Runtime.version()
-		String tempPropertyVersion = System.getProperty("java.version");
-		if (tempPropertyVersion.startsWith("1.8."))
-		{
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Check runtime version.
+     *
+     * @return true when runtime is JDK11
+     */
+    private boolean isJdk8()
+    {
+        // With Java 9 can be switched to java.lang.Runtime.version()
+        String tempPropertyVersion = System.getProperty( "java.version" );
+        if ( tempPropertyVersion.startsWith( "1.8." ) )
+        {
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * 
-	 */
-	private String getContent(String aPomFile) throws IOException
-	{
-		String tempString;
-		try (InputStream tempIn = new FileInputStream(aPomFile))
-		{
-			tempString = IOUtils.toString(tempIn);
-		}
-		// remove platform dependent CR/LF
-		tempString = tempString.replaceAll("\r\n", "\n");
-		return tempString;
-	}
+    /**
+     *
+     */
+    private String getContent( String aPomFile ) throws IOException
+    {
+        String tempString;
+        try ( InputStream tempIn = new FileInputStream( aPomFile ) )
+        {
+            tempString = IOUtils.toString( tempIn );
+        }
+        // remove platform dependent CR/LF
+        tempString = tempString.replaceAll( "\r\n", "\n" );
+        return tempString;
+    }
 
 }

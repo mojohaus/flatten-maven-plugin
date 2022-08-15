@@ -19,6 +19,13 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.factory.DefaultArtifactFactory;
 import org.apache.maven.artifact.handler.ArtifactHandler;
@@ -42,13 +49,6 @@ import org.apache.maven.shared.transfer.dependencies.resolve.internal.DefaultTes
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.junit.Test;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -60,7 +60,7 @@ public class CreateEffectivePomTest
 {
 
     FlattenMojo tested = new FlattenMojo();
-    
+
     /**
      * Tests method to create effective POM.
      *
@@ -86,10 +86,13 @@ public class CreateEffectivePomTest
         DependencyResolver depencencyResolver = new DefaultTestDependencyResolver();
         DefaultProjectBuildingRequest projectBuildingRequest = new DefaultProjectBuildingRequest();
         FlattenModelResolver resolver = new FlattenModelResolver( localRepository, artifactFactory,
-                depencencyResolver, projectBuildingRequest, Collections.<MavenProject>emptyList() );
+                                                                  depencencyResolver, projectBuildingRequest,
+                                                                  Collections.<MavenProject>emptyList() );
         ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver ).setUserProperties( userProperties );
-        setDeclaredField( tested, "modelBuilderThreadSafetyWorkaround", buildModelBuilderThreadSafetyWorkaroundForTest() );
+            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver )
+                .setUserProperties( userProperties );
+        setDeclaredField( tested, "modelBuilderThreadSafetyWorkaround",
+                          buildModelBuilderThreadSafetyWorkaroundForTest() );
         Model effectivePom = tested.createEffectivePom( buildingRequest, false, FlattenMode.defaults );
         assertThat( effectivePom.getName() ).isEqualTo( magicValue );
     }
@@ -107,10 +110,13 @@ public class CreateEffectivePomTest
      */
     private ModelBuilderThreadSafetyWorkaround buildModelBuilderThreadSafetyWorkaroundForTest()
     {
-        return new ModelBuilderThreadSafetyWorkaround() {
+        return new ModelBuilderThreadSafetyWorkaround()
+        {
             @Override
-            public ModelBuildingResult build(ModelBuildingRequest buildingRequest, ProfileInjector customInjector, ProfileSelector customSelector)
-                    throws ModelBuildingException {
+            public ModelBuildingResult build( ModelBuildingRequest buildingRequest, ProfileInjector customInjector,
+                                              ProfileSelector customSelector )
+                throws ModelBuildingException
+            {
 
                 return new DefaultModelBuilderFactory().newInstance()
                     .setProfileInjector( customInjector )

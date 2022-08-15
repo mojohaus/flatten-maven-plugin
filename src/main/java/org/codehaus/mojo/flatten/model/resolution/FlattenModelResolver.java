@@ -19,6 +19,9 @@ package org.codehaus.mojo.flatten.model.resolution;
  * under the License.
  */
 
+import java.io.File;
+import java.util.List;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -36,9 +39,6 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolverException;
-
-import java.io.File;
-import java.util.List;
 
 import static java.util.Collections.singleton;
 

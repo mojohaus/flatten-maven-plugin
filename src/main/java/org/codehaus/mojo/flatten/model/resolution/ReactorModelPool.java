@@ -19,13 +19,13 @@ package org.codehaus.mojo.flatten.model.resolution;
  * under the License.
  */
 
-import org.apache.maven.project.MavenProject;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.apache.maven.project.MavenProject;
 
 /**
  * Holds a list of models and allows to retrieve them by their coordinates.

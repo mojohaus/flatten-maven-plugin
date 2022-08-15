@@ -1,7 +1,5 @@
 package org.codehaus.mojo.flatten;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,63 +13,73 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static org.junit.Assert.fail;
+
 /**
  * Test case for the omitexclusions configuration option.
  */
-public class FlattenMojoOmitExclusionsTest {
+public class FlattenMojoOmitExclusionsTest
+{
 
-  private static final String PATH = "src/test/resources/omit-exclusions/";
-  private static final String FLATTENED_POM = PATH + ".flattened-pom.xml";
+    private static final String PATH = "src/test/resources/omit-exclusions/";
+    private static final String FLATTENED_POM = PATH + ".flattened-pom.xml";
 
-  @Rule public MojoRule rule = new MojoRule();
-
-
-  /**
-   * Verify that when the omit exclusions configuration option is set then the
-   * exclusions stanza of any dependencies is not copied into the flattened
-   * POM.
-   */
-  @Test
-  public void testOmitExclusions() throws Exception {
-    // -- Given...
-    //
-    MavenProject project = rule.readMavenProject( new File( PATH ) );
-    FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo( project, "flatten" );
-
-    // -- When...
-    //
-    flattenMojo.execute();
-
-    // -- Then...
-    //
-    readPom( FLATTENED_POM )
-       .getDependencies()
-       .stream()
-       .filter(dep -> !dep.getExclusions().isEmpty())
-       .findAny()
-       .ifPresent(dep -> fail("No exclusions should be present in flattened POM."));
-  }
+    @Rule
+    public MojoRule rule = new MojoRule();
 
 
-  private static Model readPom(String pomFilePath) throws IOException, XmlPullParserException {
-    try ( FileInputStream input = new FileInputStream( new File( pomFilePath ) ) ) {
-      return new MavenXpp3Reader().read( input );
+    /**
+     * Verify that when the omit exclusions configuration option is set then the
+     * exclusions stanza of any dependencies is not copied into the flattened
+     * POM.
+     */
+    @Test
+    public void testOmitExclusions() throws Exception
+    {
+        // -- Given...
+        //
+        MavenProject project = rule.readMavenProject( new File( PATH ) );
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo( project, "flatten" );
+
+        // -- When...
+        //
+        flattenMojo.execute();
+
+        // -- Then...
+        //
+        readPom( FLATTENED_POM )
+            .getDependencies()
+            .stream()
+            .filter( dep -> !dep.getExclusions().isEmpty() )
+            .findAny()
+            .ifPresent( dep -> fail( "No exclusions should be present in flattened POM." ) );
     }
-  }
 
 
-  /**
-   * After test method. Removes flattened-pom.xml file which is created during test.
-   *
-   * @throws IOException if can't remove file.
-   */
-  @After
-  public void removeFlattenedPom() throws IOException {
-    File flattenedPom = new File( FLATTENED_POM );
-    if ( flattenedPom.exists() ) {
-      if ( !flattenedPom.delete() ) {
-        throw new IOException( "Can't delete " +  flattenedPom );
-      }
+    private static Model readPom( String pomFilePath ) throws IOException, XmlPullParserException
+    {
+        try ( FileInputStream input = new FileInputStream( new File( pomFilePath ) ) )
+        {
+            return new MavenXpp3Reader().read( input );
+        }
     }
-  }
+
+
+    /**
+     * After test method. Removes flattened-pom.xml file which is created during test.
+     *
+     * @throws IOException if can't remove file.
+     */
+    @After
+    public void removeFlattenedPom() throws IOException
+    {
+        File flattenedPom = new File( FLATTENED_POM );
+        if ( flattenedPom.exists() )
+        {
+            if ( !flattenedPom.delete() )
+            {
+                throw new IOException( "Can't delete " + flattenedPom );
+            }
+        }
+    }
 }

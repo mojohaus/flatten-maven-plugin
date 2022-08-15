@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- required -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.mojo.flatten.its</groupId>
@@ -22,7 +22,7 @@
   </contributors>
 
   <description>This project contains only required ignorable elements</description>
-  
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -30,7 +30,7 @@
         <artifactId>dep</artifactId>
         <version>1.1</version>
       </dependency>
-    </dependencies>    
+    </dependencies>
   </dependencyManagement>
 
   <developers>
@@ -70,7 +70,7 @@
     <artifactId>parent-depMngt</artifactId>
     <version>2</version>
   </parent>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <id>none</id>
@@ -81,22 +81,22 @@
   <!-- this one is only required for maven-plugin packaging type -->
   <prerequisites>
     <maven>3.0</maven>
-  </prerequisites>  
+  </prerequisites>
 
   <properties>
     <key>value</key>
   </properties>
-  
+
   <reporting>
     <outputDirectory>target/site</outputDirectory>
   </reporting>
-  
+
   <reports/>
-  
+
   <scm>
     <url>http://svn.codehaus.org/mojo</url>
-  </scm> 
-  
+  </scm>
+
   <url>http://mojo.codehaus.org</url>
 
 </project>

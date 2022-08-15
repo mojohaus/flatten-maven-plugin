@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- required -->
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -21,12 +21,12 @@
 
   <scm>
     <url>${key}</url>
-  </scm> 
-  
+  </scm>
+
   <ciManagement>
     <url>42${key}42</url>
   </ciManagement>
-  
+
   <developers>
     <developer>
       <id>${key}</id>
@@ -42,7 +42,7 @@
         <version>2.0</version>
       </dependency>
     </dependencies>
-  </dependencyManagement>  
+  </dependencyManagement>
 
   <!-- banned -->
   <build>
@@ -51,6 +51,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
         <configuration>
           <pomElements>
             <name>keep</name>

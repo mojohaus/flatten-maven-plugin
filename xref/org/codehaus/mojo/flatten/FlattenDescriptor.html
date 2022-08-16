@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a>()
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">this</strong>.name2handlingMap = <strong class="jxr_keyword">new</strong> HashMap&lt;String, ElementHandling&gt;();
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">this</strong>.name2handlingMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
@@ -507,9 +507,9 @@
 <a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">     * @param descriptor is the {@link FlattenDescriptor} to merge with this one.</em>
 <a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">     * @return the merged {@link FlattenDescriptor}.</em>
 <a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>     <strong class="jxr_keyword">public</strong> <a name="FlattenDescripto<a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a>/../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a> merge( <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a> descriptor )
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     <strong class="jxr_keyword">public</strong> <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a> merge( <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a> descriptor )
 <a class="jxr_linenumber" name="L503" href="#L503">503</a>     {
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flat<a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a>ptor.html#FlattenDescriptor">FlattenDescriptor</a> result = <strong class="jxr_keyword">new</strong> <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a>();
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a> result = <strong class="jxr_keyword">new</strong> <a name="FlattenDescriptor" href="../../../../org/codehaus/mojo/flatten/FlattenDescriptor.html#FlattenDescriptor">FlattenDescriptor</a>();
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>         <strong class="jxr_keyword">for</strong> ( PomProperty&lt;?&gt; property : PomProperty.getPomProperties() )
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>         {
 <a class="jxr_linenumber" name="L507" href="#L507">507</a>             String name = property.getName();

@@ -20,19 +20,19 @@ under the License.
 <rss version="0.91">
   <channel>
     <title>Maven Flatten Plugin - Checkstyle report</title>
-    <link>https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin</link>
+    <link>https://www.mojohaus.org/flatten-maven-plugin/</link>
     <description>Maven Flatten Plugin - Checkstyle report</description>
     <language>en-us</language>
     <copyright>&#169;2014 - 2022 MojoHaus</copyright>
     <item>
-      <title>File: 17,
-             Errors: 1613,
-             Warnings: 7,
-             Infos: 2
+      <title>File: 6,
+             Errors: 0,
+             Warnings: 8,
+             Infos: 5
       </title>
-            <link>https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html</link>
+            <link>https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html</link>
       <description>
-        <p>Click <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html">here</a> for the full Checkstyle report.</p>
+        <p>Click <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html">here</a> for the full Checkstyle report.</p>
 
         <table summary="Files" boder="1">
           <thead>
@@ -46,24 +46,10 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.cifriendly.CiInterpolator.java">org/codehaus/mojo/flatten/cifriendly/CiInterpolator.java</a>
+                  <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html#org.codehaus.mojo.flatten.FlattenMojoTest.java">org/codehaus/mojo/flatten/FlattenMojoTest.java</a>
                 </td>
                 <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.PomProperty.java">org/codehaus/mojo/flatten/PomProperty.java</a>
-                </td>
-                <td>
-                  0
+                  1
                 </td>
                 <td>
                   0
@@ -74,27 +60,13 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.ModelBuilderThreadSafetyWorkaround.java">org/codehaus/mojo/flatten/ModelBuilderThreadSafetyWorkaround.java</a>
+                  <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html#org.codehaus.mojo.flatten.FlattenMojo.java">org/codehaus/mojo/flatten/FlattenMojo.java</a>
                 </td>
                 <td>
                   0
                 </td>
                 <td>
-                  0
-                </td>
-                <td>
-                  4
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.ElementHandling.java">org/codehaus/mojo/flatten/ElementHandling.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
+                  3
                 </td>
                 <td>
                   0
@@ -102,10 +74,10 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenMode.java">org/codehaus/mojo/flatten/FlattenMode.java</a>
+                  <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html#org.codehaus.mojo.flatten.FlattenMojoOmitExclusionsTest.java">org/codehaus/mojo/flatten/FlattenMojoOmitExclusionsTest.java</a>
                 </td>
                 <td>
-                  0
+                  1
                 </td>
                 <td>
                   0
@@ -116,167 +88,41 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.cifriendly.CiInterpolatorImpl.java">org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.java</a>
+                  <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html#org.codehaus.mojo.flatten.KeepCommentsInPomTest.java">org/codehaus/mojo/flatten/KeepCommentsInPomTest.java</a>
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html#org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator.java">org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://www.mojohaus.org/flatten-maven-plugin//checkstyle.html#org.codehaus.mojo.flatten.cifriendly.CiInterpolatorImpl.java">org/codehaus/mojo/flatten/cifriendly/CiInterpolatorImpl.java</a>
                 </td>
                 <td>
                   2
                 </td>
                 <td>
                   3
-                </td>
-                <td>
-                  276
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.AbstractFlattenMojo.java">org/codehaus/mojo/flatten/AbstractFlattenMojo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.HelpMojo.java">org/codehaus/mojo/flatten/HelpMojo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.LoggingModelProblemCollector.java">org/codehaus/mojo/flatten/LoggingModelProblemCollector.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.model.resolution.ReactorModelPool.java">org/codehaus/mojo/flatten/model/resolution/ReactorModelPool.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  20
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenDescriptor.java">org/codehaus/mojo/flatten/FlattenDescriptor.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.Dependencies.java">org/codehaus/mojo/flatten/Dependencies.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenMojo.java">org/codehaus/mojo/flatten/FlattenMojo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-                <td>
-                  156
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator.java">org/codehaus/mojo/flatten/cifriendly/CiModelInterpolator.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  2
-                </td>
-                <td>
-                  1156
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.CleanMojo.java">org/codehaus/mojo/flatten/CleanMojo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.FlattenDependencyMode.java">org/codehaus/mojo/flatten/FlattenDependencyMode.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin/checkstyle.html#org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver.java">org/codehaus/mojo/flatten/model/resolution/FlattenModelResolver.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
                 </td>
                 <td>
                   0

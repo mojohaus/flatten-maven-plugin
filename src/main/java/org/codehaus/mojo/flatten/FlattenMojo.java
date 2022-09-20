@@ -1184,7 +1184,7 @@ public class FlattenMojo
             Dependency dependency = new Dependency();
             dependency.setGroupId( artifact.getGroupId() );
             dependency.setArtifactId( artifact.getArtifactId() );
-            dependency.setVersion( artifact.getVersion() );
+            dependency.setVersion( artifact.getBaseVersion() );
             dependency.setClassifier( artifact.getClassifier() );
             dependency.setOptional( artifact.isOptional() );
             dependency.setScope( artifact.getScope() );

@@ -24,8 +24,6 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,11 +58,9 @@ import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
-import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
-import org.apache.maven.model.profile.ProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.MojoExecution;
@@ -940,7 +936,8 @@ public class FlattenMojo
         ModelBuildingResult buildingResult;
         try
         {
-            ProfileInjector customInjector = (model, profile, request, problems) -> {
+            ProfileInjector customInjector = ( model, profile, request, problems ) ->
+            {
                 List<String> activeProfileIds = request.getActiveProfileIds();
                 if ( activeProfileIds.contains( profile.getId() ) )
                 {
@@ -950,7 +947,8 @@ public class FlattenMojo
                     model.setProperties( merged );
                 }
             };
-            ProfileSelector customSelector = (profiles, context, problems) -> {
+            ProfileSelector customSelector = ( profiles, context, problems ) ->
+            {
                 List<Profile> activeProfiles = new ArrayList<>( profiles.size() );
 
                 for ( Profile profile : profiles )
@@ -1023,7 +1021,7 @@ public class FlattenMojo
         {
             return true;
         }
-        return StringUtils.isEmpty(activation.getJdk()) && activation.getOs() == null;
+        return StringUtils.isEmpty( activation.getJdk() ) && activation.getOs() == null;
     }
 
     /**

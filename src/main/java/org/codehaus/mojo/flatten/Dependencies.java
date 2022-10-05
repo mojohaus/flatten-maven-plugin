@@ -65,11 +65,7 @@ public class Dependencies
      */
     public void addAll( List<Dependency> dependencies )
     {
-
-        for ( Dependency dependency : dependencies )
-        {
-            add( dependency );
-        }
+        dependencies.forEach( this::add );
     }
 
     /**

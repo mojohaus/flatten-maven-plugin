@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -542,7 +543,7 @@ public class FlattenMojo
             binaryData = data.getBytes( encoding );
             if ( file.isFile() && file.canRead() && file.length() == binaryData.length )
             {
-                try ( InputStream inputStream = new FileInputStream( file ) )
+                try ( InputStream inputStream = Files.newInputStream( file.toPath( ) ) )
                 {
                     byte[] buffer = new byte[binaryData.length];
                     inputStream.read( buffer );
@@ -569,7 +570,7 @@ public class FlattenMojo
         {
             throw new MojoExecutionException( "cannot read String as bytes", e );
         }
-        try ( OutputStream outStream = new FileOutputStream( file ) )
+        try ( OutputStream outStream = Files.newOutputStream( file.toPath( ) ) )
         {
             outStream.write( binaryData );
         }
@@ -603,7 +604,7 @@ public class FlattenMojo
         }
         flattenedPom.setModelEncoding( modelEncoding );
 
-        Model cleanPom = null;
+        Model cleanPom;
         try
         {
             cleanPom = createCleanPom( effectivePom );
@@ -663,7 +664,7 @@ public class FlattenMojo
         MavenXpp3Reader reader = new MavenXpp3Reader();
         try
         {
-            return reader.read( new FileInputStream( this.project.getFile() ) );
+            return reader.read( Files.newInputStream( this.project.getFile( ).toPath( ) ) );
         }
         catch ( IOException | XmlPullParserException e )
         {
@@ -884,10 +885,7 @@ public class FlattenMojo
             if ( "central".equals( repo.getId() ) )
             {
                 RepositoryPolicy snapshots = repo.getSnapshots();
-                if ( snapshots != null && !snapshots.isEnabled() )
-                {
-                    return true;
-                }
+                return snapshots != null && !snapshots.isEnabled();
             }
         }
         return false;
@@ -903,13 +901,12 @@ public class FlattenMojo
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
-        ModelBuildingRequest buildingRequest = new DefaultModelBuildingRequest()
+        return new DefaultModelBuildingRequest()
             .setUserProperties( userProperties )
             .setSystemProperties( System.getProperties() )
             .setPomFile( pomFile )
             .setModelResolver( resolver )
             .setActiveProfileIds( activeProfiles );
-        return buildingRequest;
     }
 
     private List<MavenProject> getReactorModelsFromSession()
@@ -943,39 +940,29 @@ public class FlattenMojo
         ModelBuildingResult buildingResult;
         try
         {
-            ProfileInjector customInjector = new ProfileInjector()
-            {
-                public void injectProfile( Model model, Profile profile, ModelBuildingRequest request,
-                                           ModelProblemCollector problems )
+            ProfileInjector customInjector = (model, profile, request, problems) -> {
+                List<String> activeProfileIds = request.getActiveProfileIds();
+                if ( activeProfileIds.contains( profile.getId() ) )
                 {
-                    List<String> activeProfileIds = request.getActiveProfileIds();
-                    if ( activeProfileIds.contains( profile.getId() ) )
-                    {
-                        Properties merged = new Properties();
-                        merged.putAll( model.getProperties() );
-                        merged.putAll( profile.getProperties() );
-                        model.setProperties( merged );
-                    }
+                    Properties merged = new Properties();
+                    merged.putAll( model.getProperties() );
+                    merged.putAll( profile.getProperties() );
+                    model.setProperties( merged );
                 }
             };
-            ProfileSelector customSelector = new ProfileSelector()
-            {
-                public List<Profile> getActiveProfiles( Collection<Profile> profiles, ProfileActivationContext context,
-                                                        ModelProblemCollector problems )
+            ProfileSelector customSelector = (profiles, context, problems) -> {
+                List<Profile> activeProfiles = new ArrayList<>( profiles.size() );
+
+                for ( Profile profile : profiles )
                 {
-                    List<Profile> activeProfiles = new ArrayList<>( profiles.size() );
-
-                    for ( Profile profile : profiles )
+                    Activation activation = profile.getActivation();
+                    if ( !embedBuildProfileDependencies || isBuildTimeDriven( activation ) )
                     {
-                        Activation activation = profile.getActivation();
-                        if ( !embedBuildProfileDependencies || isBuildTimeDriven( activation ) )
-                        {
-                            activeProfiles.add( profile );
-                        }
+                        activeProfiles.add( profile );
                     }
-
-                    return activeProfiles;
                 }
+
+                return activeProfiles;
             };
 
             buildingResult =
@@ -1021,8 +1008,7 @@ public class FlattenMojo
      */
     public boolean isEmbedBuildProfileDependencies()
     {
-
-        return this.embedBuildProfileDependencies.booleanValue();
+        return this.embedBuildProfileDependencies;
     }
 
     /**
@@ -1037,11 +1023,7 @@ public class FlattenMojo
         {
             return true;
         }
-        if ( StringUtils.isEmpty( activation.getJdk() ) && activation.getOs() == null )
-        {
-            return true;
-        }
-        return false;
+        return StringUtils.isEmpty(activation.getJdk()) && activation.getOs() == null;
     }
 
     /**
@@ -1158,7 +1140,8 @@ public class FlattenMojo
             new DefaultProjectBuildingRequest( session.getProjectBuildingRequest() );
         buildingRequest.setProject( cloneProjectWithoutTestDependencies( project ) );
 
-        final DependencyNode dependencyNode = this.dependencyGraphBuilder.buildDependencyGraph( buildingRequest, null );
+        final DependencyNode dependencyNode =
+                this.dependencyGraphBuilder.buildDependencyGraph( buildingRequest, null );
 
         dependencyNode.accept( new DependencyNodeVisitor()
         {

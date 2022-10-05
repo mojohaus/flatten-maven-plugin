@@ -135,9 +135,8 @@ class KeepCommentsInPom
             }
         }
         Map<String, Integer> tempChildWithSameNameCounters = new HashMap<>();
-        for ( int i = 0; i < tempCopiedChilds.size(); i++ )
+        for ( Node tempCopiedChild : tempCopiedChilds )
         {
-            Node tempCopiedChild = tempCopiedChilds.get( i );
             String tempChildNodeName = tempCopiedChild.getNodeName();
             if ( tempChildWithSameName.get( tempChildNodeName ) > 1 )
             {
@@ -251,7 +250,7 @@ class KeepCommentsInPom
         output.setByteStream( outStream );
         LSSerializer writer = impl.createLSSerializer();
         writer.write( aPom, output );
-        return new String( outStream.toByteArray() );
+        return outStream.toString();
     }
 
     /**

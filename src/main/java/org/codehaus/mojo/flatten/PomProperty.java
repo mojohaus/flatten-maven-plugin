@@ -70,7 +70,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setArtifactId( value );
-        };
+        }
     };
 
     /** @see Model#getBuild() */
@@ -79,15 +79,14 @@ public abstract class PomProperty<V>
         @Override
         public Build get( Model model )
         {
-            Build result = model.getBuild();
-            return result;
+            return model.getBuild();
         }
 
         @Override
         public void set( Model model, Build value )
         {
             model.setBuild( value );
-        };
+        }
     };
 
     /** @see Model#getCiManagement() */
@@ -104,7 +103,7 @@ public abstract class PomProperty<V>
             public void set( Model model, CiManagement value )
             {
                 model.setCiManagement( value );
-            };
+            }
         };
 
     /** @see Model#getContributors() */
@@ -122,7 +121,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<Contributor> value )
             {
                 model.setContributors( value );
-            };
+            }
         };
 
     /** @see Model#getDependencies() */
@@ -140,7 +139,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<Dependency> value )
             {
                 model.setDependencies( value );
-            };
+            }
         };
 
     /** @see Model#getDependencyManagement() */
@@ -157,7 +156,7 @@ public abstract class PomProperty<V>
             public void set( Model model, DependencyManagement value )
             {
                 model.setDependencyManagement( value );
-            };
+            }
         };
 
     /** @see Model#getDescription() */
@@ -173,7 +172,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setDescription( value );
-        };
+        }
     };
 
     /** @see Model#getDevelopers() */
@@ -191,7 +190,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<Developer> value )
             {
                 model.setDevelopers( value );
-            };
+            }
         };
 
     /** @see Model#getDistributionManagement() */
@@ -208,7 +207,7 @@ public abstract class PomProperty<V>
             public void set( Model model, DistributionManagement value )
             {
                 model.setDistributionManagement( value );
-            };
+            }
         };
 
     /** @see Model#getGroupId() */
@@ -224,7 +223,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setGroupId( value );
-        };
+        }
     };
 
     /** @see Model#getInceptionYear() */
@@ -240,7 +239,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setInceptionYear( value );
-        };
+        }
     };
 
     /** @see Model#getIssueManagement() */
@@ -257,7 +256,7 @@ public abstract class PomProperty<V>
             public void set( Model model, IssueManagement value )
             {
                 model.setIssueManagement( value );
-            };
+            }
         };
 
     /** @see Model#getLicenses() */
@@ -275,7 +274,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<License> value )
             {
                 model.setLicenses( value );
-            };
+            }
         };
 
     /** @see Model#getMailingLists() */
@@ -293,7 +292,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<MailingList> value )
             {
                 model.setMailingLists( value );
-            };
+            }
         };
 
     /** @see Model#getModelEncoding() */
@@ -309,7 +308,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setModelEncoding( value );
-        };
+        }
     };
 
     /** @see Model#getModelVersion() */
@@ -325,7 +324,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setModelVersion( value );
-        };
+        }
     };
 
     /** @see Model#getModules() */
@@ -343,7 +342,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<String> value )
             {
                 model.setModules( value );
-            };
+            }
         };
 
     /** @see Model#getName() */
@@ -359,7 +358,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setName( value );
-        };
+        }
     };
 
     /** @see Model#getOrganization() */
@@ -376,7 +375,7 @@ public abstract class PomProperty<V>
             public void set( Model model, Organization value )
             {
                 model.setOrganization( value );
-            };
+            }
         };
 
     /** @see Model#getPackaging() */
@@ -392,7 +391,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setPackaging( value );
-        };
+        }
     };
 
     /** @see Model#getParent() */
@@ -408,7 +407,7 @@ public abstract class PomProperty<V>
         public void set( Model model, Parent value )
         {
             model.setParent( value );
-        };
+        }
     };
 
     /** @see Build#getPluginManagement() */
@@ -433,7 +432,7 @@ public abstract class PomProperty<V>
                     model.setBuild( new Build() );
                 }
                 model.getBuild().setPluginManagement( value );
-            };
+            }
         };
 
     /** @see Model#getPluginRepositories() */
@@ -451,7 +450,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<Repository> value )
             {
                 model.setPluginRepositories( value );
-            };
+            }
         };
 
     /** @see Model#getPomFile() */
@@ -467,7 +466,7 @@ public abstract class PomProperty<V>
         public void set( Model model, File value )
         {
             model.setPomFile( value );
-        };
+        }
     };
 
     /** @see Model#getPrerequisites() */
@@ -484,7 +483,7 @@ public abstract class PomProperty<V>
             public void set( Model model, Prerequisites value )
             {
                 model.setPrerequisites( value );
-            };
+            }
         };
 
     /** @see Model#getProfiles() */
@@ -502,7 +501,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<Profile> value )
             {
                 model.setProfiles( value );
-            };
+            }
         };
 
     /** @see Model#getProperties() */
@@ -519,7 +518,7 @@ public abstract class PomProperty<V>
             public void set( Model model, Properties value )
             {
                 model.setProperties( value );
-            };
+            }
         };
 
     /** @see Model#getReporting() */
@@ -535,7 +534,7 @@ public abstract class PomProperty<V>
         public void set( Model model, Reporting value )
         {
             model.setReporting( value );
-        };
+        }
     };
 
     /** @see Model#getPluginRepositories() */
@@ -553,7 +552,7 @@ public abstract class PomProperty<V>
             public void set( Model model, List<Repository> value )
             {
                 model.setRepositories( value );
-            };
+            }
         };
 
     /** @see Model#getScm() */
@@ -569,7 +568,7 @@ public abstract class PomProperty<V>
         public void set( Model model, Scm value )
         {
             model.setScm( value );
-        };
+        }
     };
 
     /** @see Model#getUrl() */
@@ -585,7 +584,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setUrl( value );
-        };
+        }
     };
 
     /** @see Model#getVersion() */
@@ -601,7 +600,7 @@ public abstract class PomProperty<V>
         public void set( Model model, String value )
         {
             model.setVersion( value );
-        };
+        }
     };
 
     private static final PomProperty<?>[] POM_PROPERTIES_ARRAY = new PomProperty<?>[] { ARTIFACT_ID, BUILD,
@@ -651,11 +650,7 @@ public abstract class PomProperty<V>
      */
     public boolean isRequired()
     {
-        if ( this == GROUP_ID || this == ARTIFACT_ID || this == VERSION )
-        {
-            return true;
-        }
-        return false;
+        return this == GROUP_ID || this == ARTIFACT_ID || this == VERSION;
     }
 
     /**
@@ -669,11 +664,7 @@ public abstract class PomProperty<V>
         {
             return false;
         }
-        if ( this == MODEL_ENCODING )
-        {
-            return false;
-        }
-        return true;
+        return this != MODEL_ENCODING;
     }
 
     /**

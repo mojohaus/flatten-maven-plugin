@@ -372,7 +372,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
                     }
 
                 }
-                this.fields = fields.toArray( new CacheField[fields.size()] );
+                this.fields = fields.toArray( new CacheField[0] );
 
             }
 

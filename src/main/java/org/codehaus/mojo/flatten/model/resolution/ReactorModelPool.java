@@ -44,10 +44,7 @@ class ReactorModelPool
 
     public void addProjects( List<MavenProject> projects )
     {
-        for ( MavenProject project : projects )
-        {
-            addProject( project );
-        }
+        projects.forEach( this::addProject );
     }
 
     public void addProject( MavenProject project )

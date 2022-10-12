@@ -34,9 +34,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
@@ -48,6 +50,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
@@ -61,8 +64,8 @@ import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.model.profile.DefaultProfileSelector;
 import org.apache.maven.model.profile.ProfileInjector;
-import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -938,33 +941,53 @@ public class FlattenMojo
         {
             ProfileInjector customInjector = ( model, profile, request, problems ) ->
             {
-                List<String> activeProfileIds = request.getActiveProfileIds();
-                if ( activeProfileIds.contains( profile.getId() ) )
-                {
-                    Properties merged = new Properties();
-                    merged.putAll( model.getProperties() );
-                    merged.putAll( profile.getProperties() );
-                    model.setProperties( merged );
-                }
-            };
-            ProfileSelector customSelector = ( profiles, context, problems ) ->
-            {
-                List<Profile> activeProfiles = new ArrayList<>( profiles.size() );
+                Properties merged = new Properties();
+                merged.putAll( model.getProperties() );
+                merged.putAll( profile.getProperties() );
+                model.setProperties( merged );
 
-                for ( Profile profile : profiles )
+                // Copied from org.apache.maven.model.profile.DefaultProfileInjector
+                DependencyManagement profileDependencyManagement = profile.getDependencyManagement();
+                if ( profileDependencyManagement != null )
                 {
-                    Activation activation = profile.getActivation();
-                    if ( !embedBuildProfileDependencies || isBuildTimeDriven( activation ) )
+                    DependencyManagement modelDependencyManagement = model.getDependencyManagement();
+                    if ( modelDependencyManagement == null )
                     {
-                        activeProfiles.add( profile );
+                        modelDependencyManagement = new DependencyManagement();
+                        model.setDependencyManagement( modelDependencyManagement );
+                    }
+
+                    List<Dependency> src = profileDependencyManagement.getDependencies();
+                    if ( !src.isEmpty() )
+                    {
+                        List<Dependency> tgt = modelDependencyManagement.getDependencies();
+                        Map<Object, Dependency> mergedDependencies =
+                            new LinkedHashMap<Object, Dependency>( ( src.size() + tgt.size() ) * 2 );
+
+                        for ( Dependency element : tgt )
+                        {
+                            mergedDependencies.put( element.getManagementKey(), element );
+                        }
+
+                        for ( Dependency element : src )
+                        {
+                            String key = element.getManagementKey();
+                            if ( !mergedDependencies.containsKey( key ) )
+                            {
+                                mergedDependencies.put( key, element );
+                            }
+                        }
+
+                        modelDependencyManagement
+                            .setDependencies( new ArrayList<Dependency>( mergedDependencies.values() ) );
                     }
                 }
-
-                return activeProfiles;
             };
 
             buildingResult =
-                modelBuilderThreadSafetyWorkaround.build( buildingRequest, customInjector, customSelector );
+                modelBuilderThreadSafetyWorkaround.build(
+                    buildingRequest, customInjector, new DefaultProfileSelector()
+                );
         }
         catch ( ModelBuildingException e )
         {

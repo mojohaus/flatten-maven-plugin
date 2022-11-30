@@ -21,7 +21,6 @@ package org.codehaus.mojo.flatten;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.inject.Specializes;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -45,7 +44,7 @@ import org.apache.maven.model.merge.MavenModelMerger;
  * @author ralfluebeck
  *
  */
-@Specializes
+
 @Singleton
 @Named
 public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAssembler {

@@ -417,7 +417,7 @@ public class FlattenMojo
 
         getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
 
-        inheritanceAssembler.flattenDependencyMode=this.flattenDependencyMode;
+        inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
         KeepCommentsInPom commentsOfOriginalPomFile = null;

@@ -28,7 +28,6 @@ import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.composition.DependencyManagementImporter;
-import org.apache.maven.model.inheritance.InheritanceAssembler;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.management.DependencyManagementInjector;
 import org.apache.maven.model.management.PluginManagementInjector;
@@ -83,7 +82,7 @@ public class ModelBuilderThreadSafetyWorkaround
     private SuperPomProvider superPomProvider;
 
     @Inject
-    private InheritanceAssembler inheritanceAssembler;
+    private DirectDependenciesInheritanceAssembler inheritanceAssembler;
 
     @Inject
     private PluginManagementInjector pluginManagementInjector;

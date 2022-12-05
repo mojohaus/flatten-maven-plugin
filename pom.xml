@@ -241,8 +241,14 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.eclipse.sisu</groupId>
+        <artifactId>sisu-maven-plugin</artifactId>
+        <version>0.3.5</version>
+      </plugin>
     </plugins>
   </build>
+
 
   <reporting>
     <plugins>
@@ -264,11 +270,6 @@
       <id>run-its</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.eclipse.sisu</groupId>
-            <artifactId>sisu-maven-plugin</artifactId>
-            <version>0.3.5</version>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>

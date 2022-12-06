@@ -109,6 +109,12 @@
     <contributor>
       <name>Flabo</name>
     </contributor>
+    <contributor>
+      <name>Kemal Soysal</name>
+    </contributor>
+    <contributor>
+      <name>Ralf Lübeck</name>
+    </contributor>
   </contributors>
 
   <prerequisites>
@@ -227,8 +233,20 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.eclipse.sisu</groupId>
+            <artifactId>org.eclipse.sisu.inject</artifactId>
+            <version>0.3.5</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
+
 
   <reporting>
     <plugins>

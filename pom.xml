@@ -85,20 +85,6 @@
         <role>developer</role>
       </roles>
     </developer>
-    <developer>
-      <id>kso</id>
-      <name>Kemal Soysal</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>lbk</id>
-      <name>Ralf Lübeck</name>
-      <roles>
-        <role>contributor</role>
-      </roles>
-    </developer>
   </developers>
 
   <contributors>
@@ -122,6 +108,12 @@
     </contributor>
     <contributor>
       <name>Flabo</name>
+    </contributor>
+    <contributor>
+      <name>Kemal Soysal</name>
+    </contributor>
+    <contributor>
+      <name>Ralf Lübeck</name>
     </contributor>
   </contributors>
 

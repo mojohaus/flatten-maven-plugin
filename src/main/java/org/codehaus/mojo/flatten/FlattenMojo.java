@@ -537,9 +537,9 @@ public class FlattenMojo
     protected void writeStringToFile( String data, File file, String encoding )
         throws MojoExecutionException
     {
-        if ( System.getProperty( "os.name" ).contains( "Windows" ) )
+        if ( !"\n".equals( System.lineSeparator() ) )
         {
-            data = data.replace( "\n", "\r\n" );
+            data = data.replace( "\n", System.lineSeparator() );
         }
         byte[] binaryData;
 

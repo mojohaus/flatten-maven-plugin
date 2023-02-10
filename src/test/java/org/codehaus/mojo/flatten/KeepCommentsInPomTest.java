@@ -21,9 +21,10 @@ package org.codehaus.mojo.flatten;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
@@ -32,7 +33,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test-Case for {@link FlattenMojo}.
@@ -48,6 +49,7 @@ public class KeepCommentsInPomTest
      * Expected result since jdk11 with updated xml header and properties sequence.
      */
     private static final String EXPECTED_FLATTENED_POM_JDK11 = PATH + "expected-flattened-pom-jdk11.xml";
+    private static final Pattern NEW_LINE_PATTERN = Pattern.compile( "\\n|\\r\\n?" );
 
     @Rule
     public MojoRule rule = new MojoRule();
@@ -77,18 +79,10 @@ public class KeepCommentsInPomTest
         // execute writes new FLATTENED_POM
         flattenMojo.execute();
 
-        String tempExpectedContent;
-        if ( isJdk8() )
-        {
-            tempExpectedContent = getContent( EXPECTED_FLATTENED_POM );
-        }
-        else
-        {
-            tempExpectedContent = getContent( EXPECTED_FLATTENED_POM_JDK11 );
-        }
-        String tempActualContent = getContent( FLATTENED_POM );
-        assertEquals( "Expected POM does not match, see " + FLATTENED_POM, tempExpectedContent, tempActualContent );
-
+        Path expectedContentFile = Paths.get( isJdk8() ? EXPECTED_FLATTENED_POM : EXPECTED_FLATTENED_POM_JDK11 );
+        Path actualContentFile = Paths.get( FLATTENED_POM );
+        assertThat( actualContentFile ).hasSameTextualContentAs( expectedContentFile );
+        assertHasLineSeparator( actualContentFile , System.lineSeparator() );
     }
 
     /**
@@ -107,12 +101,26 @@ public class KeepCommentsInPomTest
         return false;
     }
 
-    /**
-     *
-     */
-    private String getContent( String aPomFile ) throws IOException
+    private static void assertHasLineSeparator( final Path file, final String expectedSeparator ) throws IOException
     {
-        return String.join( "\n", Files.readAllLines( Paths.get( aPomFile ), StandardCharsets.UTF_8 ) );
+        try ( Scanner scanner = new Scanner( file ) )
+        {
+            int lineNr = 0;
+            String actualSeparator;
+            while ( ( actualSeparator = scanner.findWithinHorizon( NEW_LINE_PATTERN, 0 ) ) != null )
+            {
+                lineNr++;
+                if ( !expectedSeparator.equals( actualSeparator ) )
+                {
+                    final String actualDesc = actualSeparator.replace( "\r", "CR" ).replace( "\n", "LF" );
+                    final String expectedDesc = expectedSeparator.replace( "\r", "CR" ).replace( "\n", "LF" );
+                    throw new AssertionError(
+                            String.format(
+                                    "\nLine %d of path %s has %s as line separator.\nExpected line separator: %s.",
+                                    lineNr, file, actualDesc, expectedDesc ) );
+                }
+            }
+        }
     }
 
 }

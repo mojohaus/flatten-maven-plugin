@@ -23,8 +23,6 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,8 +45,6 @@ import org.apache.maven.model.interpolation.MavenBuildTimestamp;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.path.PathTranslator;
 import org.apache.maven.model.path.UrlNormalizer;
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.codehaus.plexus.interpolation.InterpolationException;
 import org.codehaus.plexus.interpolation.InterpolationPostProcessor;
@@ -62,22 +58,21 @@ import org.codehaus.plexus.interpolation.RecursionInterceptor;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.interpolation.util.ValueSourceUtils;
 
-/*
- * Based on StringSearchModelInterpolator in maven-model-builder
+/**
+ * Based on StringSearchModelInterpolator in maven-model-builder.
+ *
+ * IMPORTANT: this is a legacy Plexus component, with manually authored descriptor in src/main/resources!
  */
-@Component( role = CiInterpolator.class )
 public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
 {
-
-    public CiModelInterpolator()
-    {
-        interpolator = createInterpolator();
-        recursionInterceptor = new PrefixAwareRecursionInterceptor( PROJECT_PREFIXES );
-    }
 
     private static final List<String> PROJECT_PREFIXES = Arrays.asList( "pom.", "project." );
 
     private static final Collection<String> TRANSLATED_PATH_EXPRESSIONS;
+
+    private static final Map<Class<?>, InterpolateObjectAction.CacheItem> CACHED_ENTRIES = new ConcurrentHashMap<>(
+            80, 0.75f, 2 );
+    // Empirical data from 3.x, actual =40
 
     static
     {
@@ -101,18 +96,20 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
         TRANSLATED_PATH_EXPRESSIONS = translatedPrefixes;
     }
 
-    private Interpolator interpolator;
+    private final Interpolator interpolator;
+
+    // There is a protected setter for this one?
     private RecursionInterceptor recursionInterceptor;
 
-    @Requirement
     private PathTranslator pathTranslator;
 
-    @Requirement
     private UrlNormalizer urlNormalizer;
 
-    private static final Map<Class<?>, InterpolateObjectAction.CacheItem> CACHED_ENTRIES = new ConcurrentHashMap<>(
-        80, 0.75f, 2 );
-    // Empirical data from 3.x, actual =40
+    public CiModelInterpolator()
+    {
+        this.interpolator = createInterpolator();
+        this.recursionInterceptor = new PrefixAwareRecursionInterceptor( PROJECT_PREFIXES );
+    }
 
     public Model interpolateModel( Model model, File projectDir, ModelBuildingRequest config,
                                    ModelProblemCollector problems )
@@ -131,10 +128,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
             List<? extends InterpolationPostProcessor> postProcessors =
                 createPostProcessors( model, projectDir, config );
 
-            InterpolateObjectAction action = new InterpolateObjectAction( obj, valueSources, postProcessors, this,
-                                                                          problems );
-
-            AccessController.doPrivileged( action );
+            new InterpolateObjectAction( obj, valueSources, postProcessors, this, problems ).run();
         }
         finally
         {
@@ -205,7 +199,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
         return interpolator;
     }
 
-    private static final class InterpolateObjectAction implements PrivilegedAction<Object>
+    private static final class InterpolateObjectAction implements Runnable
     {
 
         private final LinkedList<Object> interpolationTargets;
@@ -234,7 +228,8 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
             this.problems = problems;
         }
 
-        public Object run()
+        @Override
+        public void run()
         {
             while ( !interpolationTargets.isEmpty() )
             {
@@ -242,8 +237,6 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator
 
                 traverseObjectWithParents( obj.getClass(), obj );
             }
-
-            return null;
         }
 
         private String interpolate( String value )

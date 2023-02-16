@@ -35,7 +35,7 @@ import org.apache.maven.project.MavenProject;
 class ReactorModelPool
 {
 
-    private Map<Coordinates, File> models = new HashMap<>();
+    private final Map<Coordinates, File> models = new HashMap<>();
 
     public File find( String groupId, String artifactId, String version )
     {

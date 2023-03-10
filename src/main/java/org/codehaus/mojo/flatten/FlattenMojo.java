@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
@@ -77,9 +78,9 @@ import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RequestTrace;
-import org.eclipse.aether.artifact.ArtifactTypeRegistry;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
@@ -90,6 +91,8 @@ import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
+import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
@@ -201,9 +204,8 @@ import org.xml.sax.ext.DefaultHandler2;
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-@SuppressWarnings( "deprecation" )
-@Mojo( name = "flatten", requiresProject = true, requiresDirectInvocation = false,
-       executionStrategy = "once-per-session", requiresDependencyCollection = ResolutionScope.RUNTIME,
+@Mojo( name = "flatten",
+       requiresDependencyCollection = ResolutionScope.RUNTIME,
        threadSafe = true )
 public class FlattenMojo
     extends AbstractFlattenMojo
@@ -377,10 +379,10 @@ public class FlattenMojo
     private ModelBuilderThreadSafetyWorkaround modelBuilderThreadSafetyWorkaround;
 
     @Inject
-    private RepositorySystem repositorySystem;
+    private ArtifactHandlerManager artifactHandlerManager;
 
     @Inject
-    private ArtifactHandlerManager artifactHandlerManager;
+    private RepositorySystem repositorySystem;
 
     /**
      * The constructor.
@@ -952,7 +954,7 @@ public class FlattenMojo
                     {
                         List<Dependency> tgt = modelDependencyManagement.getDependencies();
                         Map<Object, Dependency> mergedDependencies =
-                            new LinkedHashMap<Object, Dependency>( ( src.size() + tgt.size() ) * 2 );
+                            new LinkedHashMap<>( ( src.size() + tgt.size() ) * 2 );
 
                         for ( Dependency element : tgt )
                         {
@@ -969,7 +971,7 @@ public class FlattenMojo
                         }
 
                         modelDependencyManagement
-                            .setDependencies( new ArrayList<Dependency>( mergedDependencies.values() ) );
+                            .setDependencies( new ArrayList<>( mergedDependencies.values() ) );
                     }
                 }
             };
@@ -1139,51 +1141,59 @@ public class FlattenMojo
      * @throws ArtifactDescriptorException
      */
     private void createFlattenedDependenciesAll( List<Dependency> projectDependencies,
+                                                 List<Dependency> managedDependencies,
                                                  List<Dependency> flattenedDependencies )
         throws ArtifactDescriptorException, DependencyCollectionException
     {
         final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<>();
         final Set<String> processedDependencies = new HashSet<>();
-
         final Artifact projectArtifact = this.project.getArtifact();
-        final ArtifactTypeRegistry artifactTypeRegistry =
-                RepositoryUtils.newArtifactTypeRegistry( artifactHandlerManager );
 
-        CollectRequest collectRequest = new CollectRequest(  );
-        collectRequest.setRoot( RepositoryUtils.toDependency( projectArtifact, null ) );
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRepositories( project.getRemotePluginRepositories() );
         for ( Dependency dependency : projectDependencies )
         {
-            collectRequest.addDependency( RepositoryUtils.toDependency( dependency, artifactTypeRegistry ) );
+            collectRequest.addDependency( RepositoryUtils.toDependency( dependency,
+                    session.getRepositorySession().getArtifactTypeRegistry() ) );
+        }
+        for ( Dependency dependency : managedDependencies )
+        {
+            collectRequest.addManagedDependency( RepositoryUtils.toDependency( dependency,
+                    session.getRepositorySession().getArtifactTypeRegistry() ) );
         }
 
+        DefaultRepositorySystemSession derived = new DefaultRepositorySystemSession( session.getRepositorySession() );
+        derived.setConfigProperty( ConflictResolver.CONFIG_PROP_VERBOSE, true );
+        derived.setConfigProperty( DependencyManagerUtils.CONFIG_PROP_VERBOSE, true );
+
         CollectResult collectResult =
-                repositorySystem.collectDependencies( session.getRepositorySession(), collectRequest );
+                repositorySystem.collectDependencies( derived, collectRequest );
 
-        final DependencyNode dependencyNode = collectResult.getRoot();
+        final DependencyNode root = collectResult.getRoot();
+        final Set<String> directDependencyKeys = projectDependencies.stream()
+                .map( this::getKey )
+                .collect( Collectors.toSet() );
 
-        dependencyNode.accept( new DependencyVisitor()
+        root.accept( new DependencyVisitor()
         {
             @Override
             public boolean visitEnter( DependencyNode node )
             {
-                if ( node.getArtifact().getGroupId().equals( projectArtifact.getGroupId() ) && node.getArtifact()
-                    .getArtifactId().equals( projectArtifact.getArtifactId() ) )
+                if ( root == node )
                 {
                     return true;
                 }
                 if ( JavaScopes.PROVIDED.equals( node.getDependency().getScope() ) )
                 {
-                    // TODO: Solve this, but unsure about intent here
-                    //DependencyNode parent = node.getParent();
-                    //if ( !parent.getArtifact().getGroupId().equals( projectArtifact.getGroupId() )
-                    //    || !parent.getArtifact().getArtifactId().equals( projectArtifact.getArtifactId() ) )
-                    //{
-                        return false;
-                    //}
+                    String dependencyKey = getKey( node.getDependency() );
+                    if ( !directDependencyKeys.contains( dependencyKey ) )
+                    {
+                        return false; // skip non-direct provided ones
+                    }
                 }
                 if ( node.getDependency().isOptional() )
                 {
-                    return false;
+                    return false; // skip optional ones
                 }
                 dependencyNodeLinkedList.add( node );
                 return true;
@@ -1200,6 +1210,7 @@ public class FlattenMojo
         {
             DependencyNode node = dependencyNodeLinkedList.poll();
 
+            org.eclipse.aether.graph.Dependency d = node.getDependency();
             Artifact artifact = RepositoryUtils.toArtifact( node.getArtifact() );
 
             Dependency dependency = new Dependency();
@@ -1207,8 +1218,8 @@ public class FlattenMojo
             dependency.setArtifactId( artifact.getArtifactId() );
             dependency.setVersion( artifact.getBaseVersion() );
             dependency.setClassifier( artifact.getClassifier() );
-            dependency.setOptional( artifact.isOptional() );
-            dependency.setScope( artifact.getScope() );
+            dependency.setOptional( d.isOptional() );
+            dependency.setScope( d.getScope() );
             dependency.setType( artifact.getType() );
 
             if ( !omitExclusions )
@@ -1224,7 +1235,7 @@ public class FlattenMojo
                 for ( org.eclipse.aether.graph.Dependency artifactDependency
                     : artifactDescriptorResult.getDependencies() )
                 {
-                    if ( "test".equals( artifactDependency.getScope() ) )
+                    if ( JavaScopes.TEST.equals( artifactDependency.getScope() ) )
                     {
                         continue;
                     }
@@ -1254,6 +1265,26 @@ public class FlattenMojo
     }
 
     /**
+     * Keep in sync with {@link #getKey(org.eclipse.aether.graph.Dependency)}.
+     */
+    private String getKey( Dependency d )
+    {
+        final String ext = artifactHandlerManager.getArtifactHandler( d.getType() ).getExtension();
+        return d.getGroupId() + ":" + d.getArtifactId() + ":" + ext
+                + ( d.getClassifier() != null ? ":" + d.getClassifier() : "" );
+    }
+
+    /**
+     * Keep in sync with {@link #getKey(Dependency)}.
+     */
+    private String getKey( org.eclipse.aether.graph.Dependency dependency )
+    {
+        final org.eclipse.aether.artifact.Artifact a = dependency.getArtifact();
+        return a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getExtension()
+                + ( !a.getClassifier().isEmpty() ? ":" + a.getClassifier() : "" );
+    }
+
+    /**
      * Collects the resolved {@link Dependency dependencies} from the given <code>effectiveModel</code>.
      *
      * @param effectiveModel        is the effective POM {@link Model} to process.
@@ -1276,7 +1307,10 @@ public class FlattenMojo
         {
             try
             {
-                createFlattenedDependenciesAll( projectDependencies, flattenedDependencies );
+                createFlattenedDependenciesAll( projectDependencies,
+                        effectiveModel.getDependencyManagement() != null
+                                ? effectiveModel.getDependencyManagement().getDependencies() : Collections.emptyList(),
+                        flattenedDependencies );
             }
             catch ( Exception e )
             {
@@ -1292,7 +1326,7 @@ public class FlattenMojo
      */
     protected Dependency createFlattenedDependency( Dependency projectDependency )
     {
-        if ( "test".equals( projectDependency.getScope() ) )
+        if ( JavaScopes.TEST.equals( projectDependency.getScope() ) )
         {
             return null;
         }

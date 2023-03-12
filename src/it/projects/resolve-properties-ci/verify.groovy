@@ -19,6 +19,7 @@
 
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import groovy.xml.XmlSlurper
 
 File originalPom = new File( basedir, 'pom.xml' )
 assert originalPom.exists()

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import groovy.xml.XmlSlurper
 
 File originalPom = new File( basedir, 'jar/pom.xml' )
 assert originalPom.exists()

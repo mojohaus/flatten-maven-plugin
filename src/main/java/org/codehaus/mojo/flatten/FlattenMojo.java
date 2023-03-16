@@ -1078,12 +1078,13 @@ public class FlattenMojo
         {
             Model projectModel = this.project.getModel();
             Dependencies modelDependencies = new Dependencies();
-            modelDependencies.addAll( projectModel.getDependencies() );
-            for ( Profile profile : projectModel.getProfiles() )
-            {
+            modelDependencies.addAll( projectModel.getDependencies() );             
+            for ( Profile profile : this.project.getActiveProfiles() )
+            {            	            	
                 // build-time driven activation (by property or file)?
                 if ( isBuildTimeDriven( profile.getActivation() ) )
-                {
+                {           
+                	getLog().debug( "Processing dependencies defined in profile:" + profile.getId());
                     List<Dependency> profileDependencies = profile.getDependencies();
                     for ( Dependency profileDependency : profileDependencies )
                     {

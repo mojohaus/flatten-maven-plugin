@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
@@ -1151,11 +1152,18 @@ public class FlattenMojo
 
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.setRepositories( project.getRemotePluginRepositories() );
+        collectRequest.setRootArtifact( RepositoryUtils.toArtifact( projectArtifact ) );
         for ( Dependency dependency : projectDependencies )
         {
             collectRequest.addDependency( RepositoryUtils.toDependency( dependency,
                     session.getRepositorySession().getArtifactTypeRegistry() ) );
         }
+
+        for ( Artifact artifact : project.getArtifacts() )
+        {
+            collectRequest.addDependency( RepositoryUtils.toDependency( artifact, null ) );
+        }
+
         for ( Dependency dependency : managedDependencies )
         {
             collectRequest.addManagedDependency( RepositoryUtils.toDependency( dependency,
@@ -1170,8 +1178,12 @@ public class FlattenMojo
                 repositorySystem.collectDependencies( derived, collectRequest );
 
         final DependencyNode root = collectResult.getRoot();
-        final Set<String> directDependencyKeys = projectDependencies.stream()
-                .map( this::getKey )
+        final Set<String> directDependencyKeys = Stream
+                .concat(
+                        projectDependencies.stream()
+                                .map( this::getKey ),
+                        project.getArtifacts().stream()
+                                .map( this::getKey ) )
                 .collect( Collectors.toSet() );
 
         root.accept( new DependencyVisitor()
@@ -1265,7 +1277,19 @@ public class FlattenMojo
     }
 
     /**
-     * Keep in sync with {@link #getKey(org.eclipse.aether.graph.Dependency)}.
+     * Keep in sync with {@link #getKey(org.eclipse.aether.graph.Dependency)}
+     * and {@link #getKey(Dependency)}.
+     */
+    private String getKey( Artifact a )
+    {
+        final String ext = artifactHandlerManager.getArtifactHandler( a.getType() ).getExtension();
+        return a.getGroupId() + ":" + a.getArtifactId() + ":" + ext
+                + ( a.getClassifier() != null ? ":" + a.getClassifier() : "" );
+    }
+
+    /**
+     * Keep in sync with {@link #getKey(org.eclipse.aether.graph.Dependency)}
+     * and {@link #getKey(Artifact)}
      */
     private String getKey( Dependency d )
     {
@@ -1275,7 +1299,8 @@ public class FlattenMojo
     }
 
     /**
-     * Keep in sync with {@link #getKey(Dependency)}.
+     * Keep in sync with {@link #getKey(Dependency)}
+     * and {@link #getKey(Artifact)}.
      */
     private String getKey( org.eclipse.aether.graph.Dependency dependency )
     {

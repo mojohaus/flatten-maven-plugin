@@ -34,7 +34,7 @@ import org.codehaus.plexus.interpolation.RecursionInterceptor;
 import org.codehaus.plexus.interpolation.SimpleRecursionInterceptor;
 import org.codehaus.plexus.interpolation.ValueSource;
 
-/*
+/**
  * Based on StringSearchInterpolator from plexus-interpolation,
  * see {@link org.codehaus.plexus.interpolation.StringSearchInterpolator}.
  * This interpolates only the Maven CI Friendly variables revision, sha1 and changelist.
@@ -42,11 +42,11 @@ import org.codehaus.plexus.interpolation.ValueSource;
 public class CiInterpolatorImpl implements Interpolator
 {
 
-    private Map existingAnswers = new HashMap();
+    private final Map existingAnswers = new HashMap();
 
-    private List<ValueSource> valueSources = new ArrayList<>();
+    private final List<ValueSource> valueSources = new ArrayList<>();
 
-    private List<InterpolationPostProcessor> postProcessors = new ArrayList<>();
+    private final List<InterpolationPostProcessor> postProcessors = new ArrayList<>();
 
     private boolean cacheAnswers = false;
 
@@ -54,11 +54,9 @@ public class CiInterpolatorImpl implements Interpolator
 
     public static final String DEFAULT_END_EXPR = "}";
 
-    private String startExpr;
+    private final String startExpr;
 
-    private String endExpr;
-
-    private String escapeString;
+    private final String endExpr;
 
     public CiInterpolatorImpl()
     {
@@ -76,6 +74,7 @@ public class CiInterpolatorImpl implements Interpolator
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addValueSource( ValueSource valueSource )
     {
         valueSources.add( valueSource );
@@ -84,6 +83,7 @@ public class CiInterpolatorImpl implements Interpolator
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeValuesSource( ValueSource valueSource )
     {
         valueSources.remove( valueSource );
@@ -92,6 +92,7 @@ public class CiInterpolatorImpl implements Interpolator
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addPostProcessor( InterpolationPostProcessor postProcessor )
     {
         postProcessors.add( postProcessor );
@@ -100,23 +101,27 @@ public class CiInterpolatorImpl implements Interpolator
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removePostProcessor( InterpolationPostProcessor postProcessor )
     {
         postProcessors.remove( postProcessor );
     }
 
+    @Override
     public String interpolate( String input, String thisPrefixPattern )
         throws InterpolationException
     {
         return interpolate( input, new SimpleRecursionInterceptor() );
     }
 
+    @Override
     public String interpolate( String input, String thisPrefixPattern, RecursionInterceptor recursionInterceptor )
         throws InterpolationException
     {
         return interpolate( input, recursionInterceptor );
     }
 
+    @Override
     public String interpolate( String input )
         throws InterpolationException
     {
@@ -127,6 +132,7 @@ public class CiInterpolatorImpl implements Interpolator
      * Entry point for recursive resolution of an expression and all of its
      * nested expressions.
      */
+    @Override
     public String interpolate( String input, RecursionInterceptor recursionInterceptor )
         throws InterpolationException
     {
@@ -167,21 +173,6 @@ public class CiInterpolatorImpl implements Interpolator
 
             final String wholeExpr = input.substring( startIdx, endIdx + endExpr.length() );
             String realExpr = wholeExpr.substring( startExpr.length(), wholeExpr.length() - endExpr.length() );
-
-            if ( startIdx >= 0 && escapeString != null && escapeString.length() > 0 )
-            {
-                int startEscapeIdx = startIdx == 0 ? 0 : startIdx - escapeString.length();
-                if ( startEscapeIdx >= 0 )
-                {
-                    String escape = input.substring( startEscapeIdx, startIdx );
-                    if ( escape != null && escapeString.equals( escape ) )
-                    {
-                        result.append( wholeExpr );
-                        result.replace( startEscapeIdx, startEscapeIdx + escapeString.length(), "" );
-                        continue;
-                    }
-                }
-            }
 
             boolean resolved = false;
             if ( !unresolvable.contains( wholeExpr ) )
@@ -235,7 +226,7 @@ public class CiInterpolatorImpl implements Interpolator
                     {
                         value = interpolate( String.valueOf( value ), recursionInterceptor, unresolvable );
 
-                        if ( postProcessors != null && !postProcessors.isEmpty() )
+                        if ( !postProcessors.isEmpty() )
                         {
                             for ( InterpolationPostProcessor postProcessor : postProcessors )
                             {
@@ -252,7 +243,7 @@ public class CiInterpolatorImpl implements Interpolator
                         // result = matcher.replaceFirst( stringValue );
                         // but this could result in multiple lookups of stringValue, and replaceAll is not correct
                         // behaviour
-                        result.append( String.valueOf( value ) );
+                        result.append( value );
                         resolved = true;
                     }
                     else
@@ -271,10 +262,7 @@ public class CiInterpolatorImpl implements Interpolator
                 result.append( wholeExpr );
             }
 
-            if ( endIdx > -1 )
-            {
-                endIdx += endExpr.length() - 1;
-            }
+            endIdx += endExpr.length() - 1;
         }
 
         if ( endIdx == -1 && startIdx > -1 )
@@ -298,6 +286,7 @@ public class CiInterpolatorImpl implements Interpolator
      * @return a {@link List} that may be interspersed with {@link String} and
      * {@link Throwable} instances.
      */
+    @Override
     public List getFeedback()
     {
         List<?> messages = new ArrayList();
@@ -316,6 +305,7 @@ public class CiInterpolatorImpl implements Interpolator
     /**
      * Clear the feedback messages from previous interpolate(..) calls.
      */
+    @Override
     public void clearFeedback()
     {
         for ( ValueSource vs : valueSources )
@@ -324,29 +314,22 @@ public class CiInterpolatorImpl implements Interpolator
         }
     }
 
+    @Override
     public boolean isCacheAnswers()
     {
         return cacheAnswers;
     }
 
+    @Override
     public void setCacheAnswers( boolean cacheAnswers )
     {
         this.cacheAnswers = cacheAnswers;
     }
 
+    @Override
     public void clearAnswers()
     {
         existingAnswers.clear();
-    }
-
-    public String getEscapeString()
-    {
-        return escapeString;
-    }
-
-    public void setEscapeString( String escapeString )
-    {
-        this.escapeString = escapeString;
     }
 
 }

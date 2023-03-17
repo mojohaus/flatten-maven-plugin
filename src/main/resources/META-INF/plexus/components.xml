@@ -7,6 +7,16 @@
       <implementation>org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.model.path.PathTranslator</role>
+          <fieldName>pathTranslator</fieldName>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.model.path.UrlNormalizer</role>
+          <fieldName>urlNormalizer</fieldName>
+        </requirement>
+      </requirements>
     </component>
   </components>
 </component-set>

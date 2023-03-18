@@ -30,11 +30,10 @@ import org.apache.maven.model.Dependency;
  * This is a simple container for {@link Dependency} objects. Rather than using a {@link List} this object allows
  * operations like {@link #contains(Dependency)} that work reliably even though {@link Dependency} class does not
  * properly implement {@link Object#equals(Object) equals}.
- * 
+ *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-public class Dependencies
-{
+public class Dependencies {
 
     /** @see #add(Dependency) */
     private final Map<String, Dependency> key2DependencyMap;
@@ -42,8 +41,7 @@ public class Dependencies
     /**
      * The constructor.
      */
-    public Dependencies()
-    {
+    public Dependencies() {
 
         super();
         this.key2DependencyMap = new HashMap<>();
@@ -54,8 +52,7 @@ public class Dependencies
      *            .
      * @return the {@link java.util.Map.Entry#getKey() key} for the {@link Dependency}.
      */
-    protected String getKey( Dependency dependency )
-    {
+    protected String getKey(Dependency dependency) {
 
         return dependency.getManagementKey() + ":" + dependency.getClassifier();
     }
@@ -63,23 +60,20 @@ public class Dependencies
     /**
      * @param dependencies the {@link List} of {@link Dependency} objects to {@link #add(Dependency) add}.
      */
-    public void addAll( List<Dependency> dependencies )
-    {
-        dependencies.forEach( this::add );
+    public void addAll(List<Dependency> dependencies) {
+        dependencies.forEach(this::add);
     }
 
     /**
      * @param dependency the {@link Dependency} to add.
      */
-    public void add( Dependency dependency )
-    {
+    public void add(Dependency dependency) {
 
-        String key = getKey( dependency );
-        Dependency replaced = this.key2DependencyMap.put( key, dependency );
-        if ( replaced != null )
-        {
-            throw new IllegalStateException( "Duplicate dependency! Original: " + getKey( replaced ) + " duplicate: "
-                + getKey( dependency ) );
+        String key = getKey(dependency);
+        Dependency replaced = this.key2DependencyMap.put(key, dependency);
+        if (replaced != null) {
+            throw new IllegalStateException(
+                    "Duplicate dependency! Original: " + getKey(replaced) + " duplicate: " + getKey(dependency));
         }
     }
 
@@ -88,33 +82,28 @@ public class Dependencies
      * @return <code>true</code> if the given {@link Dependency} is contained in these {@link Dependencies},
      *         <code>false</code> otherwise.
      */
-    public boolean contains( Dependency dependency )
-    {
+    public boolean contains(Dependency dependency) {
 
         // ATTENTION: Dependency does not have a proper equals implementation, we only check that the key is
         // contained. However, this should be sufficient for all reasonable scenarios...
-        return this.key2DependencyMap.containsKey( getKey( dependency ) );
+        return this.key2DependencyMap.containsKey(getKey(dependency));
     }
 
     /**
-     * 
+     *
      * @param dependency the {@link Dependency} to resolve.
      * @return a full declared {@link Dependency}
      */
-    public Dependency resolve( Dependency dependency )
-    {
-        return this.key2DependencyMap.get( getKey( dependency ) );
+    public Dependency resolve(Dependency dependency) {
+        return this.key2DependencyMap.get(getKey(dependency));
     }
-    
-    
+
     /**
      * @return a {@link List} with the {@link Dependency} objects contained in these {@link Dependencies}.
      */
-    public List<Dependency> toList()
-    {
+    public List<Dependency> toList() {
 
-        List<Dependency> result = new ArrayList<>( this.key2DependencyMap.values() );
+        List<Dependency> result = new ArrayList<>(this.key2DependencyMap.values());
         return result;
     }
-
 }

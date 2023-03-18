@@ -25,8 +25,7 @@ package org.codehaus.mojo.flatten;
  * @author Ray Tsang
  * @since 1.2.0
  */
-public enum FlattenDependencyMode
-{
+public enum FlattenDependencyMode {
     /**
      * Flatten only the direct dependency versions. This is the default mode and compatible with
      * Flatten Plugin prior to 1.2.0.

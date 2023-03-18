@@ -26,25 +26,22 @@ import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblemCollector;
 
 /**
-* A shameless replacement of ModelInterpolator from maven-model-builder. 
-* Made because of class loading issues that ensued when using ModelInterpolator interface.
-*/
-public interface CiInterpolator
-{
+ * A shameless replacement of ModelInterpolator from maven-model-builder.
+ * Made because of class loading issues that ensued when using ModelInterpolator interface.
+ */
+public interface CiInterpolator {
 
-   /**
-    * Interpolates expressions in the specified model. Note that implementations are free to either interpolate the
-    * provided model directly or to create a clone of the model and interpolate the clone. Callers should always use
-    * the returned model and must not rely on the input model being updated.
-    *
-    * @param model The model to interpolate, must not be {@code null}.
-    * @param projectDir The project directory, may be {@code null} if the model does not belong to a local project but
-    *            to some artifact's metadata.
-    * @param request The model building request that holds further settings, must not be {@code null}.
-    * @param problems The container used to collect problems that were encountered, must not be {@code null}.
-    * @return The interpolated model, never {@code null}.
-    */
-   Model interpolateModel( Model model, File projectDir, ModelBuildingRequest request,
-                           ModelProblemCollector problems );
-
+    /**
+     * Interpolates expressions in the specified model. Note that implementations are free to either interpolate the
+     * provided model directly or to create a clone of the model and interpolate the clone. Callers should always use
+     * the returned model and must not rely on the input model being updated.
+     *
+     * @param model The model to interpolate, must not be {@code null}.
+     * @param projectDir The project directory, may be {@code null} if the model does not belong to a local project but
+     *            to some artifact's metadata.
+     * @param request The model building request that holds further settings, must not be {@code null}.
+     * @param problems The container used to collect problems that were encountered, must not be {@code null}.
+     * @return The interpolated model, never {@code null}.
+     */
+    Model interpolateModel(Model model, File projectDir, ModelBuildingRequest request, ModelProblemCollector problems);
 }

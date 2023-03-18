@@ -29,27 +29,24 @@ import org.apache.maven.plugins.annotations.Parameter;
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-public abstract class AbstractFlattenMojo
-    extends AbstractMojo
-{
+public abstract class AbstractFlattenMojo extends AbstractMojo {
 
     /**
      * The directory where the generated flattened POM file will be written to.
      */
-    @Parameter( defaultValue = "${project.basedir}" )
+    @Parameter(defaultValue = "${project.basedir}")
     private File outputDirectory;
 
     /**
      * The filename of the generated flattened POM file.
      */
-    @Parameter( property = "flattenedPomFilename", defaultValue = ".flattened-pom.xml" )
+    @Parameter(property = "flattenedPomFilename", defaultValue = ".flattened-pom.xml")
     private String flattenedPomFilename;
 
     /**
      * The constructor.
      */
-    public AbstractFlattenMojo()
-    {
+    public AbstractFlattenMojo() {
 
         super();
     }
@@ -57,25 +54,21 @@ public abstract class AbstractFlattenMojo
     /**
      * @return the filename of the generated flattened POM file.
      */
-    public String getFlattenedPomFilename()
-    {
+    public String getFlattenedPomFilename() {
         return this.flattenedPomFilename;
     }
 
     /**
      * @return the directory where the generated flattened POM file will be written to.
      */
-    public File getOutputDirectory()
-    {
+    public File getOutputDirectory() {
         return this.outputDirectory;
     }
 
     /**
      * @return a {@link File} instance pointing to the flattened POM.
      */
-    protected File getFlattenedPomFile()
-    {
-        return new File( getOutputDirectory(), getFlattenedPomFilename() );
+    protected File getFlattenedPomFile() {
+        return new File(getOutputDirectory(), getFlattenedPomFilename());
     }
-
 }

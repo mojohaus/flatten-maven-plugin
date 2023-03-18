@@ -39,11 +39,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author dehasi
  */
-public class FlattenMojoTest
-{
+public class FlattenMojoTest {
 
     private static final String PATH =
-        "src/test/resources/resolve-properties-ci-do-not-interpolate-profile-activation-file/";
+            "src/test/resources/resolve-properties-ci-do-not-interpolate-profile-activation-file/";
     private static final String POM = PATH + "pom.xml";
     private static final String FLATTENED_POM = PATH + ".flattened-pom.xml";
 
@@ -56,27 +55,22 @@ public class FlattenMojoTest
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void keepsProfileActivationFile() throws Exception
-    {
-        MavenProject project = rule.readMavenProject( new File( PATH ) );
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo( project, "flatten" );
+    public void keepsProfileActivationFile() throws Exception {
+        MavenProject project = rule.readMavenProject(new File(PATH));
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
 
         flattenMojo.execute();
 
-        assertThat( profileActivationFile( FLATTENED_POM ) )
-            .isEqualTo( profileActivationFile( POM ) );
+        assertThat(profileActivationFile(FLATTENED_POM)).isEqualTo(profileActivationFile(POM));
     }
 
-    private static String profileActivationFile( String pom ) throws Exception
-    {
-        return readPom( pom ).getProfiles().get( 0 ).getActivation().getFile().getExists();
+    private static String profileActivationFile(String pom) throws Exception {
+        return readPom(pom).getProfiles().get(0).getActivation().getFile().getExists();
     }
 
-    private static Model readPom( String pomFilePath ) throws IOException, XmlPullParserException
-    {
-        try ( FileInputStream input = new FileInputStream( new File( pomFilePath ) ) )
-        {
-            return new MavenXpp3Reader().read( input );
+    private static Model readPom(String pomFilePath) throws IOException, XmlPullParserException {
+        try (FileInputStream input = new FileInputStream(new File(pomFilePath))) {
+            return new MavenXpp3Reader().read(input);
         }
     }
 
@@ -86,14 +80,11 @@ public class FlattenMojoTest
      * @throws IOException if can't remove file.
      */
     @After
-    public void removeFlattenedPom() throws IOException
-    {
-        File flattenedPom = new File( FLATTENED_POM );
-        if ( flattenedPom.exists() )
-        {
-            if ( !flattenedPom.delete() )
-            {
-                throw new IOException( "Can't delete " + flattenedPom );
+    public void removeFlattenedPom() throws IOException {
+        File flattenedPom = new File(FLATTENED_POM);
+        if (flattenedPom.exists()) {
+            if (!flattenedPom.delete()) {
+                throw new IOException("Can't delete " + flattenedPom);
             }
         }
     }

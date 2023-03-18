@@ -34,37 +34,33 @@ import org.apache.maven.plugins.annotations.Mojo;
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-2
  */
-@Mojo( name = "clean", requiresProject = true, requiresDirectInvocation = false, executionStrategy = "once-per-session",
-       threadSafe = true )
-public class CleanMojo
-    extends AbstractFlattenMojo
-{
+@Mojo(
+        name = "clean",
+        requiresProject = true,
+        requiresDirectInvocation = false,
+        executionStrategy = "once-per-session",
+        threadSafe = true)
+public class CleanMojo extends AbstractFlattenMojo {
 
     /**
      * The constructor.
      */
-    public CleanMojo()
-    {
+    public CleanMojo() {
         super();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
         File flattenedPomFile = getFlattenedPomFile();
-        if ( flattenedPomFile.isFile() )
-        {
-            getLog().info( "Deleting " + flattenedPomFile.getPath() );
+        if (flattenedPomFile.isFile()) {
+            getLog().info("Deleting " + flattenedPomFile.getPath());
             boolean deleted = flattenedPomFile.delete();
-            if ( !deleted )
-            {
-                throw new MojoFailureException( "Could not delete " + flattenedPomFile.getAbsolutePath() );
+            if (!deleted) {
+                throw new MojoFailureException("Could not delete " + flattenedPomFile.getAbsolutePath());
             }
         }
     }
-
 }

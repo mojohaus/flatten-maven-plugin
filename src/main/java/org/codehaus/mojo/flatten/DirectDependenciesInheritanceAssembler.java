@@ -18,11 +18,11 @@
  */
 package org.codehaus.mojo.flatten;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.inject.Named;
 import javax.inject.Singleton;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.ModelBase;
@@ -43,11 +43,9 @@ import org.apache.maven.model.merge.MavenModelMerger;
  * @author kemalsoysal
  * @author ralfluebeck
  */
-
 @Singleton
 @Named
-public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAssembler
-{
+public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAssembler {
 
     protected InheritanceModelMerger merger = new DirectDependenciesInheritanceModelMerger();
 
@@ -66,19 +64,16 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
     /**
      *
      */
-    public DirectDependenciesInheritanceAssembler( )
-    {
-    }
+    public DirectDependenciesInheritanceAssembler() {}
 
     @Override
-    public void assembleModelInheritance( Model child, Model parent, ModelBuildingRequest request,
-                                          ModelProblemCollector problems )
-    {
+    public void assembleModelInheritance(
+            Model child, Model parent, ModelBuildingRequest request, ModelProblemCollector problems) {
         Map<Object, Object> hints = new HashMap<>();
-        String childPath = child.getProperties().getProperty( CHILD_DIRECTORY_PROPERTY, child.getArtifactId() );
-        hints.put( CHILD_DIRECTORY, childPath );
-        hints.put( MavenModelMerger.CHILD_PATH_ADJUSTMENT, getChildPathAdjustment( child, parent, childPath ) );
-        merger.merge( child, parent, false, hints );
+        String childPath = child.getProperties().getProperty(CHILD_DIRECTORY_PROPERTY, child.getArtifactId());
+        hints.put(CHILD_DIRECTORY, childPath);
+        hints.put(MavenModelMerger.CHILD_PATH_ADJUSTMENT, getChildPathAdjustment(child, parent, childPath));
+        merger.merge(child, parent, false, hints);
     }
 
     /**
@@ -90,12 +85,10 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
      * @param childDirectory
      * @return
      */
-    private String getChildPathAdjustment( Model child, Model parent, String childDirectory )
-    {
+    private String getChildPathAdjustment(Model child, Model parent, String childDirectory) {
         String adjustment = "";
 
-        if ( parent != null )
-        {
+        if (parent != null) {
             String childName = child.getArtifactId();
 
             /*
@@ -107,33 +100,28 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
              * URLs depending on how the model was constructed (from filesystem or from
              * repository).
              */
-            if ( child.getProjectDirectory() != null )
-            {
+            if (child.getProjectDirectory() != null) {
                 childName = child.getProjectDirectory().getName();
             }
 
-            for ( String module : parent.getModules() )
-            {
-                module = module.replace( '\\', '/' );
+            for (String module : parent.getModules()) {
+                module = module.replace('\\', '/');
 
-                if ( module.regionMatches( true, module.length() - 4, ".xml", 0, 4 ) )
-                {
-                    module = module.substring( 0, module.lastIndexOf( '/' ) + 1 );
+                if (module.regionMatches(true, module.length() - 4, ".xml", 0, 4)) {
+                    module = module.substring(0, module.lastIndexOf('/') + 1);
                 }
 
                 String moduleName = module;
-                if ( moduleName.endsWith( "/" ) )
-                {
-                    moduleName = moduleName.substring( 0, moduleName.length() - 1 );
+                if (moduleName.endsWith("/")) {
+                    moduleName = moduleName.substring(0, moduleName.length() - 1);
                 }
 
-                int lastSlash = moduleName.lastIndexOf( '/' );
+                int lastSlash = moduleName.lastIndexOf('/');
 
-                moduleName = moduleName.substring( lastSlash + 1 );
+                moduleName = moduleName.substring(lastSlash + 1);
 
-                if ( ( moduleName.equals( childName ) || ( moduleName.equals( childDirectory ) ) ) && lastSlash >= 0 )
-                {
-                    adjustment = module.substring( 0, lastSlash );
+                if ((moduleName.equals(childName) || (moduleName.equals(childDirectory))) && lastSlash >= 0) {
+                    adjustment = module.substring(0, lastSlash);
                     break;
                 }
             }
@@ -146,24 +134,20 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
      * InheritanceModelMerger
      */
     protected class DirectDependenciesInheritanceModelMerger
-            extends DefaultInheritanceAssembler.InheritanceModelMerger
-    {
+            extends DefaultInheritanceAssembler.InheritanceModelMerger {
 
         @Override
-        public void merge( Model target, Model source, boolean sourceDominant, Map<?, ?> hints )
-        {
-            super.merge( target, source, sourceDominant, hints );
+        public void merge(Model target, Model source, boolean sourceDominant, Map<?, ?> hints) {
+            super.merge(target, source, sourceDominant, hints);
         }
 
         @Override
-        protected void mergeModelBase_Dependencies( ModelBase target, ModelBase source, boolean sourceDominant,
-                                                    Map<Object, Object> context )
-        {
-            if ( flattenDependencyMode == null || flattenDependencyMode == FlattenDependencyMode.direct )
-            {
+        protected void mergeModelBase_Dependencies(
+                ModelBase target, ModelBase source, boolean sourceDominant, Map<Object, Object> context) {
+            if (flattenDependencyMode == null || flattenDependencyMode == FlattenDependencyMode.direct) {
                 return;
             }
-            super.mergeModelBase_Dependencies( target, source, sourceDominant, context );
+            super.mergeModelBase_Dependencies(target, source, sourceDominant, context);
         }
     }
 }

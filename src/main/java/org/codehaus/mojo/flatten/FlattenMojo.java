@@ -205,25 +205,21 @@ import org.xml.sax.ext.DefaultHandler2;
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-@Mojo( name = "flatten",
-       requiresDependencyCollection = ResolutionScope.RUNTIME,
-       threadSafe = true )
-public class FlattenMojo
-    extends AbstractFlattenMojo
-{
+@Mojo(name = "flatten", requiresDependencyCollection = ResolutionScope.RUNTIME, threadSafe = true)
+public class FlattenMojo extends AbstractFlattenMojo {
 
     private static final int INITIAL_POM_WRITER_SIZE = 4096;
 
     /**
      * The {@link MavenSession} used to get user properties.
      */
-    @Parameter( defaultValue = "${session}", readonly = true, required = true )
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
 
     /**
      * The Maven Project.
      */
-    @Parameter( defaultValue = "${project}", readonly = true, required = true )
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
     /**
@@ -233,7 +229,7 @@ public class FlattenMojo
      * <code>false</code> in order to only generate the flattened POM but never set it as POM file. If
      * <code>flattenMode</code> is set to bom the default value will be <code>true</code>.
      */
-    @Parameter( property = "updatePomFile" )
+    @Parameter(property = "updatePomFile")
     private Boolean updatePomFile;
 
     /**
@@ -243,21 +239,21 @@ public class FlattenMojo
      * handles dependencies</strong>. When keeping this property <code>false</code>, all profiles will stay in the
      * flattened-pom.
      */
-    @Parameter( defaultValue = "false" )
+    @Parameter(defaultValue = "false")
     private Boolean embedBuildProfileDependencies;
 
     /**
      * The {@link MojoExecution} used to get access to the raw configuration of {@link #pomElements} as empty tags are
      * mapped to null.
      */
-    @Parameter( defaultValue = "${mojo}", readonly = true, required = true )
+    @Parameter(defaultValue = "${mojo}", readonly = true, required = true)
     private MojoExecution mojoExecution;
 
     /**
      * The {@link Model} that defines how to handle additional POM elements. Please use <code>flattenMode</code> in
      * preference if possible. This parameter is only for ultimate flexibility.
      */
-    @Parameter( required = false )
+    @Parameter(required = false)
     private FlattenDescriptor pomElements;
 
     /**
@@ -267,7 +263,7 @@ public class FlattenMojo
      *
      * @since 1.3.0
      */
-    @Parameter( defaultValue = "false", required = false )
+    @Parameter(defaultValue = "false", required = false)
     private boolean omitExclusions;
 
     /**
@@ -322,7 +318,7 @@ public class FlattenMojo
      * </tbody>
      * </table>
      */
-    @Parameter( property = "flatten.mode", required = false )
+    @Parameter(property = "flatten.mode", required = false)
     private FlattenMode flattenMode;
 
     /**
@@ -348,7 +344,7 @@ public class FlattenMojo
      * </tbody>
      * </table>
      */
-    @Parameter( property = "flatten.dependency.mode", required = false )
+    @Parameter(property = "flatten.dependency.mode", required = false)
     private FlattenDependencyMode flattenDependencyMode;
 
     /**
@@ -358,7 +354,7 @@ public class FlattenMojo
      *
      * @since 1.3.0
      */
-    @Parameter( property = "flatten.dependency.keepComments", required = false, defaultValue = "false" )
+    @Parameter(property = "flatten.dependency.keepComments", required = false, defaultValue = "false")
     private boolean keepCommentsInPom;
 
     @Inject
@@ -388,8 +384,7 @@ public class FlattenMojo
     /**
      * The constructor.
      */
-    public FlattenMojo()
-    {
+    public FlattenMojo() {
         super();
     }
 
@@ -397,33 +392,28 @@ public class FlattenMojo
      * {@inheritDoc}
      */
     @Override
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
+    public void execute() throws MojoExecutionException, MojoFailureException {
 
-        getLog().info( "Generating flattened POM of project " + this.project.getId() + "..." );
+        getLog().info("Generating flattened POM of project " + this.project.getId() + "...");
 
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
         KeepCommentsInPom commentsOfOriginalPomFile = null;
-        if ( keepCommentsInPom )
-        {
-            commentsOfOriginalPomFile = KeepCommentsInPom.create( getLog(), originalPomFile );
+        if (keepCommentsInPom) {
+            commentsOfOriginalPomFile = KeepCommentsInPom.create(getLog(), originalPomFile);
         }
-        Model flattenedPom = createFlattenedPom( originalPomFile );
-        String headerComment = extractHeaderComment( originalPomFile );
+        Model flattenedPom = createFlattenedPom(originalPomFile);
+        String headerComment = extractHeaderComment(originalPomFile);
 
         File flattenedPomFile = getFlattenedPomFile();
-        writePom( flattenedPom, flattenedPomFile, headerComment, commentsOfOriginalPomFile );
+        writePom(flattenedPom, flattenedPomFile, headerComment, commentsOfOriginalPomFile);
 
-        if ( isUpdatePomFile() )
-        {
-            this.project.setPomFile( flattenedPomFile );
-            this.project.setOriginalModel( flattenedPom );
+        if (isUpdatePomFile()) {
+            this.project.setPomFile(flattenedPomFile);
+            this.project.setOriginalModel(flattenedPom);
         }
     }
-
 
     /**
      * This method extracts the XML header comment if available.
@@ -433,21 +423,16 @@ public class FlattenMojo
      * available.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected String extractHeaderComment( File xmlFile )
-        throws MojoExecutionException
-    {
+    protected String extractHeaderComment(File xmlFile) throws MojoExecutionException {
 
-        try
-        {
+        try {
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             SaxHeaderCommentHandler handler = new SaxHeaderCommentHandler();
-            parser.setProperty( "http://xml.org/sax/properties/lexical-handler", handler );
-            parser.parse( xmlFile, handler );
+            parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+            parser.parse(xmlFile, handler);
             return handler.getHeaderComment();
-        }
-        catch ( Exception e )
-        {
-            throw new MojoExecutionException( "Failed to parse XML from " + xmlFile, e );
+        } catch (Exception e) {
+            throw new MojoExecutionException("Failed to parse XML from " + xmlFile, e);
         }
     }
 
@@ -462,54 +447,41 @@ public class FlattenMojo
      *                      before root tag). May be <code>null</code> if not present and to be omitted in target POM.
      * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
      */
-    protected void writePom( Model pom, File pomFile, String headerComment, KeepCommentsInPom anOriginalCommentsPath )
-        throws MojoExecutionException
-    {
+    protected void writePom(Model pom, File pomFile, String headerComment, KeepCommentsInPom anOriginalCommentsPath)
+            throws MojoExecutionException {
 
         File parentFile = pomFile.getParentFile();
-        if ( !parentFile.exists() )
-        {
+        if (!parentFile.exists()) {
             boolean success = parentFile.mkdirs();
-            if ( !success )
-            {
-                throw new MojoExecutionException( "Failed to create directory " + pomFile.getParent() );
+            if (!success) {
+                throw new MojoExecutionException("Failed to create directory " + pomFile.getParent());
             }
         }
         // MavenXpp3Writer could internally add the comment but does not expose such feature to API!
         // Instead we have to write POM XML to String and do post processing on that :(
         MavenXpp3Writer pomWriter = new MavenXpp3Writer();
-        StringWriter stringWriter = new StringWriter( INITIAL_POM_WRITER_SIZE );
-        try
-        {
-            pomWriter.write( stringWriter, pom );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Internal I/O error!", e );
+        StringWriter stringWriter = new StringWriter(INITIAL_POM_WRITER_SIZE);
+        try {
+            pomWriter.write(stringWriter, pom);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Internal I/O error!", e);
         }
         StringBuffer buffer = stringWriter.getBuffer();
-        if ( !StringUtils.isEmpty( headerComment ) )
-        {
-            int projectStartIndex = buffer.indexOf( "<project" );
-            if ( projectStartIndex >= 0 )
-            {
-                buffer.insert( projectStartIndex, "<!--" + headerComment + "-->\n" );
-            }
-            else
-            {
-                getLog().warn( "POM XML post-processing failed: no project tag found!" );
+        if (!StringUtils.isEmpty(headerComment)) {
+            int projectStartIndex = buffer.indexOf("<project");
+            if (projectStartIndex >= 0) {
+                buffer.insert(projectStartIndex, "<!--" + headerComment + "-->\n");
+            } else {
+                getLog().warn("POM XML post-processing failed: no project tag found!");
             }
         }
         String xmlString;
-        if ( anOriginalCommentsPath == null )
-        {
+        if (anOriginalCommentsPath == null) {
             xmlString = buffer.toString();
+        } else {
+            xmlString = anOriginalCommentsPath.restoreOriginalComments(buffer.toString(), pom.getModelEncoding());
         }
-        else
-        {
-            xmlString = anOriginalCommentsPath.restoreOriginalComments( buffer.toString(), pom.getModelEncoding() );
-        }
-        writeStringToFile( xmlString, pomFile, pom.getModelEncoding() );
+        writeStringToFile(xmlString, pomFile, pom.getModelEncoding());
     }
 
     /**
@@ -520,54 +492,38 @@ public class FlattenMojo
      * @param encoding is the encoding to use for writing the file.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected void writeStringToFile( String data, File file, String encoding )
-        throws MojoExecutionException
-    {
-        if ( !"\n".equals( System.lineSeparator() ) )
-        {
-            data = data.replace( "\n", System.lineSeparator() );
+    protected void writeStringToFile(String data, File file, String encoding) throws MojoExecutionException {
+        if (!"\n".equals(System.lineSeparator())) {
+            data = data.replace("\n", System.lineSeparator());
         }
         byte[] binaryData;
 
-        try
-        {
-            binaryData = data.getBytes( encoding );
-            if ( file.isFile() && file.canRead() && file.length() == binaryData.length )
-            {
-                try ( InputStream inputStream = Files.newInputStream( file.toPath( ) ) )
-                {
+        try {
+            binaryData = data.getBytes(encoding);
+            if (file.isFile() && file.canRead() && file.length() == binaryData.length) {
+                try (InputStream inputStream = Files.newInputStream(file.toPath())) {
                     byte[] buffer = new byte[binaryData.length];
-                    inputStream.read( buffer );
-                    if ( Arrays.equals( buffer, binaryData ) )
-                    {
-                        getLog().debug( "Arrays.equals( buffer, binaryData ) " );
+                    inputStream.read(buffer);
+                    if (Arrays.equals(buffer, binaryData)) {
+                        getLog().debug("Arrays.equals( buffer, binaryData ) ");
                         return;
                     }
-                    getLog().debug( "Not Arrays.equals( buffer, binaryData ) " );
-                }
-                catch ( IOException e )
-                {
+                    getLog().debug("Not Arrays.equals( buffer, binaryData ) ");
+                } catch (IOException e) {
                     // ignore those exceptions, we will overwrite the file
-                    getLog().debug( "Issue reading file: " + file.getPath(), e );
+                    getLog().debug("Issue reading file: " + file.getPath(), e);
                 }
+            } else {
+                getLog().debug("file: " + file + ",file.length(): " + file.length() + ", binaryData.length: "
+                        + binaryData.length);
             }
-            else
-            {
-                getLog().debug( "file: " + file + ",file.length(): " + file.length() + ", binaryData.length: "
-                                    + binaryData.length );
-            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("cannot read String as bytes", e);
         }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "cannot read String as bytes", e );
-        }
-        try ( OutputStream outStream = Files.newOutputStream( file.toPath( ) ) )
-        {
-            outStream.write( binaryData );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Failed to write to " + file, e );
+        try (OutputStream outStream = Files.newOutputStream(file.toPath())) {
+            outStream.write(binaryData);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to write to " + file, e);
         }
     }
 
@@ -579,56 +535,45 @@ public class FlattenMojo
      * @throws MojoExecutionException if anything goes wrong (e.g. POM can not be processed).
      * @throws MojoFailureException   if anything goes wrong (logical error).
      */
-    protected Model createFlattenedPom( File pomFile ) throws MojoExecutionException, MojoFailureException
-    {
+    protected Model createFlattenedPom(File pomFile) throws MojoExecutionException, MojoFailureException {
 
-        ModelBuildingRequest buildingRequest = createModelBuildingRequest( pomFile );
-        Model effectivePom = createEffectivePom( buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode );
+        ModelBuildingRequest buildingRequest = createModelBuildingRequest(pomFile);
+        Model effectivePom = createEffectivePom(buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode);
 
         Model flattenedPom = new Model();
 
         // keep original encoding (we could also normalize to UTF-8 here)
         String modelEncoding = effectivePom.getModelEncoding();
-        if ( StringUtils.isEmpty( modelEncoding ) )
-        {
+        if (StringUtils.isEmpty(modelEncoding)) {
             modelEncoding = "UTF-8";
         }
-        flattenedPom.setModelEncoding( modelEncoding );
+        flattenedPom.setModelEncoding(modelEncoding);
 
         Model cleanPom;
-        try
-        {
-            cleanPom = createCleanPom( effectivePom );
-        }
-        catch ( Exception e )
-        {
-            throw new MojoExecutionException( "failed to create a clean pom", e );
+        try {
+            cleanPom = createCleanPom(effectivePom);
+        } catch (Exception e) {
+            throw new MojoExecutionException("failed to create a clean pom", e);
         }
 
         FlattenDescriptor descriptor = getFlattenDescriptor();
         Model originalPom = getOriginalModel();
         Model resolvedPom = this.project.getModel();
-        Model interpolatedPom = createResolvedPom( buildingRequest );
+        Model interpolatedPom = createResolvedPom(buildingRequest);
 
         // copy the configured additional POM elements...
 
-        for ( PomProperty<?> property : PomProperty.getPomProperties() )
-        {
-            if ( property.isElement() )
-            {
-                Model sourceModel = getSourceModel( descriptor, property, effectivePom, originalPom, resolvedPom,
-                                                    interpolatedPom, cleanPom );
-                if ( sourceModel == null )
-                {
-                    if ( property.isRequired() )
-                    {
-                        throw new MojoFailureException( "Property " + property.getName()
-                                                            + " is required and can not be removed!" );
+        for (PomProperty<?> property : PomProperty.getPomProperties()) {
+            if (property.isElement()) {
+                Model sourceModel = getSourceModel(
+                        descriptor, property, effectivePom, originalPom, resolvedPom, interpolatedPom, cleanPom);
+                if (sourceModel == null) {
+                    if (property.isRequired()) {
+                        throw new MojoFailureException(
+                                "Property " + property.getName() + " is required and can not be removed!");
                     }
-                }
-                else
-                {
-                    property.copy( sourceModel, flattenedPom );
+                } else {
+                    property.copy(sourceModel, flattenedPom);
                 }
             }
         }
@@ -636,30 +581,23 @@ public class FlattenMojo
         return flattenedPom;
     }
 
-    private Model createResolvedPom( ModelBuildingRequest buildingRequest ) throws MojoExecutionException
-    {
-        LoggingModelProblemCollector problems = new LoggingModelProblemCollector( getLog() );
+    private Model createResolvedPom(ModelBuildingRequest buildingRequest) throws MojoExecutionException {
+        LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
         Model originalModel = getOriginalModel();
-        if ( this.flattenMode == FlattenMode.resolveCiFriendliesOnly )
-        {
-            return this.modelCiFriendlyInterpolator.interpolateModel( originalModel,
-                                                                      this.project.getModel().getProjectDirectory(),
-                                                                      buildingRequest, problems );
+        if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+            return this.modelCiFriendlyInterpolator.interpolateModel(
+                    originalModel, this.project.getModel().getProjectDirectory(), buildingRequest, problems);
         }
-        return this.modelInterpolator.interpolateModel( originalModel, this.project.getModel().getProjectDirectory(),
-                                                        buildingRequest, problems );
+        return this.modelInterpolator.interpolateModel(
+                originalModel, this.project.getModel().getProjectDirectory(), buildingRequest, problems);
     }
 
-    private Model getOriginalModel() throws MojoExecutionException
-    {
+    private Model getOriginalModel() throws MojoExecutionException {
         MavenXpp3Reader reader = new MavenXpp3Reader();
-        try
-        {
-            return reader.read( Files.newInputStream( this.project.getFile( ).toPath( ) ) );
-        }
-        catch ( IOException | XmlPullParserException e )
-        {
-            throw new MojoExecutionException( "Error reading raw model.", e );
+        try {
+            return reader.read(Files.newInputStream(this.project.getFile().toPath()));
+        } catch (IOException | XmlPullParserException e) {
+            throw new MojoExecutionException("Error reading raw model.", e);
         }
     }
 
@@ -672,116 +610,105 @@ public class FlattenMojo
      * @return the clean POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected Model createCleanPom( Model effectivePom ) throws MojoExecutionException
-    {
+    protected Model createCleanPom(Model effectivePom) throws MojoExecutionException {
         Model cleanPom = new Model();
 
-        cleanPom.setGroupId( effectivePom.getGroupId() );
-        cleanPom.setArtifactId( effectivePom.getArtifactId() );
-        cleanPom.setVersion( effectivePom.getVersion() );
-        cleanPom.setPackaging( effectivePom.getPackaging() );
-        cleanPom.setLicenses( effectivePom.getLicenses() );
+        cleanPom.setGroupId(effectivePom.getGroupId());
+        cleanPom.setArtifactId(effectivePom.getArtifactId());
+        cleanPom.setVersion(effectivePom.getVersion());
+        cleanPom.setPackaging(effectivePom.getPackaging());
+        cleanPom.setLicenses(effectivePom.getLicenses());
         // fixed to 4.0.0 forever :)
-        cleanPom.setModelVersion( "4.0.0" );
+        cleanPom.setModelVersion("4.0.0");
 
         // plugins with extensions must stay
         Build build = effectivePom.getBuild();
-        if ( build != null )
-        {
-            for ( Plugin plugin : build.getPlugins() )
-            {
-                if ( plugin.isExtensions() )
-                {
+        if (build != null) {
+            for (Plugin plugin : build.getPlugins()) {
+                if (plugin.isExtensions()) {
                     Build cleanBuild = cleanPom.getBuild();
-                    if ( cleanBuild == null )
-                    {
+                    if (cleanBuild == null) {
                         cleanBuild = new Build();
-                        cleanPom.setBuild( cleanBuild );
+                        cleanPom.setBuild(cleanBuild);
                     }
                     Plugin cleanPlugin = new Plugin();
-                    cleanPlugin.setGroupId( plugin.getGroupId() );
-                    cleanPlugin.setArtifactId( plugin.getArtifactId() );
-                    cleanPlugin.setVersion( plugin.getVersion() );
-                    cleanPlugin.setExtensions( true );
-                    cleanBuild.addPlugin( cleanPlugin );
+                    cleanPlugin.setGroupId(plugin.getGroupId());
+                    cleanPlugin.setArtifactId(plugin.getArtifactId());
+                    cleanPlugin.setVersion(plugin.getVersion());
+                    cleanPlugin.setExtensions(true);
+                    cleanBuild.addPlugin(cleanPlugin);
                 }
             }
         }
 
         // transform profiles...
         Dependencies managedDependencies = new Dependencies();
-        if ( effectivePom.getDependencyManagement() != null
-            && effectivePom.getDependencyManagement().getDependencies() != null )
-        {
-            managedDependencies.addAll( effectivePom.getDependencyManagement().getDependencies() );
+        if (effectivePom.getDependencyManagement() != null
+                && effectivePom.getDependencyManagement().getDependencies() != null) {
+            managedDependencies.addAll(effectivePom.getDependencyManagement().getDependencies());
         }
 
-        for ( Profile profile : effectivePom.getProfiles() )
-        {
-            if ( !isEmbedBuildProfileDependencies() || !isBuildTimeDriven( profile.getActivation() ) )
-            {
-                if ( !isEmpty( profile.getDependencies() ) || !isEmpty( profile.getRepositories() ) )
-                {
+        for (Profile profile : effectivePom.getProfiles()) {
+            if (!isEmbedBuildProfileDependencies() || !isBuildTimeDriven(profile.getActivation())) {
+                if (!isEmpty(profile.getDependencies()) || !isEmpty(profile.getRepositories())) {
                     List<Dependency> strippedDependencies = new ArrayList<>();
-                    for ( Dependency dep : profile.getDependencies() )
-                    {
+                    for (Dependency dep : profile.getDependencies()) {
                         Dependency parsedDep = dep.clone();
-                        if ( managedDependencies.contains( parsedDep ) )
-                        {
-                            parsedDep.setVersion( managedDependencies.resolve( parsedDep ).getVersion() );
-                            String managedDepScope = managedDependencies.resolve( parsedDep ).getScope();
-                            if ( managedDepScope != null )
-                            {
-                                parsedDep.setScope( managedDepScope );
+                        if (managedDependencies.contains(parsedDep)) {
+                            parsedDep.setVersion(
+                                    managedDependencies.resolve(parsedDep).getVersion());
+                            String managedDepScope =
+                                    managedDependencies.resolve(parsedDep).getScope();
+                            if (managedDepScope != null) {
+                                parsedDep.setScope(managedDepScope);
                             }
-                            if ( parsedDep.getScope() == null )
-                            {
-                                parsedDep.setScope( "compile" );
+                            if (parsedDep.getScope() == null) {
+                                parsedDep.setScope("compile");
                             }
-                            String managedDepOptional = managedDependencies.resolve( parsedDep ).getOptional();
-                            if ( managedDepOptional != null )
-                            {
-                                parsedDep.setOptional( managedDepOptional );
+                            String managedDepOptional =
+                                    managedDependencies.resolve(parsedDep).getOptional();
+                            if (managedDepOptional != null) {
+                                parsedDep.setOptional(managedDepOptional);
                             }
-                            if ( parsedDep.getOptional() == null )
-                            {
-                                parsedDep.setOptional( "false" );
+                            if (parsedDep.getOptional() == null) {
+                                parsedDep.setOptional("false");
                             }
                         }
-                        Dependency flattenedDep = createFlattenedDependency( parsedDep );
-                        if ( flattenedDep != null )
-                        {
-                            strippedDependencies.add( flattenedDep );
+                        Dependency flattenedDep = createFlattenedDependency(parsedDep);
+                        if (flattenedDep != null) {
+                            strippedDependencies.add(flattenedDep);
                         }
                     }
-                    if ( !strippedDependencies.isEmpty() || !isEmpty( profile.getRepositories() ) )
-                    {
+                    if (!strippedDependencies.isEmpty() || !isEmpty(profile.getRepositories())) {
                         Profile strippedProfile = new Profile();
-                        strippedProfile.setId( profile.getId() );
-                        strippedProfile.setActivation( profile.getActivation() );
-                        strippedProfile.setDependencies( strippedDependencies.isEmpty() ? null : strippedDependencies );
-                        strippedProfile.setRepositories( profile.getRepositories() );
-                        cleanPom.addProfile( strippedProfile );
+                        strippedProfile.setId(profile.getId());
+                        strippedProfile.setActivation(profile.getActivation());
+                        strippedProfile.setDependencies(strippedDependencies.isEmpty() ? null : strippedDependencies);
+                        strippedProfile.setRepositories(profile.getRepositories());
+                        cleanPom.addProfile(strippedProfile);
                     }
                 }
             }
         }
 
         // transform dependencies...
-        List<Dependency> dependencies = createFlattenedDependencies( effectivePom );
-        cleanPom.setDependencies( dependencies );
+        List<Dependency> dependencies = createFlattenedDependencies(effectivePom);
+        cleanPom.setDependencies(dependencies);
         return cleanPom;
     }
 
-    private Model getSourceModel( FlattenDescriptor descriptor, PomProperty<?> property, Model effectivePom,
-                                  Model originalPom, Model resolvedPom, Model interpolatedPom, Model cleanPom )
-    {
+    private Model getSourceModel(
+            FlattenDescriptor descriptor,
+            PomProperty<?> property,
+            Model effectivePom,
+            Model originalPom,
+            Model resolvedPom,
+            Model interpolatedPom,
+            Model cleanPom) {
 
-        ElementHandling handling = descriptor.getHandling( property );
-        getLog().debug( "Property " + property.getName() + " will be handled using " + handling
-                            + " in flattened POM." );
-        switch ( handling )
-        {
+        ElementHandling handling = descriptor.getHandling(property);
+        getLog().debug("Property " + property.getName() + " will be handled using " + handling + " in flattened POM.");
+        switch (handling) {
             case expand:
                 return effectivePom;
             case keep:
@@ -795,7 +722,7 @@ public class FlattenMojo
             case remove:
                 return null;
             default:
-                throw new IllegalStateException( handling.toString() );
+                throw new IllegalStateException(handling.toString());
         }
     }
 
@@ -806,17 +733,13 @@ public class FlattenMojo
      * @return the flattened {@link List} of {@link Repository} elements or <code>null</code> if <code>null</code> was
      * given.
      */
-    protected static List<Repository> createFlattenedRepositories( List<Repository> repositories )
-    {
-        if ( repositories != null )
-        {
-            List<Repository> flattenedRepositories = new ArrayList<>( repositories.size() );
-            for ( Repository repo : repositories )
-            {
+    protected static List<Repository> createFlattenedRepositories(List<Repository> repositories) {
+        if (repositories != null) {
+            List<Repository> flattenedRepositories = new ArrayList<>(repositories.size());
+            for (Repository repo : repositories) {
                 // filter inherited repository section from super POM (see MOJO-2042)...
-                if ( !isCentralRepositoryFromSuperPom( repo ) )
-                {
-                    flattenedRepositories.add( repo );
+                if (!isCentralRepositoryFromSuperPom(repo)) {
+                    flattenedRepositories.add(repo);
                 }
             }
             return flattenedRepositories;
@@ -824,39 +747,28 @@ public class FlattenMojo
         return repositories;
     }
 
-    private FlattenDescriptor getFlattenDescriptor()
-        throws MojoFailureException
-    {
+    private FlattenDescriptor getFlattenDescriptor() throws MojoFailureException {
         FlattenDescriptor descriptor = this.pomElements;
-        if ( descriptor == null )
-        {
+        if (descriptor == null) {
             FlattenMode mode = this.flattenMode;
-            if ( mode == null )
-            {
+            if (mode == null) {
                 mode = FlattenMode.defaults;
-            }
-            else if ( this.flattenMode == FlattenMode.minimum )
-            {
-                getLog().warn( "FlattenMode " + FlattenMode.minimum + " is deprecated!" );
+            } else if (this.flattenMode == FlattenMode.minimum) {
+                getLog().warn("FlattenMode " + FlattenMode.minimum + " is deprecated!");
             }
             descriptor = mode.getDescriptor();
-            if ( "maven-plugin".equals( this.project.getPackaging() ) )
-            {
-                descriptor.setPrerequisites( ElementHandling.expand );
+            if ("maven-plugin".equals(this.project.getPackaging())) {
+                descriptor.setPrerequisites(ElementHandling.expand);
             }
-        }
-        else
-        {
-            if ( descriptor.isEmpty() )
-            {
+        } else {
+            if (descriptor.isEmpty()) {
                 // legacy approach...
                 // Can't use Model itself as empty elements are never null, so you can't recognize if it was set or not
-                Xpp3Dom rawDescriptor = this.mojoExecution.getConfiguration().getChild( "pomElements" );
-                descriptor = new FlattenDescriptor( rawDescriptor );
+                Xpp3Dom rawDescriptor = this.mojoExecution.getConfiguration().getChild("pomElements");
+                descriptor = new FlattenDescriptor(rawDescriptor);
             }
-            if ( this.flattenMode != null )
-            {
-                descriptor = descriptor.merge( this.flattenMode.getDescriptor() );
+            if (this.flattenMode != null) {
+                descriptor = descriptor.merge(this.flattenMode.getDescriptor());
             }
         }
         return descriptor;
@@ -869,12 +781,9 @@ public class FlattenMojo
      * @param repo is the {@link Repository} section to check.
      * @return <code>true</code> if maven central default configuration, <code>false</code> otherwise.
      */
-    private static boolean isCentralRepositoryFromSuperPom( Repository repo )
-    {
-        if ( repo != null )
-        {
-            if ( "central".equals( repo.getId() ) )
-            {
+    private static boolean isCentralRepositoryFromSuperPom(Repository repo) {
+        if (repo != null) {
+            if ("central".equals(repo.getId())) {
                 RepositoryPolicy snapshots = repo.getSnapshots();
                 return snapshots != null && !snapshots.isEnabled();
             }
@@ -882,35 +791,35 @@ public class FlattenMojo
         return false;
     }
 
-    private ModelBuildingRequest createModelBuildingRequest( File pomFile )
-    {
+    private ModelBuildingRequest createModelBuildingRequest(File pomFile) {
 
-        RequestTrace trace = new RequestTrace( pomFile );
+        RequestTrace trace = new RequestTrace(pomFile);
         String context = mojoExecution.getExecutionId();
-        FlattenModelResolver resolver = new FlattenModelResolver( session.getRepositorySession(), repositorySystem,
-                trace, context, RepositoryUtils.toRepos( session.getProjectBuildingRequest().getRemoteRepositories() ),
-                getReactorModelsFromSession() );
+        FlattenModelResolver resolver = new FlattenModelResolver(
+                session.getRepositorySession(),
+                repositorySystem,
+                trace,
+                context,
+                RepositoryUtils.toRepos(session.getProjectBuildingRequest().getRemoteRepositories()),
+                getReactorModelsFromSession());
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
 
         return new DefaultModelBuildingRequest()
-            .setUserProperties( userProperties )
-            .setSystemProperties( System.getProperties() )
-            .setPomFile( pomFile )
-            .setModelResolver( resolver )
-            .setActiveProfileIds( activeProfiles );
+                .setUserProperties(userProperties)
+                .setSystemProperties(System.getProperties())
+                .setPomFile(pomFile)
+                .setModelResolver(resolver)
+                .setActiveProfileIds(activeProfiles);
     }
 
-    private List<MavenProject> getReactorModelsFromSession()
-    {
+    private List<MavenProject> getReactorModelsFromSession() {
         // robust approach for 'special' environments like m2e (Eclipse plugin) which don't provide allProjects
         List<MavenProject> models = this.session.getAllProjects();
-        if ( models == null )
-        {
+        if (models == null) {
             models = this.session.getProjects();
         }
-        if ( models == null )
-        {
+        if (models == null) {
             models = Collections.emptyList();
         }
         return models;
@@ -925,66 +834,53 @@ public class FlattenMojo
      * @return the parsed and calculated effective POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected Model createEffectivePom( ModelBuildingRequest buildingRequest,
-                                        final boolean embedBuildProfileDependencies, final FlattenMode flattenMode )
-        throws MojoExecutionException
-    {
+    protected Model createEffectivePom(
+            ModelBuildingRequest buildingRequest,
+            final boolean embedBuildProfileDependencies,
+            final FlattenMode flattenMode)
+            throws MojoExecutionException {
         ModelBuildingResult buildingResult;
-        try
-        {
-            ProfileInjector customInjector = ( model, profile, request, problems ) ->
-            {
+        try {
+            ProfileInjector customInjector = (model, profile, request, problems) -> {
                 Properties merged = new Properties();
-                merged.putAll( model.getProperties() );
-                merged.putAll( profile.getProperties() );
-                model.setProperties( merged );
+                merged.putAll(model.getProperties());
+                merged.putAll(profile.getProperties());
+                model.setProperties(merged);
 
                 // Copied from org.apache.maven.model.profile.DefaultProfileInjector
                 DependencyManagement profileDependencyManagement = profile.getDependencyManagement();
-                if ( profileDependencyManagement != null )
-                {
+                if (profileDependencyManagement != null) {
                     DependencyManagement modelDependencyManagement = model.getDependencyManagement();
-                    if ( modelDependencyManagement == null )
-                    {
+                    if (modelDependencyManagement == null) {
                         modelDependencyManagement = new DependencyManagement();
-                        model.setDependencyManagement( modelDependencyManagement );
+                        model.setDependencyManagement(modelDependencyManagement);
                     }
 
                     List<Dependency> src = profileDependencyManagement.getDependencies();
-                    if ( !src.isEmpty() )
-                    {
+                    if (!src.isEmpty()) {
                         List<Dependency> tgt = modelDependencyManagement.getDependencies();
-                        Map<Object, Dependency> mergedDependencies =
-                            new LinkedHashMap<>( ( src.size() + tgt.size() ) * 2 );
+                        Map<Object, Dependency> mergedDependencies = new LinkedHashMap<>((src.size() + tgt.size()) * 2);
 
-                        for ( Dependency element : tgt )
-                        {
-                            mergedDependencies.put( element.getManagementKey(), element );
+                        for (Dependency element : tgt) {
+                            mergedDependencies.put(element.getManagementKey(), element);
                         }
 
-                        for ( Dependency element : src )
-                        {
+                        for (Dependency element : src) {
                             String key = element.getManagementKey();
-                            if ( !mergedDependencies.containsKey( key ) )
-                            {
-                                mergedDependencies.put( key, element );
+                            if (!mergedDependencies.containsKey(key)) {
+                                mergedDependencies.put(key, element);
                             }
                         }
 
-                        modelDependencyManagement
-                            .setDependencies( new ArrayList<>( mergedDependencies.values() ) );
+                        modelDependencyManagement.setDependencies(new ArrayList<>(mergedDependencies.values()));
                     }
                 }
             };
 
-            buildingResult =
-                modelBuilderThreadSafetyWorkaround.build(
-                    buildingRequest, customInjector, new DefaultProfileSelector()
-                );
-        }
-        catch ( ModelBuildingException e )
-        {
-            throw new MojoExecutionException( e.getMessage(), e );
+            buildingResult = modelBuilderThreadSafetyWorkaround.build(
+                    buildingRequest, customInjector, new DefaultProfileSelector());
+        } catch (ModelBuildingException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
 
         Model effectivePom = buildingResult.getEffectiveModel();
@@ -995,7 +891,7 @@ public class FlattenMojo
         // effectivePom.getProjectDirectory(), buildingRequest, problems );
 
         // remove Repositories from super POM (central)
-        effectivePom.setRepositories( createFlattenedRepositories( effectivePom.getRepositories() ) );
+        effectivePom.setRepositories(createFlattenedRepositories(effectivePom.getRepositories()));
         return effectivePom;
     }
 
@@ -1006,10 +902,8 @@ public class FlattenMojo
      * @return <code>true</code> if <code>null</code> or {@link Collection#isEmpty() empty}, <code>false</code>
      * otherwise.
      */
-    private boolean isEmpty( Collection<?> collection )
-    {
-        if ( collection == null )
-        {
+    private boolean isEmpty(Collection<?> collection) {
+        if (collection == null) {
             return true;
         }
         return collection.isEmpty();
@@ -1020,8 +914,7 @@ public class FlattenMojo
      * effect (variables and dependencies) are resolved and embedded into the flattened POM while the profile
      * itself is stripped. Otherwise if <code>false</code> the profiles will remain untouched.
      */
-    public boolean isEmbedBuildProfileDependencies()
-    {
+    public boolean isEmbedBuildProfileDependencies() {
         return this.embedBuildProfileDependencies;
     }
 
@@ -1030,14 +923,12 @@ public class FlattenMojo
      * @return <code>true</code> if the given {@link Activation} is build-time driven, <code>false</code> otherwise (if
      * it is triggered by OS or JDK).
      */
-    protected static boolean isBuildTimeDriven( Activation activation )
-    {
+    protected static boolean isBuildTimeDriven(Activation activation) {
 
-        if ( activation == null )
-        {
+        if (activation == null) {
             return true;
         }
-        return StringUtils.isEmpty( activation.getJdk() ) && activation.getOs() == null;
+        return StringUtils.isEmpty(activation.getJdk()) && activation.getOs() == null;
     }
 
     /**
@@ -1048,50 +939,39 @@ public class FlattenMojo
      * @return the {@link List} of {@link Dependency dependencies}.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected List<Dependency> createFlattenedDependencies( Model effectiveModel )
-        throws MojoExecutionException
-    {
+    protected List<Dependency> createFlattenedDependencies(Model effectiveModel) throws MojoExecutionException {
         List<Dependency> flattenedDependencies = new ArrayList<>();
         // resolve all direct and inherited dependencies...
-        try
-        {
-            createFlattenedDependencies( effectiveModel, flattenedDependencies );
+        try {
+            createFlattenedDependencies(effectiveModel, flattenedDependencies);
+        } catch (Exception e) {
+            throw new MojoExecutionException("unable to create flattened dependencies", e);
         }
-        catch ( Exception e )
-        {
-            throw new MojoExecutionException( "unable to create flattened dependencies", e );
-        }
-        if ( isEmbedBuildProfileDependencies() )
-        {
+        if (isEmbedBuildProfileDependencies()) {
             Model projectModel = this.project.getModel();
             Dependencies modelDependencies = new Dependencies();
-            modelDependencies.addAll( projectModel.getDependencies() );
-            for ( Profile profile : projectModel.getProfiles() )
-            {
+            modelDependencies.addAll(projectModel.getDependencies());
+            for (Profile profile : projectModel.getProfiles()) {
                 // build-time driven activation (by property or file)?
-                if ( isBuildTimeDriven( profile.getActivation() ) )
-                {
+                if (isBuildTimeDriven(profile.getActivation())) {
                     List<Dependency> profileDependencies = profile.getDependencies();
-                    for ( Dependency profileDependency : profileDependencies )
-                    {
-                        if ( modelDependencies.contains( profileDependency ) )
-                        {
+                    for (Dependency profileDependency : profileDependencies) {
+                        if (modelDependencies.contains(profileDependency)) {
                             // our assumption here is that the profileDependency has been added to model because of
                             // this build-time driven profile. Therefore we need to add it to the flattened POM.
                             // Non build-time driven profiles will remain in the flattened POM with their dependencies
                             // and
                             // allow dynamic dependencies due to OS or JDK.
-                            Dependency resolvedProfileDependency = modelDependencies.resolve( profileDependency );
-                            if ( omitExclusions )
-                            {
-                                resolvedProfileDependency.setExclusions( Collections.emptyList() );
+                            Dependency resolvedProfileDependency = modelDependencies.resolve(profileDependency);
+                            if (omitExclusions) {
+                                resolvedProfileDependency.setExclusions(Collections.emptyList());
                             }
-                            flattenedDependencies.add( resolvedProfileDependency );
+                            flattenedDependencies.add(resolvedProfileDependency);
                         }
                     }
                 }
             }
-            getLog().debug( "Resolved " + flattenedDependencies.size() + " dependency/-ies for flattened POM." );
+            getLog().debug("Resolved " + flattenedDependencies.size() + " dependency/-ies for flattened POM.");
         }
         return flattenedDependencies;
     }
@@ -1102,15 +982,12 @@ public class FlattenMojo
      * @param projectDependencies   is the effective POM {@link Model}'s current dependencies
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      */
-    private void createFlattenedDependenciesDirect( List<Dependency> projectDependencies,
-                                                    List<Dependency> flattenedDependencies )
-    {
-        for ( Dependency projectDependency : projectDependencies )
-        {
-            Dependency flattenedDependency = createFlattenedDependency( projectDependency );
-            if ( flattenedDependency != null )
-            {
-                flattenedDependencies.add( flattenedDependency );
+    private void createFlattenedDependenciesDirect(
+            List<Dependency> projectDependencies, List<Dependency> flattenedDependencies) {
+        for (Dependency projectDependency : projectDependencies) {
+            Dependency flattenedDependency = createFlattenedDependency(projectDependency);
+            if (flattenedDependency != null) {
+                flattenedDependencies.add(flattenedDependency);
             }
         }
     }
@@ -1141,137 +1018,117 @@ public class FlattenMojo
      * @throws DependencyCollectionException
      * @throws ArtifactDescriptorException
      */
-    private void createFlattenedDependenciesAll( List<Dependency> projectDependencies,
-                                                 List<Dependency> managedDependencies,
-                                                 List<Dependency> flattenedDependencies )
-        throws ArtifactDescriptorException, DependencyCollectionException
-    {
+    private void createFlattenedDependenciesAll(
+            List<Dependency> projectDependencies,
+            List<Dependency> managedDependencies,
+            List<Dependency> flattenedDependencies)
+            throws ArtifactDescriptorException, DependencyCollectionException {
         final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<>();
         final Set<String> processedDependencies = new HashSet<>();
         final Artifact projectArtifact = this.project.getArtifact();
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRepositories( project.getRemotePluginRepositories() );
-        collectRequest.setRootArtifact( RepositoryUtils.toArtifact( projectArtifact ) );
-        for ( Dependency dependency : projectDependencies )
-        {
-            collectRequest.addDependency( RepositoryUtils.toDependency( dependency,
-                    session.getRepositorySession().getArtifactTypeRegistry() ) );
+        collectRequest.setRepositories(project.getRemotePluginRepositories());
+        collectRequest.setRootArtifact(RepositoryUtils.toArtifact(projectArtifact));
+        for (Dependency dependency : projectDependencies) {
+            collectRequest.addDependency(RepositoryUtils.toDependency(
+                    dependency, session.getRepositorySession().getArtifactTypeRegistry()));
         }
 
-        for ( Artifact artifact : project.getArtifacts() )
-        {
-            collectRequest.addDependency( RepositoryUtils.toDependency( artifact, null ) );
+        for (Artifact artifact : project.getArtifacts()) {
+            collectRequest.addDependency(RepositoryUtils.toDependency(artifact, null));
         }
 
-        for ( Dependency dependency : managedDependencies )
-        {
-            collectRequest.addManagedDependency( RepositoryUtils.toDependency( dependency,
-                    session.getRepositorySession().getArtifactTypeRegistry() ) );
+        for (Dependency dependency : managedDependencies) {
+            collectRequest.addManagedDependency(RepositoryUtils.toDependency(
+                    dependency, session.getRepositorySession().getArtifactTypeRegistry()));
         }
 
-        DefaultRepositorySystemSession derived = new DefaultRepositorySystemSession( session.getRepositorySession() );
-        derived.setConfigProperty( ConflictResolver.CONFIG_PROP_VERBOSE, true );
-        derived.setConfigProperty( DependencyManagerUtils.CONFIG_PROP_VERBOSE, true );
+        DefaultRepositorySystemSession derived = new DefaultRepositorySystemSession(session.getRepositorySession());
+        derived.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, true);
+        derived.setConfigProperty(DependencyManagerUtils.CONFIG_PROP_VERBOSE, true);
 
-        CollectResult collectResult =
-                repositorySystem.collectDependencies( derived, collectRequest );
+        CollectResult collectResult = repositorySystem.collectDependencies(derived, collectRequest);
 
         final DependencyNode root = collectResult.getRoot();
-        final Set<String> directDependencyKeys = Stream
-                .concat(
-                        projectDependencies.stream()
-                                .map( this::getKey ),
-                        project.getArtifacts().stream()
-                                .map( this::getKey ) )
-                .collect( Collectors.toSet() );
+        final Set<String> directDependencyKeys = Stream.concat(
+                        projectDependencies.stream().map(this::getKey),
+                        project.getArtifacts().stream().map(this::getKey))
+                .collect(Collectors.toSet());
 
-        root.accept( new DependencyVisitor()
-        {
+        root.accept(new DependencyVisitor() {
             @Override
-            public boolean visitEnter( DependencyNode node )
-            {
-                if ( root == node )
-                {
+            public boolean visitEnter(DependencyNode node) {
+                if (root == node) {
                     return true;
                 }
-                if ( JavaScopes.PROVIDED.equals( node.getDependency().getScope() ) )
-                {
-                    String dependencyKey = getKey( node.getDependency() );
-                    if ( !directDependencyKeys.contains( dependencyKey ) )
-                    {
+                if (JavaScopes.PROVIDED.equals(node.getDependency().getScope())) {
+                    String dependencyKey = getKey(node.getDependency());
+                    if (!directDependencyKeys.contains(dependencyKey)) {
                         return false; // skip non-direct provided ones
                     }
                 }
-                if ( node.getDependency().isOptional() )
-                {
+                if (node.getDependency().isOptional()) {
                     return false; // skip optional ones
                 }
-                dependencyNodeLinkedList.add( node );
+                dependencyNodeLinkedList.add(node);
                 return true;
             }
 
             @Override
-            public boolean visitLeave( DependencyNode node )
-            {
+            public boolean visitLeave(DependencyNode node) {
                 return true;
             }
-        } );
+        });
 
-        while ( !dependencyNodeLinkedList.isEmpty() )
-        {
+        while (!dependencyNodeLinkedList.isEmpty()) {
             DependencyNode node = dependencyNodeLinkedList.poll();
 
             org.eclipse.aether.graph.Dependency d = node.getDependency();
-            Artifact artifact = RepositoryUtils.toArtifact( node.getArtifact() );
+            Artifact artifact = RepositoryUtils.toArtifact(node.getArtifact());
 
             Dependency dependency = new Dependency();
-            dependency.setGroupId( artifact.getGroupId() );
-            dependency.setArtifactId( artifact.getArtifactId() );
-            dependency.setVersion( artifact.getBaseVersion() );
-            dependency.setClassifier( artifact.getClassifier() );
-            dependency.setOptional( d.isOptional() );
-            dependency.setScope( d.getScope() );
-            dependency.setType( artifact.getType() );
+            dependency.setGroupId(artifact.getGroupId());
+            dependency.setArtifactId(artifact.getArtifactId());
+            dependency.setVersion(artifact.getBaseVersion());
+            dependency.setClassifier(artifact.getClassifier());
+            dependency.setOptional(d.isOptional());
+            dependency.setScope(d.getScope());
+            dependency.setType(artifact.getType());
 
-            if ( !omitExclusions )
-            {
+            if (!omitExclusions) {
                 List<Exclusion> exclusions = new LinkedList<>();
 
-                org.eclipse.aether.artifact.Artifact aetherArtifact =
-                    new DefaultArtifact( artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion() );
-                ArtifactDescriptorRequest request = new ArtifactDescriptorRequest( aetherArtifact, null, null );
+                org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(
+                        artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
+                ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
                 ArtifactDescriptorResult artifactDescriptorResult =
-                        repositorySystem.readArtifactDescriptor( this.session.getRepositorySession(), request );
+                        repositorySystem.readArtifactDescriptor(this.session.getRepositorySession(), request);
 
-                for ( org.eclipse.aether.graph.Dependency artifactDependency
-                    : artifactDescriptorResult.getDependencies() )
-                {
-                    if ( JavaScopes.TEST.equals( artifactDependency.getScope() ) )
-                    {
+                for (org.eclipse.aether.graph.Dependency artifactDependency :
+                        artifactDescriptorResult.getDependencies()) {
+                    if (JavaScopes.TEST.equals(artifactDependency.getScope())) {
                         continue;
                     }
                     Exclusion exclusion = new Exclusion();
-                    exclusion.setGroupId( artifactDependency.getArtifact().getGroupId() );
-                    exclusion.setArtifactId( artifactDependency.getArtifact().getArtifactId() );
-                    exclusions.add( exclusion );
+                    exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
+                    exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());
+                    exclusions.add(exclusion);
                 }
 
-                dependency.setExclusions( exclusions );
+                dependency.setExclusions(exclusions);
             }
 
             // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
             String dependencyString = dependency.getManagementKey();
 
-            if ( !processedDependencies.add( dependencyString ) )
-            {
+            if (!processedDependencies.add(dependencyString)) {
                 continue;
             }
 
-            Dependency flattenedDependency = createFlattenedDependency( dependency );
-            if ( flattenedDependency != null )
-            {
-                flattenedDependencies.add( flattenedDependency );
+            Dependency flattenedDependency = createFlattenedDependency(dependency);
+            if (flattenedDependency != null) {
+                flattenedDependencies.add(flattenedDependency);
             }
         }
     }
@@ -1280,33 +1137,32 @@ public class FlattenMojo
      * Keep in sync with {@link #getKey(org.eclipse.aether.graph.Dependency)}
      * and {@link #getKey(Dependency)}.
      */
-    private String getKey( Artifact a )
-    {
-        final String ext = artifactHandlerManager.getArtifactHandler( a.getType() ).getExtension();
+    private String getKey(Artifact a) {
+        final String ext =
+                artifactHandlerManager.getArtifactHandler(a.getType()).getExtension();
         return a.getGroupId() + ":" + a.getArtifactId() + ":" + ext
-                + ( a.getClassifier() != null ? ":" + a.getClassifier() : "" );
+                + (a.getClassifier() != null ? ":" + a.getClassifier() : "");
     }
 
     /**
      * Keep in sync with {@link #getKey(org.eclipse.aether.graph.Dependency)}
      * and {@link #getKey(Artifact)}
      */
-    private String getKey( Dependency d )
-    {
-        final String ext = artifactHandlerManager.getArtifactHandler( d.getType() ).getExtension();
+    private String getKey(Dependency d) {
+        final String ext =
+                artifactHandlerManager.getArtifactHandler(d.getType()).getExtension();
         return d.getGroupId() + ":" + d.getArtifactId() + ":" + ext
-                + ( d.getClassifier() != null ? ":" + d.getClassifier() : "" );
+                + (d.getClassifier() != null ? ":" + d.getClassifier() : "");
     }
 
     /**
      * Keep in sync with {@link #getKey(Dependency)}
      * and {@link #getKey(Artifact)}.
      */
-    private String getKey( org.eclipse.aether.graph.Dependency dependency )
-    {
+    private String getKey(org.eclipse.aether.graph.Dependency dependency) {
         final org.eclipse.aether.artifact.Artifact a = dependency.getArtifact();
         return a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getExtension()
-                + ( !a.getClassifier().isEmpty() ? ":" + a.getClassifier() : "" );
+                + (!a.getClassifier().isEmpty() ? ":" + a.getClassifier() : "");
     }
 
     /**
@@ -1316,30 +1172,25 @@ public class FlattenMojo
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected void createFlattenedDependencies( Model effectiveModel, List<Dependency> flattenedDependencies )
-        throws MojoExecutionException
-    {
-        getLog().debug( "Resolving dependencies of " + effectiveModel.getId() );
+    protected void createFlattenedDependencies(Model effectiveModel, List<Dependency> flattenedDependencies)
+            throws MojoExecutionException {
+        getLog().debug("Resolving dependencies of " + effectiveModel.getId());
         // this.project.getDependencies() already contains the inherited dependencies but also those from profiles
         // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
         List<Dependency> projectDependencies = effectiveModel.getDependencies();
 
-        if ( flattenDependencyMode == null | flattenDependencyMode == FlattenDependencyMode.direct )
-        {
-            createFlattenedDependenciesDirect( projectDependencies, flattenedDependencies );
-        }
-        else if ( flattenDependencyMode == FlattenDependencyMode.all )
-        {
-            try
-            {
-                createFlattenedDependenciesAll( projectDependencies,
+        if (flattenDependencyMode == null | flattenDependencyMode == FlattenDependencyMode.direct) {
+            createFlattenedDependenciesDirect(projectDependencies, flattenedDependencies);
+        } else if (flattenDependencyMode == FlattenDependencyMode.all) {
+            try {
+                createFlattenedDependenciesAll(
+                        projectDependencies,
                         effectiveModel.getDependencyManagement() != null
-                                ? effectiveModel.getDependencyManagement().getDependencies() : Collections.emptyList(),
-                        flattenedDependencies );
-            }
-            catch ( Exception e )
-            {
-                throw new MojoExecutionException( "caught exception when flattening dependencies", e );
+                                ? effectiveModel.getDependencyManagement().getDependencies()
+                                : Collections.emptyList(),
+                        flattenedDependencies);
+            } catch (Exception e) {
+                throw new MojoExecutionException("caught exception when flattening dependencies", e);
             }
         }
     }
@@ -1349,16 +1200,13 @@ public class FlattenMojo
      * @return the flattened {@link Dependency} or <code>null</code> if the given {@link Dependency} is NOT relevant for
      * flattened POM.
      */
-    protected Dependency createFlattenedDependency( Dependency projectDependency )
-    {
-        if ( JavaScopes.TEST.equals( projectDependency.getScope() ) )
-        {
+    protected Dependency createFlattenedDependency(Dependency projectDependency) {
+        if (JavaScopes.TEST.equals(projectDependency.getScope())) {
             return null;
         }
 
-        if ( omitExclusions )
-        {
-            projectDependency.setExclusions( Collections.emptyList() );
+        if (omitExclusions) {
+            projectDependency.setExclusions(Collections.emptyList());
         }
 
         return projectDependency;
@@ -1368,19 +1216,14 @@ public class FlattenMojo
      * @return <code>true</code> if the generated flattened POM shall be {@link MavenProject#setFile(java.io.File) set}
      * as POM artifact of the {@link MavenProject}, <code>false</code> otherwise.
      */
-    public boolean isUpdatePomFile()
-    {
+    public boolean isUpdatePomFile() {
 
-        if ( this.updatePomFile == null )
-        {
-            if ( this.flattenMode == FlattenMode.bom )
-            {
+        if (this.updatePomFile == null) {
+            if (this.flattenMode == FlattenMode.bom) {
                 return true;
             }
-            return !this.project.getPackaging().equals( "pom" );
-        }
-        else
-        {
+            return !this.project.getPackaging().equals("pom");
+        } else {
             return this.updatePomFile.booleanValue();
         }
     }
@@ -1389,9 +1232,7 @@ public class FlattenMojo
      * This class is a simple SAX handler that extracts the first comment located before the root tag in an XML
      * document.
      */
-    private class SaxHeaderCommentHandler
-        extends DefaultHandler2
-    {
+    private class SaxHeaderCommentHandler extends DefaultHandler2 {
 
         /**
          * <code>true</code> if root tag has already been visited, <code>false</code> otherwise.
@@ -1406,8 +1247,7 @@ public class FlattenMojo
         /**
          * The constructor.
          */
-        SaxHeaderCommentHandler()
-        {
+        SaxHeaderCommentHandler() {
 
             super();
             this.rootTagSeen = false;
@@ -1416,8 +1256,7 @@ public class FlattenMojo
         /**
          * @return the XML comment from the header of the document or <code>null</code> if not present.
          */
-        public String getHeaderComment()
-        {
+        public String getHeaderComment() {
 
             return this.headerComment;
         }
@@ -1426,19 +1265,13 @@ public class FlattenMojo
          * {@inheritDoc}
          */
         @Override
-        public void comment( char[] ch, int start, int length )
-            throws SAXException
-        {
+        public void comment(char[] ch, int start, int length) throws SAXException {
 
-            if ( !this.rootTagSeen )
-            {
-                if ( this.headerComment == null )
-                {
-                    this.headerComment = new String( ch, start, length );
-                }
-                else
-                {
-                    getLog().warn( "Ignoring multiple XML header comment!" );
+            if (!this.rootTagSeen) {
+                if (this.headerComment == null) {
+                    this.headerComment = new String(ch, start, length);
+                } else {
+                    getLog().warn("Ignoring multiple XML header comment!");
                 }
             }
         }
@@ -1447,12 +1280,9 @@ public class FlattenMojo
          * {@inheritDoc}
          */
         @Override
-        public void startElement( String uri, String localName, String qName, Attributes atts )
-            throws SAXException
-        {
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 
             this.rootTagSeen = true;
         }
     }
-
 }

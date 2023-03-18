@@ -28,8 +28,7 @@ import org.apache.maven.model.Model;
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-2
  */
-public enum FlattenMode
-{
+public enum FlattenMode {
     /**
      * For projects that want to keep all {@link FlattenDescriptor optional POM elements}.
      *
@@ -73,79 +72,76 @@ public enum FlattenMode
 
     /** Removes all {@link FlattenDescriptor optional POM elements} and dependencies. */
     fatjar,
-    
-    /** Only resolves variables revision, sha1 and changelist. Keeps everything else. 
-     * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details. 
+
+    /** Only resolves variables revision, sha1 and changelist. Keeps everything else.
+     * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.
      */
     resolveCiFriendliesOnly;
-
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.
      */
-    public FlattenDescriptor getDescriptor()
-    {
+    public FlattenDescriptor getDescriptor() {
 
         FlattenDescriptor descriptor = new FlattenDescriptor();
-        switch ( this )
-        {
+        switch (this) {
             case minimum:
-                descriptor.setPluginRepositories( ElementHandling.expand );
-                //$FALL-THROUGH$
+                descriptor.setPluginRepositories(ElementHandling.expand);
+                // $FALL-THROUGH$
             case bom:
                 // MOJO-2041
-                descriptor.setDependencyManagement( ElementHandling.keep );
-                descriptor.setProperties( ElementHandling.expand );
-                //$FALL-THROUGH$
+                descriptor.setDependencyManagement(ElementHandling.keep);
+                descriptor.setProperties(ElementHandling.expand);
+                // $FALL-THROUGH$
             case oss:
-                descriptor.setCiManagement( ElementHandling.expand );
-                descriptor.setContributors( ElementHandling.expand );
-                descriptor.setDistributionManagement( ElementHandling.expand );
-                descriptor.setInceptionYear( ElementHandling.expand );
-                descriptor.setIssueManagement( ElementHandling.expand );
-                descriptor.setMailingLists( ElementHandling.expand );
-                descriptor.setOrganization( ElementHandling.expand );
-                descriptor.setPrerequisites( ElementHandling.expand );
-                //$FALL-THROUGH$
+                descriptor.setCiManagement(ElementHandling.expand);
+                descriptor.setContributors(ElementHandling.expand);
+                descriptor.setDistributionManagement(ElementHandling.expand);
+                descriptor.setInceptionYear(ElementHandling.expand);
+                descriptor.setIssueManagement(ElementHandling.expand);
+                descriptor.setMailingLists(ElementHandling.expand);
+                descriptor.setOrganization(ElementHandling.expand);
+                descriptor.setPrerequisites(ElementHandling.expand);
+                // $FALL-THROUGH$
             case ossrh:
-                descriptor.setName( ElementHandling.expand );
-                descriptor.setDescription( ElementHandling.expand );
-                descriptor.setUrl( ElementHandling.expand );
-                descriptor.setScm( ElementHandling.expand );
-                descriptor.setDevelopers( ElementHandling.expand );
-                //$FALL-THROUGH$
+                descriptor.setName(ElementHandling.expand);
+                descriptor.setDescription(ElementHandling.expand);
+                descriptor.setUrl(ElementHandling.expand);
+                descriptor.setScm(ElementHandling.expand);
+                descriptor.setDevelopers(ElementHandling.expand);
+                // $FALL-THROUGH$
             case defaults:
-                descriptor.setRepositories( ElementHandling.expand );
+                descriptor.setRepositories(ElementHandling.expand);
                 break;
             case fatjar:
-                descriptor.setDependencies( ElementHandling.remove );
+                descriptor.setDependencies(ElementHandling.remove);
                 break;
             case resolveCiFriendliesOnly:
-                descriptor.setBuild( ElementHandling.interpolate );
-                descriptor.setCiManagement( ElementHandling.interpolate );
-                descriptor.setContributors( ElementHandling.interpolate );
-                descriptor.setDependencies( ElementHandling.interpolate );
-                descriptor.setDependencyManagement( ElementHandling.interpolate );
-                descriptor.setDescription( ElementHandling.interpolate );
-                descriptor.setDevelopers( ElementHandling.interpolate );
-                descriptor.setDistributionManagement( ElementHandling.interpolate );
-                descriptor.setInceptionYear( ElementHandling.interpolate );
-                descriptor.setIssueManagement( ElementHandling.interpolate );
-                descriptor.setMailingLists( ElementHandling.interpolate );
-                descriptor.setModules( ElementHandling.interpolate );
-                descriptor.setName( ElementHandling.interpolate );
-                descriptor.setOrganization( ElementHandling.interpolate );
-                descriptor.setParent( ElementHandling.resolve );
-                descriptor.setPluginManagement( ElementHandling.interpolate );
-                descriptor.setPluginRepositories( ElementHandling.interpolate );
-                descriptor.setPrerequisites( ElementHandling.interpolate );
-                descriptor.setProfiles( ElementHandling.interpolate );
-                descriptor.setProperties( ElementHandling.interpolate );
-                descriptor.setReporting( ElementHandling.interpolate );
-                descriptor.setRepositories( ElementHandling.interpolate );
-                descriptor.setScm( ElementHandling.interpolate );
-                descriptor.setUrl( ElementHandling.interpolate );
-                descriptor.setVersion( ElementHandling.resolve );
+                descriptor.setBuild(ElementHandling.interpolate);
+                descriptor.setCiManagement(ElementHandling.interpolate);
+                descriptor.setContributors(ElementHandling.interpolate);
+                descriptor.setDependencies(ElementHandling.interpolate);
+                descriptor.setDependencyManagement(ElementHandling.interpolate);
+                descriptor.setDescription(ElementHandling.interpolate);
+                descriptor.setDevelopers(ElementHandling.interpolate);
+                descriptor.setDistributionManagement(ElementHandling.interpolate);
+                descriptor.setInceptionYear(ElementHandling.interpolate);
+                descriptor.setIssueManagement(ElementHandling.interpolate);
+                descriptor.setMailingLists(ElementHandling.interpolate);
+                descriptor.setModules(ElementHandling.interpolate);
+                descriptor.setName(ElementHandling.interpolate);
+                descriptor.setOrganization(ElementHandling.interpolate);
+                descriptor.setParent(ElementHandling.resolve);
+                descriptor.setPluginManagement(ElementHandling.interpolate);
+                descriptor.setPluginRepositories(ElementHandling.interpolate);
+                descriptor.setPrerequisites(ElementHandling.interpolate);
+                descriptor.setProfiles(ElementHandling.interpolate);
+                descriptor.setProperties(ElementHandling.interpolate);
+                descriptor.setReporting(ElementHandling.interpolate);
+                descriptor.setRepositories(ElementHandling.interpolate);
+                descriptor.setScm(ElementHandling.interpolate);
+                descriptor.setUrl(ElementHandling.interpolate);
+                descriptor.setVersion(ElementHandling.resolve);
                 break;
             case clean:
                 // nothing to do...
@@ -157,5 +153,4 @@ public enum FlattenMode
         }
         return descriptor;
     }
-
 }

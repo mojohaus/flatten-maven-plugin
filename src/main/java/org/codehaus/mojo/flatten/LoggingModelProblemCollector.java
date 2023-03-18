@@ -29,9 +29,7 @@ import org.apache.maven.plugin.logging.Log;
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-4
  */
-public class LoggingModelProblemCollector
-    implements ModelProblemCollector
-{
+public class LoggingModelProblemCollector implements ModelProblemCollector {
 
     private final Log logger;
 
@@ -40,8 +38,7 @@ public class LoggingModelProblemCollector
      *
      * @param logger is the {@link Log}.
      */
-    public LoggingModelProblemCollector( Log logger )
-    {
+    public LoggingModelProblemCollector(Log logger) {
         super();
         this.logger = logger;
     }
@@ -49,9 +46,7 @@ public class LoggingModelProblemCollector
     /**
      * {@inheritDoc}
      */
-    public void add( ModelProblemCollectorRequest req )
-    {
-        this.logger.warn( req.getMessage(), req.getException() );
+    public void add(ModelProblemCollectorRequest req) {
+        this.logger.warn(req.getMessage(), req.getException());
     }
-
 }

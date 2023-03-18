@@ -38,8 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Test-Case for {@link FlattenMojo}.
  */
-public class KeepCommentsInPomTest
-{
+public class KeepCommentsInPomTest {
 
     private static final String PATH = "src/test/resources/keep-comments-in-pom/";
     private static final String TEST_TARGET_PATH = "target/test/resources/keep-comments-in-pom/";
@@ -49,15 +48,15 @@ public class KeepCommentsInPomTest
      * Expected result since jdk11 with updated xml header and properties sequence.
      */
     private static final String EXPECTED_FLATTENED_POM_JDK11 = PATH + "expected-flattened-pom-jdk11.xml";
-    private static final Pattern NEW_LINE_PATTERN = Pattern.compile( "\\n|\\r\\n?" );
+
+    private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n|\\r\\n?");
 
     @Rule
     public MojoRule rule = new MojoRule();
 
     @Before
-    public void setup()
-    {
-        new File( TEST_TARGET_PATH ).mkdirs();
+    public void setup() {
+        new File(TEST_TARGET_PATH).mkdirs();
     }
 
     /**
@@ -66,23 +65,22 @@ public class KeepCommentsInPomTest
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void keepsProfileActivationFile() throws Exception
-    {
-        MavenProject project = rule.readMavenProject( new File( PATH ) );
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo( project, "flatten" );
+    public void keepsProfileActivationFile() throws Exception {
+        MavenProject project = rule.readMavenProject(new File(PATH));
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
 
-        DefaultPlexusConfiguration tempPluginConfiguration = new DefaultPlexusConfiguration( "test" );
-        tempPluginConfiguration.addChild( "outputDirectory", TEST_TARGET_PATH );
-        tempPluginConfiguration.addChild( "keepCommentsInPom", "true" );
-        rule.configureMojo( flattenMojo, tempPluginConfiguration );
+        DefaultPlexusConfiguration tempPluginConfiguration = new DefaultPlexusConfiguration("test");
+        tempPluginConfiguration.addChild("outputDirectory", TEST_TARGET_PATH);
+        tempPluginConfiguration.addChild("keepCommentsInPom", "true");
+        rule.configureMojo(flattenMojo, tempPluginConfiguration);
 
         // execute writes new FLATTENED_POM
         flattenMojo.execute();
 
-        Path expectedContentFile = Paths.get( isJdk8() ? EXPECTED_FLATTENED_POM : EXPECTED_FLATTENED_POM_JDK11 );
-        Path actualContentFile = Paths.get( FLATTENED_POM );
-        assertThat( actualContentFile ).hasSameTextualContentAs( expectedContentFile );
-        assertHasLineSeparator( actualContentFile , System.lineSeparator() );
+        Path expectedContentFile = Paths.get(isJdk8() ? EXPECTED_FLATTENED_POM : EXPECTED_FLATTENED_POM_JDK11);
+        Path actualContentFile = Paths.get(FLATTENED_POM);
+        assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile);
+        assertHasLineSeparator(actualContentFile, System.lineSeparator());
     }
 
     /**
@@ -90,37 +88,31 @@ public class KeepCommentsInPomTest
      *
      * @return true when runtime is JDK11
      */
-    private boolean isJdk8()
-    {
+    private boolean isJdk8() {
         // With Java 9 can be switched to java.lang.Runtime.version()
-        String tempPropertyVersion = System.getProperty( "java.version" );
-        if ( tempPropertyVersion.startsWith( "1.8." ) )
-        {
+        String tempPropertyVersion = System.getProperty("java.version");
+        if (tempPropertyVersion.startsWith("1.8.")) {
             return true;
         }
         return false;
     }
 
-    private static void assertHasLineSeparator( final Path file, final String expectedSeparator ) throws IOException
-    {
-        try ( Scanner scanner = new Scanner( file ) )
-        {
+    private static void assertHasLineSeparator(final Path file, final String expectedSeparator) throws IOException {
+        try (Scanner scanner = new Scanner(file)) {
             int lineNr = 0;
             String actualSeparator;
-            while ( ( actualSeparator = scanner.findWithinHorizon( NEW_LINE_PATTERN, 0 ) ) != null )
-            {
+            while ((actualSeparator = scanner.findWithinHorizon(NEW_LINE_PATTERN, 0)) != null) {
                 lineNr++;
-                if ( !expectedSeparator.equals( actualSeparator ) )
-                {
-                    final String actualDesc = actualSeparator.replace( "\r", "CR" ).replace( "\n", "LF" );
-                    final String expectedDesc = expectedSeparator.replace( "\r", "CR" ).replace( "\n", "LF" );
-                    throw new AssertionError(
-                            String.format(
-                                    "\nLine %d of path %s has %s as line separator.\nExpected line separator: %s.",
-                                    lineNr, file, actualDesc, expectedDesc ) );
+                if (!expectedSeparator.equals(actualSeparator)) {
+                    final String actualDesc =
+                            actualSeparator.replace("\r", "CR").replace("\n", "LF");
+                    final String expectedDesc =
+                            expectedSeparator.replace("\r", "CR").replace("\n", "LF");
+                    throw new AssertionError(String.format(
+                            "\nLine %d of path %s has %s as line separator.\nExpected line separator: %s.",
+                            lineNr, file, actualDesc, expectedDesc));
                 }
             }
         }
     }
-
 }

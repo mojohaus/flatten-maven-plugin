@@ -25,8 +25,7 @@ package org.codehaus.mojo.flatten;
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-4
  */
-public enum ElementHandling
-{
+public enum ElementHandling {
 
     /**
      * Flatten the element. For most elements this means that they will be removed and are not present in the flattened
@@ -48,5 +47,4 @@ public enum ElementHandling
 
     /** Remove the element entirely so it will not be present in flattened POM. */
     remove
-
 }

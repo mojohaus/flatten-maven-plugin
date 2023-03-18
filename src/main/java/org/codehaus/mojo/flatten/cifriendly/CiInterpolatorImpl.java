@@ -39,8 +39,7 @@ import org.codehaus.plexus.interpolation.ValueSource;
  * see {@link org.codehaus.plexus.interpolation.StringSearchInterpolator}.
  * This interpolates only the Maven CI Friendly variables revision, sha1 and changelist.
  */
-public class CiInterpolatorImpl implements Interpolator
-{
+public class CiInterpolatorImpl implements Interpolator {
 
     private final Map existingAnswers = new HashMap();
 
@@ -58,74 +57,62 @@ public class CiInterpolatorImpl implements Interpolator
 
     private final String endExpr;
 
-    public CiInterpolatorImpl()
-    {
+    public CiInterpolatorImpl() {
         this.startExpr = DEFAULT_START_EXPR;
         this.endExpr = DEFAULT_END_EXPR;
     }
 
-    public CiInterpolatorImpl( String startExpr, String endExpr )
-    {
+    public CiInterpolatorImpl(String startExpr, String endExpr) {
         this.startExpr = startExpr;
         this.endExpr = endExpr;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addValueSource( ValueSource valueSource )
-    {
-        valueSources.add( valueSource );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeValuesSource( ValueSource valueSource )
-    {
-        valueSources.remove( valueSource );
+    public void addValueSource(ValueSource valueSource) {
+        valueSources.add(valueSource);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addPostProcessor( InterpolationPostProcessor postProcessor )
-    {
-        postProcessors.add( postProcessor );
+    public void removeValuesSource(ValueSource valueSource) {
+        valueSources.remove(valueSource);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void removePostProcessor( InterpolationPostProcessor postProcessor )
-    {
-        postProcessors.remove( postProcessor );
+    public void addPostProcessor(InterpolationPostProcessor postProcessor) {
+        postProcessors.add(postProcessor);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removePostProcessor(InterpolationPostProcessor postProcessor) {
+        postProcessors.remove(postProcessor);
     }
 
     @Override
-    public String interpolate( String input, String thisPrefixPattern )
-        throws InterpolationException
-    {
-        return interpolate( input, new SimpleRecursionInterceptor() );
+    public String interpolate(String input, String thisPrefixPattern) throws InterpolationException {
+        return interpolate(input, new SimpleRecursionInterceptor());
     }
 
     @Override
-    public String interpolate( String input, String thisPrefixPattern, RecursionInterceptor recursionInterceptor )
-        throws InterpolationException
-    {
-        return interpolate( input, recursionInterceptor );
+    public String interpolate(String input, String thisPrefixPattern, RecursionInterceptor recursionInterceptor)
+            throws InterpolationException {
+        return interpolate(input, recursionInterceptor);
     }
 
     @Override
-    public String interpolate( String input )
-        throws InterpolationException
-    {
-        return interpolate( input, new SimpleRecursionInterceptor() );
+    public String interpolate(String input) throws InterpolationException {
+        return interpolate(input, new SimpleRecursionInterceptor());
     }
 
     /**
@@ -133,82 +120,64 @@ public class CiInterpolatorImpl implements Interpolator
      * nested expressions.
      */
     @Override
-    public String interpolate( String input, RecursionInterceptor recursionInterceptor )
-        throws InterpolationException
-    {
-        try
-        {
-            return interpolate( input, recursionInterceptor, new HashSet<>() );
-        }
-        finally
-        {
-            if ( !cacheAnswers )
-            {
+    public String interpolate(String input, RecursionInterceptor recursionInterceptor) throws InterpolationException {
+        try {
+            return interpolate(input, recursionInterceptor, new HashSet<>());
+        } finally {
+            if (!cacheAnswers) {
                 existingAnswers.clear();
             }
         }
     }
 
-    private String interpolate( String input, RecursionInterceptor recursionInterceptor, Set<String> unresolvable )
-        throws InterpolationException
-    {
-        if ( input == null )
-        {
+    private String interpolate(String input, RecursionInterceptor recursionInterceptor, Set<String> unresolvable)
+            throws InterpolationException {
+        if (input == null) {
             // return empty String to prevent NPE too
             return "";
         }
-        StringBuilder result = new StringBuilder( input.length() * 2 );
+        StringBuilder result = new StringBuilder(input.length() * 2);
 
         int startIdx;
         int endIdx = -1;
-        while ( ( startIdx = input.indexOf( startExpr, endIdx + 1 ) ) > -1 )
-        {
-            result.append( input, endIdx + 1, startIdx );
+        while ((startIdx = input.indexOf(startExpr, endIdx + 1)) > -1) {
+            result.append(input, endIdx + 1, startIdx);
 
-            endIdx = input.indexOf( endExpr, startIdx + 1 );
-            if ( endIdx < 0 )
-            {
+            endIdx = input.indexOf(endExpr, startIdx + 1);
+            if (endIdx < 0) {
                 break;
             }
 
-            final String wholeExpr = input.substring( startIdx, endIdx + endExpr.length() );
-            String realExpr = wholeExpr.substring( startExpr.length(), wholeExpr.length() - endExpr.length() );
+            final String wholeExpr = input.substring(startIdx, endIdx + endExpr.length());
+            String realExpr = wholeExpr.substring(startExpr.length(), wholeExpr.length() - endExpr.length());
 
             boolean resolved = false;
-            if ( !unresolvable.contains( wholeExpr ) )
-            {
-                if ( realExpr.startsWith( "." ) )
-                {
-                    realExpr = realExpr.substring( 1 );
+            if (!unresolvable.contains(wholeExpr)) {
+                if (realExpr.startsWith(".")) {
+                    realExpr = realExpr.substring(1);
                 }
 
-                if ( recursionInterceptor.hasRecursiveExpression( realExpr ) )
-                {
-                    throw new InterpolationCycleException( recursionInterceptor, realExpr, wholeExpr );
+                if (recursionInterceptor.hasRecursiveExpression(realExpr)) {
+                    throw new InterpolationCycleException(recursionInterceptor, realExpr, wholeExpr);
                 }
 
-                recursionInterceptor.expressionResolutionStarted( realExpr );
-                try
-                {
-                    Object value = existingAnswers.get( realExpr );
-                    if ( !wholeExpr.equals( "${revision}" )
-                        && !wholeExpr.contains( "${sha1}" )
-                        && !wholeExpr.contains( "${changelist}" ) )
-                    {
+                recursionInterceptor.expressionResolutionStarted(realExpr);
+                try {
+                    Object value = existingAnswers.get(realExpr);
+                    if (!wholeExpr.equals("${revision}")
+                            && !wholeExpr.contains("${sha1}")
+                            && !wholeExpr.contains("${changelist}")) {
                         value = realExpr;
                     }
                     Object bestAnswer = null;
 
-                    for ( ValueSource valueSource : valueSources )
-                    {
-                        if ( value != null )
-                        {
+                    for (ValueSource valueSource : valueSources) {
+                        if (value != null) {
                             break;
                         }
-                        value = valueSource.getValue( realExpr );
+                        value = valueSource.getValue(realExpr);
 
-                        if ( value != null && value.toString().contains( wholeExpr ) )
-                        {
+                        if (value != null && value.toString().contains(wholeExpr)) {
                             bestAnswer = value;
                             value = null;
                         }
@@ -217,22 +186,17 @@ public class CiInterpolatorImpl implements Interpolator
                     // this is the simplest recursion check to catch exact recursion
                     // (non synonym), and avoid the extra effort of more string
                     // searching.
-                    if ( value == null && bestAnswer != null )
-                    {
-                        throw new InterpolationCycleException( recursionInterceptor, realExpr, wholeExpr );
+                    if (value == null && bestAnswer != null) {
+                        throw new InterpolationCycleException(recursionInterceptor, realExpr, wholeExpr);
                     }
 
-                    if ( value != null )
-                    {
-                        value = interpolate( String.valueOf( value ), recursionInterceptor, unresolvable );
+                    if (value != null) {
+                        value = interpolate(String.valueOf(value), recursionInterceptor, unresolvable);
 
-                        if ( !postProcessors.isEmpty() )
-                        {
-                            for ( InterpolationPostProcessor postProcessor : postProcessors )
-                            {
-                                Object newVal = postProcessor.execute( realExpr, value );
-                                if ( newVal != null )
-                                {
+                        if (!postProcessors.isEmpty()) {
+                            for (InterpolationPostProcessor postProcessor : postProcessors) {
+                                Object newVal = postProcessor.execute(realExpr, value);
+                                if (newVal != null) {
                                     value = newVal;
                                     break;
                                 }
@@ -243,35 +207,27 @@ public class CiInterpolatorImpl implements Interpolator
                         // result = matcher.replaceFirst( stringValue );
                         // but this could result in multiple lookups of stringValue, and replaceAll is not correct
                         // behaviour
-                        result.append( value );
+                        result.append(value);
                         resolved = true;
+                    } else {
+                        unresolvable.add(wholeExpr);
                     }
-                    else
-                    {
-                        unresolvable.add( wholeExpr );
-                    }
-                }
-                finally
-                {
-                    recursionInterceptor.expressionResolutionFinished( realExpr );
+                } finally {
+                    recursionInterceptor.expressionResolutionFinished(realExpr);
                 }
             }
 
-            if ( !resolved )
-            {
-                result.append( wholeExpr );
+            if (!resolved) {
+                result.append(wholeExpr);
             }
 
             endIdx += endExpr.length() - 1;
         }
 
-        if ( endIdx == -1 && startIdx > -1 )
-        {
-            result.append( input, startIdx, input.length() );
-        }
-        else if ( endIdx < input.length() )
-        {
-            result.append( input, endIdx + 1, input.length() );
+        if (endIdx == -1 && startIdx > -1) {
+            result.append(input, startIdx, input.length());
+        } else if (endIdx < input.length()) {
+            result.append(input, endIdx + 1, input.length());
         }
 
         return result.toString();
@@ -287,15 +243,12 @@ public class CiInterpolatorImpl implements Interpolator
      * {@link Throwable} instances.
      */
     @Override
-    public List getFeedback()
-    {
+    public List getFeedback() {
         List<?> messages = new ArrayList();
-        for ( ValueSource vs : valueSources )
-        {
+        for (ValueSource vs : valueSources) {
             List feedback = vs.getFeedback();
-            if ( feedback != null && !feedback.isEmpty() )
-            {
-                messages.addAll( feedback );
+            if (feedback != null && !feedback.isEmpty()) {
+                messages.addAll(feedback);
             }
         }
 
@@ -306,31 +259,24 @@ public class CiInterpolatorImpl implements Interpolator
      * Clear the feedback messages from previous interpolate(..) calls.
      */
     @Override
-    public void clearFeedback()
-    {
-        for ( ValueSource vs : valueSources )
-        {
+    public void clearFeedback() {
+        for (ValueSource vs : valueSources) {
             vs.clearFeedback();
         }
     }
 
     @Override
-    public boolean isCacheAnswers()
-    {
+    public boolean isCacheAnswers() {
         return cacheAnswers;
     }
 
     @Override
-    public void setCacheAnswers( boolean cacheAnswers )
-    {
+    public void setCacheAnswers(boolean cacheAnswers) {
         this.cacheAnswers = cacheAnswers;
     }
 
     @Override
-    public void clearAnswers()
-    {
+    public void clearAnswers() {
         existingAnswers.clear();
     }
-
 }
-

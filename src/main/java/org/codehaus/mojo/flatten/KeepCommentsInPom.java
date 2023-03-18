@@ -38,17 +38,15 @@ import org.xml.sax.SAXException;
  * that may lead to mis-re-added comments e.g. on multiple added dependencies (but for e.g. resolveCiFriendliesOnly the
  * nodes keep stable)
  */
-class KeepCommentsInPom
-{
+class KeepCommentsInPom {
 
     /**
      * Create an instance with collected current comments of the passed pom.xml file.
      */
-    static KeepCommentsInPom create( Log aLog, File aOriginalPomFile ) throws MojoExecutionException
-    {
+    static KeepCommentsInPom create(Log aLog, File aOriginalPomFile) throws MojoExecutionException {
         KeepCommentsInPom tempKeepCommentsInPom = new KeepCommentsInPom();
-        tempKeepCommentsInPom.setLog( aLog );
-        tempKeepCommentsInPom.loadComments( aOriginalPomFile );
+        tempKeepCommentsInPom.setLog(aLog);
+        tempKeepCommentsInPom.loadComments(aOriginalPomFile);
         return tempKeepCommentsInPom;
     }
 
@@ -62,8 +60,7 @@ class KeepCommentsInPom
     /**
      *
      */
-    KeepCommentsInPom()
-    {
+    KeepCommentsInPom() {
         super();
     }
 
@@ -72,25 +69,20 @@ class KeepCommentsInPom
      *
      * @param anOriginalPomFile the pom.xml
      */
-    private void loadComments( File anOriginalPomFile ) throws MojoExecutionException
-    {
+    private void loadComments(File anOriginalPomFile) throws MojoExecutionException {
         commentsPaths = new HashMap<>();
         DocumentBuilderFactory tempDBF = DocumentBuilderFactory.newInstance();
         DocumentBuilder tempDB;
-        try
-        {
+        try {
             tempDB = tempDBF.newDocumentBuilder();
-            Document tempPom = tempDB.parse( anOriginalPomFile );
+            Document tempPom = tempDB.parse(anOriginalPomFile);
             Node tempNode = tempPom.getDocumentElement();
-            walkOverNodes( tempNode, ".", ( node, nodePath ) ->
-            {
+            walkOverNodes(tempNode, ".", (node, nodePath) -> {
                 // collectNodesByPathNames
-                commentsPaths.put( nodePath, node );
-            } );
-        }
-        catch ( ParserConfigurationException | SAXException | IOException e )
-        {
-            throw new MojoExecutionException( "Cannot load comments from " + anOriginalPomFile, e );
+                commentsPaths.put(nodePath, node);
+            });
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new MojoExecutionException("Cannot load comments from " + anOriginalPomFile, e);
         }
     }
 
@@ -101,62 +93,48 @@ class KeepCommentsInPom
      * @param String    the unique path in the parent
      * @param aConsumer Function to be called with the toBeCollected/found node.
      */
-    private void walkOverNodes( Node aNode, String aParentPath, BiConsumer<Node, String> aConsumer )
-    {
+    private void walkOverNodes(Node aNode, String aParentPath, BiConsumer<Node, String> aConsumer) {
         String tempNodeName = aNode.getNodeName();
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "walkOverNodes: aParentPath=" + aParentPath + " tempNodeName=" + tempNodeName );
+        if (log.isDebugEnabled()) {
+            log.debug("walkOverNodes: aParentPath=" + aParentPath + " tempNodeName=" + tempNodeName);
         }
         String tempNodePath = aParentPath + "\t" + tempNodeName;
-        aConsumer.accept( aNode, tempNodePath );
+        aConsumer.accept(aNode, tempNodePath);
         NodeList tempChilds = aNode.getChildNodes();
         // Copy the childs as aConsumer may change the node sequence (add a comment)
         List<Node> tempCopiedChilds = new ArrayList<>();
         Map<String, Integer> tempChildWithSameName = new HashMap<>();
-        for ( int i = 0; i < tempChilds.getLength(); i++ )
-        {
-            Node tempItem = tempChilds.item( i );
-            if ( tempItem.getNodeType() != Node.TEXT_NODE && tempItem.getNodeType() != Node.COMMENT_NODE )
-            {
+        for (int i = 0; i < tempChilds.getLength(); i++) {
+            Node tempItem = tempChilds.item(i);
+            if (tempItem.getNodeType() != Node.TEXT_NODE && tempItem.getNodeType() != Node.COMMENT_NODE) {
                 // Take real nodes to find them back by number
                 String tempChildNodeName = tempItem.getNodeName();
-                Integer tempChildWithSameNameCount = tempChildWithSameName.get( tempChildNodeName );
-                if ( tempChildWithSameNameCount == null )
-                {
+                Integer tempChildWithSameNameCount = tempChildWithSameName.get(tempChildNodeName);
+                if (tempChildWithSameNameCount == null) {
                     tempChildWithSameNameCount = 1;
-                }
-                else
-                {
+                } else {
                     tempChildWithSameNameCount += 1;
                 }
-                tempChildWithSameName.put( tempChildNodeName, tempChildWithSameNameCount );
-                tempCopiedChilds.add( tempItem );
+                tempChildWithSameName.put(tempChildNodeName, tempChildWithSameNameCount);
+                tempCopiedChilds.add(tempItem);
             }
         }
         Map<String, Integer> tempChildWithSameNameCounters = new HashMap<>();
-        for ( Node tempCopiedChild : tempCopiedChilds )
-        {
+        for (Node tempCopiedChild : tempCopiedChilds) {
             String tempChildNodeName = tempCopiedChild.getNodeName();
-            if ( tempChildWithSameName.get( tempChildNodeName ) > 1 )
-            {
-                Integer tempChildWithSameNameCounter = tempChildWithSameNameCounters.get( tempChildNodeName );
-                if ( tempChildWithSameNameCounter == null )
-                {
+            if (tempChildWithSameName.get(tempChildNodeName) > 1) {
+                Integer tempChildWithSameNameCounter = tempChildWithSameNameCounters.get(tempChildNodeName);
+                if (tempChildWithSameNameCounter == null) {
                     tempChildWithSameNameCounter = 1;
-                }
-                else
-                {
+                } else {
                     tempChildWithSameNameCounter += 1;
                 }
-                tempChildWithSameNameCounters.put( tempChildNodeName, tempChildWithSameNameCounter );
+                tempChildWithSameNameCounters.put(tempChildNodeName, tempChildWithSameNameCounter);
                 // add a counter to find back the correct node.
-                walkOverNodes( tempCopiedChild, tempNodePath + "\t" + tempChildWithSameNameCounter, aConsumer );
-            }
-            else
-            {
+                walkOverNodes(tempCopiedChild, tempNodePath + "\t" + tempChildWithSameNameCounter, aConsumer);
+            } else {
                 // unique child names
-                walkOverNodes( tempCopiedChild, tempNodePath, aConsumer );
+                walkOverNodes(tempCopiedChild, tempNodePath, aConsumer);
             }
         }
     }
@@ -164,73 +142,68 @@ class KeepCommentsInPom
     /**
      * @param String the XML written by {@link org.apache.maven.model.io.xpp3.MavenXpp3Writer}
      */
-    public String restoreOriginalComments( String anXml, String aModelEncoding ) throws MojoExecutionException
-    {
+    public String restoreOriginalComments(String anXml, String aModelEncoding) throws MojoExecutionException {
         DocumentBuilderFactory tempDBF = DocumentBuilderFactory.newInstance();
         DocumentBuilder tempDB;
-        try
-        {
+        try {
             tempDB = tempDBF.newDocumentBuilder();
             String tempEncoding = aModelEncoding == null ? "UTF-8" : aModelEncoding; // default encoding UTF-8 when
             // nothing in pom model.
-            Document tempPom = tempDB.parse( new ByteArrayInputStream( anXml.getBytes( tempEncoding ) ) );
+            Document tempPom = tempDB.parse(new ByteArrayInputStream(anXml.getBytes(tempEncoding)));
             Node tempNode = tempPom.getDocumentElement();
-            walkOverNodes( tempNode, ".", ( newNode, nodePath ) ->
-            {
-                Node tempOriginalNode = commentsPaths.get( nodePath );
-                if ( tempOriginalNode != null )
-                {
+            walkOverNodes(tempNode, ".", (newNode, nodePath) -> {
+                Node tempOriginalNode = commentsPaths.get(nodePath);
+                if (tempOriginalNode != null) {
                     String tempOriginalNodeName = tempOriginalNode.getNodeName();
-                    if ( tempOriginalNodeName.equals( newNode.getNodeName() ) )
-                    {
+                    if (tempOriginalNodeName.equals(newNode.getNodeName())) {
                         // found matching node
                         Node tempRefChild = newNode;
                         Node tempPotentialCommentOrText = tempOriginalNode.getPreviousSibling();
-                        while ( tempPotentialCommentOrText != null
-                            && tempPotentialCommentOrText.getNodeType() == Node.TEXT_NODE )
-                        {
+                        while (tempPotentialCommentOrText != null
+                                && tempPotentialCommentOrText.getNodeType() == Node.TEXT_NODE) {
                             // skip text in the original xml node
                             tempPotentialCommentOrText = tempPotentialCommentOrText.getPreviousSibling();
                         }
-                        while ( tempPotentialCommentOrText != null
-                            && tempPotentialCommentOrText.getNodeType() == Node.COMMENT_NODE )
-                        {
+                        while (tempPotentialCommentOrText != null
+                                && tempPotentialCommentOrText.getNodeType() == Node.COMMENT_NODE) {
                             // copy the node to be able to call previoussibling for next element
                             Node tempRefPrevious = tempRefChild.getPreviousSibling();
                             String tempWhitespaceTextBeforeRefNode = null;
-                            if ( tempRefPrevious != null && tempRefPrevious.getNodeType() == Node.TEXT_NODE )
-                            {
+                            if (tempRefPrevious != null && tempRefPrevious.getNodeType() == Node.TEXT_NODE) {
                                 tempWhitespaceTextBeforeRefNode = tempRefPrevious.getNodeValue();
                             }
                             Node tempNewComment;
-                            tempNewComment = tempPom.createComment( tempPotentialCommentOrText.getNodeValue() );
-                            tempRefChild.getParentNode().insertBefore( tempNewComment, tempRefChild );
+                            tempNewComment = tempPom.createComment(tempPotentialCommentOrText.getNodeValue());
+                            tempRefChild.getParentNode().insertBefore(tempNewComment, tempRefChild);
                             // copy the whitespaces between comment and refNode
-                            if ( tempWhitespaceTextBeforeRefNode != null )
-                            {
-                                tempRefChild.getParentNode().insertBefore(
-                                    tempPom.createTextNode( tempWhitespaceTextBeforeRefNode ), tempRefChild );
+                            if (tempWhitespaceTextBeforeRefNode != null) {
+                                tempRefChild
+                                        .getParentNode()
+                                        .insertBefore(
+                                                tempPom.createTextNode(tempWhitespaceTextBeforeRefNode), tempRefChild);
                             }
 
                             tempRefChild = tempNewComment;
 
                             tempPotentialCommentOrText = tempPotentialCommentOrText.getPreviousSibling();
-                            while ( tempPotentialCommentOrText != null
-                                && tempPotentialCommentOrText.getNodeType() == Node.TEXT_NODE )
-                            {
+                            while (tempPotentialCommentOrText != null
+                                    && tempPotentialCommentOrText.getNodeType() == Node.TEXT_NODE) {
                                 // skip text in the original xml node
                                 tempPotentialCommentOrText = tempPotentialCommentOrText.getPreviousSibling();
                             }
                         }
                     }
                 }
-            } );
-            return writeDocumentToString( tempPom );
-        }
-        catch ( ParserConfigurationException | SAXException | IOException | ClassNotFoundException
-                | InstantiationException | IllegalAccessException | ClassCastException e )
-        {
-            throw new MojoExecutionException( "Cannot add  comments", e );
+            });
+            return writeDocumentToString(tempPom);
+        } catch (ParserConfigurationException
+                | SAXException
+                | IOException
+                | ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | ClassCastException e) {
+            throw new MojoExecutionException("Cannot add  comments", e);
         }
     }
 
@@ -239,34 +212,30 @@ class KeepCommentsInPom
      *
      * @param Document the pom to write to String.
      */
-    private String writeDocumentToString( Document aPom )
-        throws ClassNotFoundException, InstantiationException, IllegalAccessException
-    {
+    private String writeDocumentToString(Document aPom)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation( "LS" );
+        DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
         LSOutput output = impl.createLSOutput();
-        output.setEncoding( "UTF-8" );
+        output.setEncoding("UTF-8");
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        output.setByteStream( outStream );
+        output.setByteStream(outStream);
         LSSerializer writer = impl.createLSSerializer();
-        writer.write( aPom, output );
+        writer.write(aPom, output);
         return outStream.toString();
     }
 
     /**
      * @see #log
      */
-    public Log getLog()
-    {
+    public Log getLog() {
         return log;
     }
 
     /**
      * @see #log
      */
-    public void setLog( Log aLog )
-    {
+    public void setLog(Log aLog) {
         log = aLog;
     }
-
 }

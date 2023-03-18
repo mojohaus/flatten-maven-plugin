@@ -45,8 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author hohwille
  */
-public class CreateEffectivePomTest
-{
+public class CreateEffectivePomTest {
     @Rule
     public MojoRule rule = new MojoRule();
 
@@ -56,47 +55,51 @@ public class CreateEffectivePomTest
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testCreateEffectivePom()
-        throws Exception
-    {
+    public void testCreateEffectivePom() throws Exception {
 
         String magicValue = "magic-value";
         Properties userProperties = new Properties();
-        userProperties.setProperty( "cmd.test.property", magicValue );
+        userProperties.setProperty("cmd.test.property", magicValue);
 
-        File pomFile = new File( "src/test/resources/cmdpropertysubstituion/pom.xml" );
-        MavenProject mavenProject = rule.readMavenProject( pomFile.getParentFile() );
+        File pomFile = new File("src/test/resources/cmdpropertysubstituion/pom.xml");
+        MavenProject mavenProject = rule.readMavenProject(pomFile.getParentFile());
 
-        MavenSession session = rule.newMavenSession( mavenProject );
-        FlattenModelResolver resolver = new FlattenModelResolver( session.getRepositorySession(),
-                null, null, null, Collections.emptyList(), Collections.singletonList( mavenProject ) );
-        ModelBuildingRequest buildingRequest =
-            new DefaultModelBuildingRequest().setPomFile( pomFile ).setModelResolver( resolver )
-                .setUserProperties( userProperties );
+        MavenSession session = rule.newMavenSession(mavenProject);
+        FlattenModelResolver resolver = new FlattenModelResolver(
+                session.getRepositorySession(),
+                null,
+                null,
+                null,
+                Collections.emptyList(),
+                Collections.singletonList(mavenProject));
+        ModelBuildingRequest buildingRequest = new DefaultModelBuildingRequest()
+                .setPomFile(pomFile)
+                .setModelResolver(resolver)
+                .setUserProperties(userProperties);
 
-        FlattenMojo tested = (FlattenMojo) rule.lookupConfiguredMojo( mavenProject, "flatten" );
-        rule.setVariableValueToObject( tested, "modelBuilderThreadSafetyWorkaround",
-                          buildModelBuilderThreadSafetyWorkaroundForTest() );
-        Model effectivePom = tested.createEffectivePom( buildingRequest, false, FlattenMode.defaults );
-        assertThat( effectivePom.getName() ).isEqualTo( magicValue );
+        FlattenMojo tested = (FlattenMojo) rule.lookupConfiguredMojo(mavenProject, "flatten");
+        rule.setVariableValueToObject(
+                tested, "modelBuilderThreadSafetyWorkaround", buildModelBuilderThreadSafetyWorkaroundForTest());
+        Model effectivePom = tested.createEffectivePom(buildingRequest, false, FlattenMode.defaults);
+        assertThat(effectivePom.getName()).isEqualTo(magicValue);
     }
 
     /**
      * @return ModelBuilderThreadSafetyWorkaround with a reduced scope for this simple test
      */
-    private ModelBuilderThreadSafetyWorkaround buildModelBuilderThreadSafetyWorkaroundForTest()
-    {
-        return new ModelBuilderThreadSafetyWorkaround()
-        {
+    private ModelBuilderThreadSafetyWorkaround buildModelBuilderThreadSafetyWorkaroundForTest() {
+        return new ModelBuilderThreadSafetyWorkaround() {
             @Override
-            public ModelBuildingResult build( ModelBuildingRequest buildingRequest, ProfileInjector customInjector,
-                                              ProfileSelector customSelector )
-                throws ModelBuildingException
-            {
-                return new DefaultModelBuilderFactory().newInstance()
-                    .setProfileInjector( customInjector )
-                    .setProfileSelector( customSelector )
-                    .build( buildingRequest );
+            public ModelBuildingResult build(
+                    ModelBuildingRequest buildingRequest,
+                    ProfileInjector customInjector,
+                    ProfileSelector customSelector)
+                    throws ModelBuildingException {
+                return new DefaultModelBuilderFactory()
+                        .newInstance()
+                        .setProfileInjector(customInjector)
+                        .setProfileSelector(customSelector)
+                        .build(buildingRequest);
             }
         };
     }

@@ -32,63 +32,51 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Christoph Böhme
  */
-class ReactorModelPool
-{
+class ReactorModelPool {
 
     private final Map<Coordinates, File> models = new HashMap<>();
 
-    public File find( String groupId, String artifactId, String version )
-    {
-        return models.get( new Coordinates( groupId, artifactId, version ) );
+    public File find(String groupId, String artifactId, String version) {
+        return models.get(new Coordinates(groupId, artifactId, version));
     }
 
-    public void addProjects( List<MavenProject> projects )
-    {
-        projects.forEach( this::addProject );
+    public void addProjects(List<MavenProject> projects) {
+        projects.forEach(this::addProject);
     }
 
-    public void addProject( MavenProject project )
-    {
-        Coordinates coordinates = new Coordinates( project.getGroupId(), project.getArtifactId(),
-                                                   project.getVersion() );
-        models.put( coordinates, project.getFile() );
+    public void addProject(MavenProject project) {
+        Coordinates coordinates = new Coordinates(project.getGroupId(), project.getArtifactId(), project.getVersion());
+        models.put(coordinates, project.getFile());
     }
 
-    private static final class Coordinates
-    {
+    private static final class Coordinates {
         final String groupId;
         final String artifactId;
         final String version;
 
-        Coordinates( String groupId, String artifactId, String version )
-        {
+        Coordinates(String groupId, String artifactId, String version) {
             this.groupId = groupId;
             this.artifactId = artifactId;
             this.version = version;
         }
 
         @Override
-        public boolean equals( Object obj )
-        {
-            if ( obj == this )
-            {
+        public boolean equals(Object obj) {
+            if (obj == this) {
                 return true;
             }
-            if ( obj instanceof Coordinates )
-            {
+            if (obj instanceof Coordinates) {
                 Coordinates other = (Coordinates) obj;
-                return artifactId.equals( other.artifactId ) && groupId.equals( other.groupId )
-                    && version.equals( other.version );
+                return artifactId.equals(other.artifactId)
+                        && groupId.equals(other.groupId)
+                        && version.equals(other.version);
             }
             return false;
         }
 
         @Override
-        public int hashCode()
-        {
-            return Objects.hash( artifactId, groupId, version );
+        public int hashCode() {
+            return Objects.hash(artifactId, groupId, version);
         }
-
     }
-
 }

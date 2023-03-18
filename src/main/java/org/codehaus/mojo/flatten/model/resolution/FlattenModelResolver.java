@@ -48,9 +48,7 @@ import org.eclipse.aether.resolution.VersionRangeResult;
  * @see org.codehaus.mojo.flatten.FlattenMojo
  * @author Robert Scholte
  */
-public class FlattenModelResolver
-    implements ModelResolver
-{
+public class FlattenModelResolver implements ModelResolver {
     private final RepositorySystemSession session;
 
     private final RepositorySystem repositorySystem;
@@ -67,13 +65,13 @@ public class FlattenModelResolver
     /**
      * The constructor.
      */
-    public FlattenModelResolver( RepositorySystemSession session,
-                                 RepositorySystem repositorySystem,
-                                 RequestTrace trace,
-                                 String context,
-                                 List<RemoteRepository> repositories,
-                                 List<MavenProject> reactorModels )
-    {
+    public FlattenModelResolver(
+            RepositorySystemSession session,
+            RepositorySystem repositorySystem,
+            RequestTrace trace,
+            String context,
+            List<RemoteRepository> repositories,
+            List<MavenProject> reactorModels) {
         this.session = session;
         this.repositorySystem = repositorySystem;
         this.trace = trace;
@@ -81,11 +79,10 @@ public class FlattenModelResolver
         this.repositories = repositories;
 
         this.reactorModelPool = new ReactorModelPool();
-        reactorModelPool.addProjects( reactorModels );
+        reactorModelPool.addProjects(reactorModels);
     }
 
-    private FlattenModelResolver( FlattenModelResolver other )
-    {
+    private FlattenModelResolver(FlattenModelResolver other) {
         this.session = other.session;
         this.repositorySystem = other.repositorySystem;
         this.trace = other.trace;
@@ -97,44 +94,37 @@ public class FlattenModelResolver
     /**
      * {@inheritDoc}
      */
-    public ModelSource resolveModel( String groupId, String artifactId, String version )
-            throws UnresolvableModelException
-    {
-        File pomFile = reactorModelPool.find( groupId, artifactId, version );
-        if ( pomFile == null )
-        {
-            Artifact pomArtifact = new DefaultArtifact( groupId, artifactId, "", "pom", version );
+    public ModelSource resolveModel(String groupId, String artifactId, String version)
+            throws UnresolvableModelException {
+        File pomFile = reactorModelPool.find(groupId, artifactId, version);
+        if (pomFile == null) {
+            Artifact pomArtifact = new DefaultArtifact(groupId, artifactId, "", "pom", version);
 
-            try
-            {
-                ArtifactRequest request = new ArtifactRequest( pomArtifact, repositories, context );
-                request.setTrace( trace );
-                pomArtifact = repositorySystem.resolveArtifact( session, request ).getArtifact();
-            }
-            catch ( ArtifactResolutionException e )
-            {
-                throw new UnresolvableModelException( e.getMessage(), groupId, artifactId, version, e );
+            try {
+                ArtifactRequest request = new ArtifactRequest(pomArtifact, repositories, context);
+                request.setTrace(trace);
+                pomArtifact = repositorySystem.resolveArtifact(session, request).getArtifact();
+            } catch (ArtifactResolutionException e) {
+                throw new UnresolvableModelException(e.getMessage(), groupId, artifactId, version, e);
             }
 
             pomFile = pomArtifact.getFile();
         }
-        return new FileModelSource( pomFile );
+        return new FileModelSource(pomFile);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addRepository( Repository repository )
-    {
+    public void addRepository(Repository repository) {
         // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
 
     /**
      * {@inheritDoc}
      */
-    public ModelResolver newCopy()
-    {
-        return new FlattenModelResolver( this );
+    public ModelResolver newCopy() {
+        return new FlattenModelResolver(this);
     }
 
     /**
@@ -144,48 +134,41 @@ public class FlattenModelResolver
      * @return The source of the requested POM, never {@code null}
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
-    public ModelSource resolveModel( Parent parent )
-        throws UnresolvableModelException
-    {
-        Artifact artifact = new DefaultArtifact( parent.getGroupId(), parent.getArtifactId(), "", "pom",
-                parent.getVersion() );
+    public ModelSource resolveModel(Parent parent) throws UnresolvableModelException {
+        Artifact artifact =
+                new DefaultArtifact(parent.getGroupId(), parent.getArtifactId(), "", "pom", parent.getVersion());
 
-        VersionRangeRequest versionRangeRequest = new VersionRangeRequest( artifact, repositories, context );
-        versionRangeRequest.setTrace( trace );
+        VersionRangeRequest versionRangeRequest = new VersionRangeRequest(artifact, repositories, context);
+        versionRangeRequest.setTrace(trace);
 
-        try
-        {
-            VersionRangeResult versionRangeResult =
-                    repositorySystem.resolveVersionRange( session, versionRangeRequest );
+        try {
+            VersionRangeResult versionRangeResult = repositorySystem.resolveVersionRange(session, versionRangeRequest);
 
-            if ( versionRangeResult.getHighestVersion() == null )
-            {
-                throw new UnresolvableModelException( "No versions matched the requested range '" + parent.getVersion()
-                        + "'", parent.getGroupId(), parent.getArtifactId(),
-                        parent.getVersion() );
-
+            if (versionRangeResult.getHighestVersion() == null) {
+                throw new UnresolvableModelException(
+                        "No versions matched the requested range '" + parent.getVersion() + "'",
+                        parent.getGroupId(),
+                        parent.getArtifactId(),
+                        parent.getVersion());
             }
 
-            if ( versionRangeResult.getVersionConstraint() != null
+            if (versionRangeResult.getVersionConstraint() != null
                     && versionRangeResult.getVersionConstraint().getRange() != null
-                    && versionRangeResult.getVersionConstraint().getRange().getUpperBound() == null )
-            {
-                throw new UnresolvableModelException( "The requested version range '" + parent.getVersion()
-                        + "' does not specify an upper bound", parent.getGroupId(),
-                        parent.getArtifactId(), parent.getVersion() );
-
+                    && versionRangeResult.getVersionConstraint().getRange().getUpperBound() == null) {
+                throw new UnresolvableModelException(
+                        "The requested version range '" + parent.getVersion() + "' does not specify an upper bound",
+                        parent.getGroupId(),
+                        parent.getArtifactId(),
+                        parent.getVersion());
             }
 
-            parent.setVersion( versionRangeResult.getHighestVersion().toString() );
-        }
-        catch ( VersionRangeResolutionException e )
-        {
-            throw new UnresolvableModelException( e.getMessage(), parent.getGroupId(), parent.getArtifactId(),
-                    parent.getVersion(), e );
-
+            parent.setVersion(versionRangeResult.getHighestVersion().toString());
+        } catch (VersionRangeResolutionException e) {
+            throw new UnresolvableModelException(
+                    e.getMessage(), parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), e);
         }
 
-        return resolveModel( parent.getGroupId(), parent.getArtifactId(), parent.getVersion() );
+        return resolveModel(parent.getGroupId(), parent.getArtifactId(), parent.getVersion());
     }
 
     /**
@@ -193,8 +176,7 @@ public class FlattenModelResolver
      * @param replace {true} when repository with same id should be replaced, otherwise {@code false}.
      * @since Apache-Maven-3.2.3 (MNG-5663)
      */
-    public void addRepository( Repository repository, boolean replace )
-    {
+    public void addRepository(Repository repository, boolean replace) {
         // ignoring... artifact resolution via repository should already have happened before by maven core.
     }
 }

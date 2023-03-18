@@ -57,8 +57,7 @@ import org.eclipse.sisu.Nullable;
  * @since 1.2.3
  */
 @Named
-public class ModelBuilderThreadSafetyWorkaround
-{
+public class ModelBuilderThreadSafetyWorkaround {
 
     @Inject
     private ModelProcessor modelProcessor;
@@ -106,30 +105,30 @@ public class ModelBuilderThreadSafetyWorkaround
     @Inject
     private ReportingConverter reportingConverter;
 
-    public ModelBuildingResult build( ModelBuildingRequest buildingRequest, ProfileInjector customInjector,
-                                      ProfileSelector customSelector )
-        throws ModelBuildingException
-    {
+    public ModelBuildingResult build(
+            ModelBuildingRequest buildingRequest, ProfileInjector customInjector, ProfileSelector customSelector)
+            throws ModelBuildingException {
         // note: there is neither DefaultModelBuilder.get*(), nor DefaultModelBuilder.clone()
-        return new DefaultModelBuilderFactory().newInstance()
-            .setProfileInjector( customInjector )
-            .setProfileSelector( customSelector )
-            // apply currently active ModelProcessor etc. to support extensions like jgitver
-            .setDependencyManagementImporter( dependencyManagementImporter )
-            .setDependencyManagementInjector( dependencyManagementInjector )
-            .setInheritanceAssembler( inheritanceAssembler )
-            .setLifecycleBindingsInjector( lifecycleBindingsInjector )
-            .setModelInterpolator( modelInterpolator )
-            .setModelNormalizer( modelNormalizer )
-            .setModelPathTranslator( modelPathTranslator )
-            .setModelProcessor( modelProcessor )
-            .setModelUrlNormalizer( modelUrlNormalizer )
-            .setModelValidator( modelValidator )
-            .setPluginConfigurationExpander( pluginConfigurationExpander )
-            .setPluginManagementInjector( pluginManagementInjector )
-            .setReportConfigurationExpander( reportConfigurationExpander )
-            .setReportingConverter( reportingConverter )
-            .setSuperPomProvider( superPomProvider )
-            .build( buildingRequest );
+        return new DefaultModelBuilderFactory()
+                .newInstance()
+                .setProfileInjector(customInjector)
+                .setProfileSelector(customSelector)
+                // apply currently active ModelProcessor etc. to support extensions like jgitver
+                .setDependencyManagementImporter(dependencyManagementImporter)
+                .setDependencyManagementInjector(dependencyManagementInjector)
+                .setInheritanceAssembler(inheritanceAssembler)
+                .setLifecycleBindingsInjector(lifecycleBindingsInjector)
+                .setModelInterpolator(modelInterpolator)
+                .setModelNormalizer(modelNormalizer)
+                .setModelPathTranslator(modelPathTranslator)
+                .setModelProcessor(modelProcessor)
+                .setModelUrlNormalizer(modelUrlNormalizer)
+                .setModelValidator(modelValidator)
+                .setPluginConfigurationExpander(pluginConfigurationExpander)
+                .setPluginManagementInjector(pluginManagementInjector)
+                .setReportConfigurationExpander(reportConfigurationExpander)
+                .setReportingConverter(reportingConverter)
+                .setSuperPomProvider(superPomProvider)
+                .build(buildingRequest);
     }
 }

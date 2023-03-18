@@ -19,6 +19,10 @@ package org.codehaus.mojo.flatten.cifriendly;
  * under the License.
  */
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -42,7 +46,6 @@ import org.apache.maven.model.building.ModelProblem.Version;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.building.ModelProblemCollectorRequest;
 import org.apache.maven.model.interpolation.MavenBuildTimestamp;
-import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.path.PathTranslator;
 import org.apache.maven.model.path.UrlNormalizer;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
@@ -60,10 +63,10 @@ import org.codehaus.plexus.interpolation.util.ValueSourceUtils;
 
 /**
  * Based on StringSearchModelInterpolator in maven-model-builder.
- *
- * IMPORTANT: this is a legacy Plexus component, with manually authored descriptor in src/main/resources!
  */
-public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
+@Named
+@Singleton
+public class CiModelInterpolator implements CiInterpolator {
 
     private static final List<String> PROJECT_PREFIXES = Arrays.asList("pom.", "project.");
 
@@ -99,15 +102,19 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
     // There is a protected setter for this one?
     private RecursionInterceptor recursionInterceptor;
 
-    private PathTranslator pathTranslator;
+    private final PathTranslator pathTranslator;
 
-    private UrlNormalizer urlNormalizer;
+    private final UrlNormalizer urlNormalizer;
 
-    public CiModelInterpolator() {
+    @Inject
+    public CiModelInterpolator(PathTranslator pathTranslator, UrlNormalizer urlNormalizer) {
+        this.pathTranslator = pathTranslator;
+        this.urlNormalizer = urlNormalizer;
         this.interpolator = createInterpolator();
         this.recursionInterceptor = new PrefixAwareRecursionInterceptor(PROJECT_PREFIXES);
     }
 
+    @Override
     public Model interpolateModel(
             Model model, File projectDir, ModelBuildingRequest config, ModelProblemCollector problems) {
         interpolateObject(model, model, projectDir, config, problems);
@@ -570,7 +577,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
         return interpolator;
     }
 
-    class BuildTimestampValueSource extends AbstractValueSource {
+    static class BuildTimestampValueSource extends AbstractValueSource {
         private final MavenBuildTimestamp mavenBuildTimestamp;
 
         BuildTimestampValueSource(Date startTime, Properties properties) {
@@ -586,7 +593,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
         }
     }
 
-    class ProblemDetectingValueSource implements ValueSource {
+    static class ProblemDetectingValueSource implements ValueSource {
 
         private final ValueSource valueSource;
 
@@ -628,7 +635,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
         }
     }
 
-    class PathTranslatingPostProcessor implements InterpolationPostProcessor {
+    static class PathTranslatingPostProcessor implements InterpolationPostProcessor {
 
         private final Collection<String> unprefixedPathKeys;
         private final File projectDir;
@@ -659,7 +666,7 @@ public class CiModelInterpolator implements CiInterpolator, ModelInterpolator {
         }
     }
 
-    class UrlNormalizingPostProcessor implements InterpolationPostProcessor {
+    static class UrlNormalizingPostProcessor implements InterpolationPostProcessor {
 
         private UrlNormalizer normalizer;
 

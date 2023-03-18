@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>mojo-parent</artifactId>
-    <version>70</version>
+    <version>74</version>
   </parent>
 
   <artifactId>flatten-maven-plugin</artifactId>
@@ -266,7 +266,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <goals>

@@ -1,0 +1,4 @@
+org.codehaus.mojo.flatten
+org.codehaus.mojo.flatten_maven_plugin
+org.codehaus.mojo.flatten.cifriendly
+org.codehaus.mojo.flatten.model.resolution

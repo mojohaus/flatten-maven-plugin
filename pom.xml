@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>flatten-maven-plugin</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Maven Flatten Plugin</name>
@@ -122,14 +122,14 @@
   <scm>
     <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
-    <tag>1.4.0</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/mojohaus/flatten-maven-plugin/tree/master</url>
   </scm>
 
   <properties>
     <mavenVersion>3.2.5</mavenVersion>
     <recommendedJavaBuildVersion>11</recommendedJavaBuildVersion>
-    <project.build.outputTimestamp>2023-03-19T08:17:20Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-03-19T08:17:46Z</project.build.outputTimestamp>
   </properties>
 
   <!-- override versions of some transitive dependencies -->

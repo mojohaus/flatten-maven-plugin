@@ -800,7 +800,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 repositorySystem,
                 trace,
                 context,
-                RepositoryUtils.toRepos(session.getProjectBuildingRequest().getRemoteRepositories()),
+                project.getRemoteProjectRepositories(),
                 getReactorModelsFromSession());
         Properties userProperties = this.session.getUserProperties();
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
@@ -1028,7 +1028,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         final Artifact projectArtifact = this.project.getArtifact();
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRepositories(project.getRemotePluginRepositories());
+        collectRequest.setRepositories(project.getRemoteProjectRepositories());
         collectRequest.setRootArtifact(RepositoryUtils.toArtifact(projectArtifact));
         for (Dependency dependency : projectDependencies) {
             collectRequest.addDependency(RepositoryUtils.toDependency(

@@ -28,7 +28,7 @@
   </parent>
 
   <artifactId>flatten-maven-plugin</artifactId>
-  <version>1.4.1</version>
+  <version>1.4.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Maven Flatten Plugin</name>
@@ -129,7 +129,7 @@
   <properties>
     <mavenVersion>3.2.5</mavenVersion>
     <recommendedJavaBuildVersion>11</recommendedJavaBuildVersion>
-    <project.build.outputTimestamp>2023-03-27T21:24:12Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-03-27T21:27:03Z</project.build.outputTimestamp>
   </properties>
 
   <!-- override versions of some transitive dependencies -->

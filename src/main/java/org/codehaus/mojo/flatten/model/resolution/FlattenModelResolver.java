@@ -22,6 +22,7 @@ package org.codehaus.mojo.flatten.model.resolution;
 import java.io.File;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.FileModelSource;
@@ -169,6 +170,44 @@ public class FlattenModelResolver implements ModelResolver {
         }
 
         return resolveModel(parent.getGroupId(), parent.getArtifactId(), parent.getVersion());
+    }
+
+    @Override
+    public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
+        Artifact artifact = new DefaultArtifact(
+                dependency.getGroupId(), dependency.getArtifactId(), "", "pom", dependency.getVersion());
+
+        VersionRangeRequest versionRangeRequest = new VersionRangeRequest(artifact, repositories, context);
+        versionRangeRequest.setTrace(trace);
+
+        try {
+            VersionRangeResult versionRangeResult = repositorySystem.resolveVersionRange(session, versionRangeRequest);
+
+            if (versionRangeResult.getHighestVersion() == null) {
+                throw new UnresolvableModelException(
+                        "No versions matched the requested range '" + dependency.getVersion() + "'",
+                        dependency.getGroupId(),
+                        dependency.getArtifactId(),
+                        dependency.getVersion());
+            }
+
+            if (versionRangeResult.getVersionConstraint() != null
+                    && versionRangeResult.getVersionConstraint().getRange() != null
+                    && versionRangeResult.getVersionConstraint().getRange().getUpperBound() == null) {
+                throw new UnresolvableModelException(
+                        "The requested version range '" + dependency.getVersion() + "' does not specify an upper bound",
+                        dependency.getGroupId(),
+                        dependency.getArtifactId(),
+                        dependency.getVersion());
+            }
+
+            dependency.setVersion(versionRangeResult.getHighestVersion().toString());
+        } catch (VersionRangeResolutionException e) {
+            throw new UnresolvableModelException(
+                    e.getMessage(), dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(), e);
+        }
+
+        return resolveModel(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
     }
 
     /**

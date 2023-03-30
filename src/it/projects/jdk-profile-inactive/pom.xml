@@ -56,7 +56,6 @@
       <reporting>
         <outputDirectory>target/site</outputDirectory>
       </reporting>
-      <reports/>
     </profile>
   </profiles>
 </project>

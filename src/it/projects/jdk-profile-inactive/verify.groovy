@@ -36,7 +36,6 @@ assert 1 == originalProject.profiles.profile.modules.size()
 assert 1 == originalProject.profiles.profile.pluginRepositories.size()
 assert 1 == originalProject.profiles.profile.properties.size()
 assert 1 == originalProject.profiles.profile.reporting.size()
-assert 1 == originalProject.profiles.profile.reports.size()
 
 File flattendPom = new File( basedir, '.flattened-pom.xml' )
 assert flattendPom.exists()

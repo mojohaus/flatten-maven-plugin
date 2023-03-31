@@ -9,4 +9,4 @@ assert 1 ==  flattendProject.repositories.size()
 
 assert 1 ==  flattendProject.dependencies.size()
 assert 'spring-core' ==  flattendProject.dependencies.dependency.artifactId.text()
-assert '6.0.0-M6' ==  flattendProject.dependencies.dependency.version.text()
+assert '6.0.0-RC4' ==  flattendProject.dependencies.dependency.version.text()

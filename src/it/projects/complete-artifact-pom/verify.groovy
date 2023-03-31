@@ -44,7 +44,6 @@ assert 1 == originalProject.pluginRepositories.size()
 assert 1 == originalProject.prerequisites.size()
 assert 1 == originalProject.properties.size()
 assert 1 == originalProject.reporting.size()
-assert 1 == originalProject.reports.size()
 assert 1 == originalProject.scm.size()
 assert 1 == originalProject.url.size()
 

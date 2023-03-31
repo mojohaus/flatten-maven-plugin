@@ -105,8 +105,6 @@
     <outputDirectory>target/site</outputDirectory>
   </reporting>
 
-  <reports/>
-
   <scm>
     <url>http://svn.codehaus.org/mojo</url>
   </scm>

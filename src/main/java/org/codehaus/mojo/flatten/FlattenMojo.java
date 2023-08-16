@@ -372,6 +372,14 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Parameter(property = "flatten.flatten.skip", defaultValue = "false")
     private boolean skipFlatten;
 
+    /**
+     * The default operation to use when no element handling is given. Defaults to <code>flatten</code>.
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "flatten.dependency.defaultOperation", required = false, defaultValue = "flatten")
+    private ElementHandling defaultOperation;
+
     @Inject
     private DirectDependenciesInheritanceAssembler inheritanceAssembler;
 
@@ -791,10 +799,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 Xpp3Dom rawDescriptor = this.mojoExecution.getConfiguration().getChild("pomElements");
                 descriptor = new FlattenDescriptor(rawDescriptor);
             }
+
             if (this.flattenMode != null) {
                 descriptor = descriptor.merge(this.flattenMode.getDescriptor());
             }
         }
+        descriptor.setDefaultOperation(defaultOperation);
         return descriptor;
     }
 

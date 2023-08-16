@@ -69,6 +69,11 @@ public abstract class AbstractFlattenMojo extends AbstractMojo {
      * @return a {@link File} instance pointing to the flattened POM.
      */
     protected File getFlattenedPomFile() {
+        File flattenedPomFile = new File(getFlattenedPomFilename());
+        if (flattenedPomFile.isAbsolute()) {
+            return flattenedPomFile;
+        }
+
         return new File(getOutputDirectory(), getFlattenedPomFilename());
     }
 }

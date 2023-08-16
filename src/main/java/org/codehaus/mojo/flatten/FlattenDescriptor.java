@@ -35,6 +35,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 public class FlattenDescriptor {
 
     private final Map<String, ElementHandling> name2handlingMap;
+    private ElementHandling defaultOperation = ElementHandling.flatten;
 
     /**
      * The constructor.
@@ -59,6 +60,14 @@ public class FlattenDescriptor {
         }
     }
 
+    public ElementHandling getDefaultOperation() {
+        return defaultOperation;
+    }
+
+    public void setDefaultOperation(ElementHandling defaultOperation) {
+        this.defaultOperation = defaultOperation;
+    }
+
     /**
      * Generic method to get a {@link ElementHandling}.
      *
@@ -68,7 +77,7 @@ public class FlattenDescriptor {
     public ElementHandling getHandling(PomProperty<?> property) {
         ElementHandling handling = this.name2handlingMap.get(property.getName());
         if (handling == null) {
-            handling = ElementHandling.flatten;
+            handling = defaultOperation;
         }
         return handling;
     }

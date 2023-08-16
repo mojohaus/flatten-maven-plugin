@@ -205,7 +205,7 @@ import org.xml.sax.ext.DefaultHandler2;
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  */
-@Mojo(name = "flatten", requiresDependencyCollection = ResolutionScope.RUNTIME, threadSafe = true)
+@Mojo(name = "flatten", requiresDependencyCollection = ResolutionScope.TEST, threadSafe = true)
 public class FlattenMojo extends AbstractFlattenMojo {
 
     private static final int INITIAL_POM_WRITER_SIZE = 4096;

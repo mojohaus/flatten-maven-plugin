@@ -85,6 +85,48 @@ public class FlattenDescriptor {
     }
 
     /**
+     * @return {@link ElementHandling} for {@link Model#getArtifactId() artifactId}.
+     */
+    public ElementHandling getArtifactId() {
+        return getHandling(PomProperty.ARTIFACT_ID);
+    }
+
+    /**
+     * @param artifactId the {@link #setArtifactId(ElementHandling) artifactId} to set.
+     */
+    public void setArtifactId(ElementHandling artifactId) {
+        setHandling(PomProperty.ARTIFACT_ID, artifactId);
+    }
+
+    /**
+     * @return {@link ElementHandling} for {@link Model#getGroupId() groupId}.
+     */
+    public ElementHandling getGroupId() {
+        return getHandling(PomProperty.GROUP_ID);
+    }
+
+    /**
+     * @param groupId the {@link #setGroupId(ElementHandling) groupId} to set.
+     */
+    public void setGroupId(ElementHandling groupId) {
+        setHandling(PomProperty.GROUP_ID, groupId);
+    }
+
+    /**
+     * @return {@link ElementHandling} for {@link Model#getPackaging() packaging}.
+     */
+    public ElementHandling getPackaging() {
+        return getHandling(PomProperty.PACKAGING);
+    }
+
+    /**
+     * @param packaging the {@link #setPackaging(ElementHandling) packaging} to set.
+     */
+    public void setPackaging(ElementHandling packaging) {
+        setHandling(PomProperty.PACKAGING, packaging);
+    }
+
+    /**
      * @return {@link ElementHandling} for {@link Model#getName() name}.
      */
     public ElementHandling getName() {

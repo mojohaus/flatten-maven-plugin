@@ -130,6 +130,9 @@ public enum FlattenMode {
                 descriptor.setMailingLists(ElementHandling.interpolate);
                 descriptor.setModules(ElementHandling.interpolate);
                 descriptor.setName(ElementHandling.interpolate);
+                descriptor.setArtifactId(ElementHandling.interpolate);
+                descriptor.setGroupId(ElementHandling.interpolate);
+                descriptor.setPackaging(ElementHandling.interpolate);
                 descriptor.setOrganization(ElementHandling.interpolate);
                 descriptor.setParent(ElementHandling.resolve);
                 descriptor.setPluginManagement(ElementHandling.interpolate);

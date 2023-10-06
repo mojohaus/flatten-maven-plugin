@@ -811,15 +811,15 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 getReactorModelsFromSession());
         Properties userAndActiveExternalProfilesProperties = new Properties();
         userAndActiveExternalProfilesProperties.putAll(this.session.getUserProperties());
-        settings.getProfiles()
-                .stream()
+        settings.getProfiles().stream()
                 .filter(p -> settings.getActiveProfiles().contains(p.getId()))
-                .forEach(activeProfile -> userAndActiveExternalProfilesProperties.putAll(activeProfile.getProperties()));
+                .forEach(
+                        activeProfile -> userAndActiveExternalProfilesProperties.putAll(activeProfile.getProperties()));
 
         List<String> activeProfiles = Stream.concat(
-                this.session.getRequest().getActiveProfiles().stream(),
-                this.settings.getActiveProfiles().stream()
-        ) .collect(Collectors.toList());
+                        this.session.getRequest().getActiveProfiles().stream(),
+                        this.settings.getActiveProfiles().stream())
+                .collect(Collectors.toList());
 
         return new DefaultModelBuildingRequest()
                 .setUserProperties(userAndActiveExternalProfilesProperties)

@@ -400,7 +400,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      */
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        
+
         getLog().info("Generating flattened POM of project " + this.project.getId() + "...");
 
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
@@ -810,13 +810,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 project.getRemoteProjectRepositories(),
                 getReactorModelsFromSession());
         Properties userProperties = this.session.getUserProperties();
-        settings.getProfiles()
-                .stream()
-                .filter(p -> settings.getActiveProfiles().contains(p.getId()))
-                .forEach(activeProfile -> userProperties.putAll(activeProfile.getProperties()));
+//        settings.getProfiles()
+//                .stream()
+//                .filter(p -> settings.getActiveProfiles().contains(p.getId()))
+//                .forEach(activeProfile -> userProperties.putAll(activeProfile.getProperties()));
 
         List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
-        activeProfiles.addAll(this.settings.getActiveProfiles());
+//        activeProfiles.addAll(this.settings.getActiveProfiles());
 
         return new DefaultModelBuildingRequest()
                 .setUserProperties(userProperties)

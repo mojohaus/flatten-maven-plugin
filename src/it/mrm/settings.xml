@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- This is an example of a Maven settings.xml file -->
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  
   <mirrors>
     <mirror>
       <id>mrm-maven-plugin</id>
@@ -11,6 +13,7 @@
       <mirrorOf>*</mirrorOf>
     </mirror>
   </mirrors>
+
   <profiles>
     <profile>
       <id>it-repo</id>
@@ -48,6 +51,7 @@
       </pluginRepositories>
     </profile>
   </profiles>
+
   <activeProfiles>
     <activeProfile>it-repo</activeProfile>
   </activeProfiles>

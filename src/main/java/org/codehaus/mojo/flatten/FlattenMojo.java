@@ -811,8 +811,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 getReactorModelsFromSession());
         Properties userAndActiveExternalProfilesProperties = new Properties();
         userAndActiveExternalProfilesProperties.putAll(this.session.getUserProperties());
-        settings.getProfiles().stream()
-                .filter(p -> settings.getActiveProfiles().contains(p.getId()))
+        this.settings.getProfiles().stream()
+                .filter(p -> this.settings.getActiveProfiles().contains(p.getId())
+                        && !this.session.getRequest().getInactiveProfiles().contains(p.getId()))
                 .forEach(
                         activeProfile -> userAndActiveExternalProfilesProperties.putAll(activeProfile.getProperties()));
 
@@ -826,7 +827,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 .setSystemProperties(System.getProperties())
                 .setPomFile(pomFile)
                 .setModelResolver(resolver)
-                .setActiveProfileIds(activeProfiles);
+                .setActiveProfileIds(activeProfiles)
+                .setInactiveProfileIds(this.session.getRequest().getInactiveProfiles());
     }
 
     private List<MavenProject> getReactorModelsFromSession() {

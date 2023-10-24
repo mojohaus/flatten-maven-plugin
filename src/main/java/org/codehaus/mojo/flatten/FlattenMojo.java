@@ -74,6 +74,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
@@ -209,6 +210,12 @@ import org.xml.sax.ext.DefaultHandler2;
 public class FlattenMojo extends AbstractFlattenMojo {
 
     private static final int INITIAL_POM_WRITER_SIZE = 4096;
+
+    /**
+     * The {@link Settings} used to get active profile properties.
+     */
+    @Parameter(defaultValue = "${settings}", readonly = true, required = true)
+    private Settings settings;
 
     /**
      * The {@link MavenSession} used to get user properties.
@@ -802,15 +809,26 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 context,
                 project.getRemoteProjectRepositories(),
                 getReactorModelsFromSession());
-        Properties userProperties = this.session.getUserProperties();
-        List<String> activeProfiles = this.session.getRequest().getActiveProfiles();
+        Properties userAndActiveExternalProfilesProperties = new Properties();
+        userAndActiveExternalProfilesProperties.putAll(this.session.getUserProperties());
+        this.settings.getProfiles().stream()
+                .filter(p -> this.settings.getActiveProfiles().contains(p.getId())
+                        && !this.session.getRequest().getInactiveProfiles().contains(p.getId()))
+                .forEach(
+                        activeProfile -> userAndActiveExternalProfilesProperties.putAll(activeProfile.getProperties()));
+
+        List<String> activeProfiles = Stream.concat(
+                        this.session.getRequest().getActiveProfiles().stream(),
+                        this.settings.getActiveProfiles().stream())
+                .collect(Collectors.toList());
 
         return new DefaultModelBuildingRequest()
-                .setUserProperties(userProperties)
+                .setUserProperties(userAndActiveExternalProfilesProperties)
                 .setSystemProperties(System.getProperties())
                 .setPomFile(pomFile)
                 .setModelResolver(resolver)
-                .setActiveProfileIds(activeProfiles);
+                .setActiveProfileIds(activeProfiles)
+                .setInactiveProfileIds(this.session.getRequest().getInactiveProfiles());
     }
 
     private List<MavenProject> getReactorModelsFromSession() {
@@ -839,6 +857,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             final boolean embedBuildProfileDependencies,
             final FlattenMode flattenMode)
             throws MojoExecutionException {
+
         ModelBuildingResult buildingResult;
         try {
             ProfileInjector customInjector = (model, profile, request, problems) -> {

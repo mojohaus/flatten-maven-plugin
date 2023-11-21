@@ -24,6 +24,7 @@ import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * This MOJO realizes the goal <code>flatten:clean</code> that deletes any files created by
@@ -43,6 +44,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 public class CleanMojo extends AbstractFlattenMojo {
 
     /**
+     * If {@code true} the clean goal will be skipped.
+     */
+    @Parameter(property = "flatten.clean.skip", defaultValue = "false")
+    private boolean skipClean;
+
+    /**
      * The constructor.
      */
     public CleanMojo() {
@@ -53,6 +60,10 @@ public class CleanMojo extends AbstractFlattenMojo {
      * {@inheritDoc}
      */
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (shouldSkip()) {
+            getLog().info("Clean skipped.");
+            return;
+        }
 
         File flattenedPomFile = getFlattenedPomFile();
         if (flattenedPomFile.isFile()) {
@@ -62,5 +73,10 @@ public class CleanMojo extends AbstractFlattenMojo {
                 throw new MojoFailureException("Could not delete " + flattenedPomFile.getAbsolutePath());
             }
         }
+    }
+
+    @Override
+    protected boolean shouldSkipGoal() {
+        return skipClean;
     }
 }

@@ -44,6 +44,12 @@ public abstract class AbstractFlattenMojo extends AbstractMojo {
     private String flattenedPomFilename;
 
     /**
+     * If {@code true} the plugin will be skipped.
+     */
+    @Parameter(property = "flatten.skip", defaultValue = "false")
+    private boolean skip;
+
+    /**
      * The constructor.
      */
     public AbstractFlattenMojo() {
@@ -71,4 +77,13 @@ public abstract class AbstractFlattenMojo extends AbstractMojo {
     protected File getFlattenedPomFile() {
         return new File(getOutputDirectory(), getFlattenedPomFilename());
     }
+
+    protected boolean shouldSkip() {
+        if (skip) {
+            return true;
+        }
+        return shouldSkipGoal();
+    }
+
+    protected abstract boolean shouldSkipGoal();
 }

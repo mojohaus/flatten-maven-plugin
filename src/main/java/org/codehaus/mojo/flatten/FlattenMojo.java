@@ -295,9 +295,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * </tr>
      * <tr>
      * <td>bom</td>
-     * <td>Like <code>ossrh</code> but additionally keeps {@link Model#getDependencyManagement() dependencyManagement}
-     * and {@link Model#getProperties() properties}. Especially it will keep the {@link Model#getDependencyManagement()
-     * dependencyManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
+     * <td>Like <code>oss</code> but additionally keeps {@link Model#getDependencyManagement() dependencyManagement},
+     * {@link Model#getProperties() properties}, and {@link Model#getPluginManagement() pluginManagement}. Especially it
+     * will keep {@link Model#getDependencyManagement() dependencyManagement} and {@link Model#getPluginManagement()
+     * pluginManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
      * useful if your POM represents a <a href=
      * "http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
      * >BOM (Bill Of Material)</a> and you do not want to deploy it as is (to remove parent and resolve version

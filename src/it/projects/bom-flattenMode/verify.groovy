@@ -50,7 +50,8 @@ assert 'bom' == flattendProject.artifactId.text()
 assert '0.9.1-beta1' == flattendProject.version.text()
 assert 'pom' == originalProject.packaging.text()
 // banned elements for artifact
-assert 0 == flattendProject.build.size()
+assert 1 == flattendProject.build.size() // build still exists to contain pluginManagement
+assert 1 == flattendProject.build.children().size() // but there should be only one node under build
 assert 1 == flattendProject.ciManagement.size()
 assert 1 == flattendProject.contributors.size()
 assert 1 == flattendProject.description.size()
@@ -77,7 +78,6 @@ assert 11 == flattendProject.dependencyManagement.dependencies.dependency.size()
 assert 'spring-boot-dependencies' == flattendProject.dependencyManagement.dependencies.dependency[0].artifactId.text()
 assert '1.1.0.RELEASE' == flattendProject.dependencyManagement.dependencies.dependency[0].version.text()
 
-assert 1 == flattendProject.build.size()
 assert 1 == flattendProject.build.pluginManagement.size()
 assert 1 == flattendProject.build.pluginManagement.plugins.size()
 assert 4 == flattendProject.build.pluginManagement.plugins.plugin.size()

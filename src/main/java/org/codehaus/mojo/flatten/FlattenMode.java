@@ -56,7 +56,7 @@ public enum FlattenMode {
      * Model#getProperties() properties}, and {@link Build#getPluginManagement() pluginManagement}. Especially it will
      * keep {@link Model#getDependencyManagement() dependencyManagement} and {@link Build#getPluginManagement()
      * pluginManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
-     * useful if your POM represents a <a href=*
+     * useful if your POM represents a <a href=
      * "http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
      * >BOM (Bill Of Material)</a> and you do not want to deploy it as is (to remove parent and resolve version
      * variables, etc.).

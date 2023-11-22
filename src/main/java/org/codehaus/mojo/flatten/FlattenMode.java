@@ -19,6 +19,7 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 
 /**
@@ -52,8 +53,8 @@ public enum FlattenMode {
 
     /**
      * Like {@link #oss} but additionally keeps {@link Model#getDependencyManagement() dependencyManagement}, {@link
-     * Model#getProperties() properties}, and {@link Model#getPluginManagement() pluginManagement}. Especially it will
-     * keep {@link Model#getDependencyManagement() dependencyManagement} and {@link Model#getPluginManagement()
+     * Model#getProperties() properties}, and {@link Build#getPluginManagement() pluginManagement}. Especially it will
+     * keep {@link Model#getDependencyManagement() dependencyManagement} and {@link Build#getPluginManagement()
      * pluginManagement} <em>as-is</em> without resolving parent influences and import-scoped dependencies. This is
      * useful if your POM represents a <a href=*
      * "http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"

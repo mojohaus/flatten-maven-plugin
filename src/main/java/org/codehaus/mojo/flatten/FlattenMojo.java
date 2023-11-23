@@ -23,16 +23,20 @@ import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -364,6 +368,14 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Parameter(property = "flatten.dependency.keepComments", required = false, defaultValue = "false")
     private boolean keepCommentsInPom;
 
+    /**
+     * A map of replacement values for <code>replace</code> {@link ElementHandling} elements.
+     *
+     * @since 1.5.1
+     */
+    @Parameter
+    private Map<String, String> replacementValues = new HashMap<>();
+
     @Inject
     private DirectDependenciesInheritanceAssembler inheritanceAssembler;
 
@@ -568,12 +580,23 @@ public class FlattenMojo extends AbstractFlattenMojo {
         Model resolvedPom = this.project.getModel();
         Model interpolatedPom = createResolvedPom(buildingRequest);
 
+        final Model replacementPom = createReplacementPom();
+
+        Model[] poms = new Model[] {
+            cleanPom, // ElementHandling.flatten
+            effectivePom, // ElementHandling.expand
+            resolvedPom, // ElementHandling.resolve
+            interpolatedPom, // ElementHandling.interpolate
+            originalPom, // ElementHandling.keep
+            null, // ElementHandling.remove
+            replacementPom // ElementHandling.flatten
+        };
+
         // copy the configured additional POM elements...
 
         for (PomProperty<?> property : PomProperty.getPomProperties()) {
             if (property.isElement()) {
-                Model sourceModel = getSourceModel(
-                        descriptor, property, effectivePom, originalPom, resolvedPom, interpolatedPom, cleanPom);
+                Model sourceModel = getSourceModel(descriptor, property, poms);
                 if (sourceModel == null) {
                     if (property.isRequired()) {
                         throw new MojoFailureException(
@@ -586,6 +609,19 @@ public class FlattenMojo extends AbstractFlattenMojo {
         }
 
         return flattenedPom;
+    }
+
+    private Model createReplacementPom() throws MojoExecutionException {
+        Model replacementPom = new Model();
+        for (Map.Entry<String, String> entry : replacementValues.entrySet()) {
+            try {
+                Method setter = new PropertyDescriptor(entry.getKey(), Model.class).getWriteMethod();
+                setter.invoke(replacementPom, entry.getValue());
+            } catch (IntrospectionException | ReflectiveOperationException e) {
+                throw new MojoExecutionException("could not set replacement value for '" + entry.getKey() + "'", e);
+            }
+        }
+        return replacementPom;
     }
 
     private Model createResolvedPom(ModelBuildingRequest buildingRequest) throws MojoExecutionException {
@@ -704,33 +740,15 @@ public class FlattenMojo extends AbstractFlattenMojo {
         return cleanPom;
     }
 
-    private Model getSourceModel(
-            FlattenDescriptor descriptor,
-            PomProperty<?> property,
-            Model effectivePom,
-            Model originalPom,
-            Model resolvedPom,
-            Model interpolatedPom,
-            Model cleanPom) {
+    private Model getSourceModel(FlattenDescriptor descriptor, PomProperty<?> property, Model[] poms) {
 
         ElementHandling handling = descriptor.getHandling(property);
         getLog().debug("Property " + property.getName() + " will be handled using " + handling + " in flattened POM.");
-        switch (handling) {
-            case expand:
-                return effectivePom;
-            case keep:
-                return originalPom;
-            case resolve:
-                return resolvedPom;
-            case interpolate:
-                return interpolatedPom;
-            case flatten:
-                return cleanPom;
-            case remove:
-                return null;
-            default:
-                throw new IllegalStateException(handling.toString());
+
+        if (handling.ordinal() >= poms.length) {
+            throw new IllegalStateException(handling.toString());
         }
+        return poms[handling.ordinal()];
     }
 
     /**

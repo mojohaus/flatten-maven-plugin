@@ -46,5 +46,8 @@ public enum ElementHandling {
     keep,
 
     /** Remove the element entirely so it will not be present in flattened POM. */
-    remove
+    remove,
+
+    /** Replace the element with a replacement value that can be set in the configuration. */
+    replace
 }

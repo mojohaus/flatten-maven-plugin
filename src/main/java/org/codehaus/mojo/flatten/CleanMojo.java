@@ -45,6 +45,8 @@ public class CleanMojo extends AbstractFlattenMojo {
 
     /**
      * If {@code true} the clean goal will be skipped.
+     *
+     * @since 1.6.0
      */
     @Parameter(property = "flatten.clean.skip", defaultValue = "false")
     private boolean skipClean;

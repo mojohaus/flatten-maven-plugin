@@ -366,6 +366,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     /**
      * If {@code true} the flatten goal will be skipped.
+     *
+     * @since 1.6.0
      */
     @Parameter(property = "flatten.flatten.skip", defaultValue = "false")
     private boolean skipFlatten;

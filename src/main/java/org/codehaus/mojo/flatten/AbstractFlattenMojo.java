@@ -45,6 +45,8 @@ public abstract class AbstractFlattenMojo extends AbstractMojo {
 
     /**
      * If {@code true} the plugin will be skipped.
+     *
+     * @since 1.6.0
      */
     @Parameter(property = "flatten.skip", defaultValue = "false")
     private boolean skip;

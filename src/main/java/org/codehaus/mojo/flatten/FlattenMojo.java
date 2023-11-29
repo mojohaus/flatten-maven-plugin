@@ -364,6 +364,14 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Parameter(property = "flatten.dependency.keepComments", required = false, defaultValue = "false")
     private boolean keepCommentsInPom;
 
+    /**
+     * If {@code true} the flatten goal will be skipped.
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "flatten.flatten.skip", defaultValue = "false")
+    private boolean skipFlatten;
+
     @Inject
     private DirectDependenciesInheritanceAssembler inheritanceAssembler;
 
@@ -400,6 +408,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
      */
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (shouldSkip()) {
+            getLog().info("Flatten skipped.");
+            return;
+        }
 
         getLog().info("Generating flattened POM of project " + this.project.getId() + "...");
 
@@ -420,6 +432,11 @@ public class FlattenMojo extends AbstractFlattenMojo {
             this.project.setPomFile(flattenedPomFile);
             this.project.setOriginalModel(flattenedPom);
         }
+    }
+
+    @Override
+    protected boolean shouldSkipGoal() {
+        return skipFlatten;
     }
 
     /**

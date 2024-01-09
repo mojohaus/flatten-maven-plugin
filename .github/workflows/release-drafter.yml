@@ -5,8 +5,4 @@ on:
       - master
 jobs:
   update_release_draft:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: apache/maven-gh-actions-shared/.github/workflows/maven-verify.yml@v3

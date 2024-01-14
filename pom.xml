@@ -122,7 +122,7 @@
   <scm>
     <connection>scm:git:https://github.com/mojohaus/flatten-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/flatten-maven-plugin.git</developerConnection>
-    <tag>1.4.1</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/mojohaus/flatten-maven-plugin/tree/master</url>
   </scm>
 

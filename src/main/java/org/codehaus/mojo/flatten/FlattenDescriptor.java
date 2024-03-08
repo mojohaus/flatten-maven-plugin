@@ -22,6 +22,7 @@ package org.codehaus.mojo.flatten;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -43,6 +44,10 @@ public class FlattenDescriptor {
     public FlattenDescriptor() {
         super();
         this.name2handlingMap = new HashMap<>();
+    }
+
+    public ImmutableMap<String, ElementHandling> getName2handlingMap() {
+        return ImmutableMap.copyOf(name2handlingMap);
     }
 
     /**

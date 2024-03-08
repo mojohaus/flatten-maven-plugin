@@ -28,11 +28,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,6 +48,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -76,6 +83,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
+import org.codehaus.mojo.flatten.extendedinterpolation.ExtendedModelInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -96,7 +104,6 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
 
 /**
@@ -387,7 +394,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * The {@link ModelInterpolator} used to resolve variables.
      */
     @Inject
-    private ModelInterpolator modelInterpolator;
+    private ExtendedModelInterpolator extendedModelInterpolator;
 
     /**
      * The {@link ModelInterpolator} used to resolve variables.
@@ -403,7 +410,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     @Inject
     private RepositorySystem repositorySystem;
-
     /**
      * The constructor.
      */
@@ -423,6 +429,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         getLog().info("Generating flattened POM of project " + this.project.getId() + "...");
 
+        logParameters();
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
@@ -445,6 +452,56 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Override
     protected boolean shouldSkipGoal() {
         return skipFlatten;
+    }
+
+    private void logParameters() {
+
+        try {
+            getLog().info("Generating flattened POM of project " + this.project.getId() + " with following parameters "
+                    + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.getParameters()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Map<String, Object> getParameters() {
+
+        final Map<String, Object> parameters = new HashMap<>();
+
+        final ImmutableList.Builder<Field> fieldsBuilder = ImmutableList.builder();
+        Arrays.stream(this.getClass().getDeclaredFields()).forEach(fieldsBuilder::add);
+        Arrays.stream(this.getClass().getSuperclass().getDeclaredFields()).forEach(fieldsBuilder::add);
+        fieldsBuilder.build().stream()
+                .sorted(Comparator.comparing(Field::getName))
+                .forEach(field -> putValue(parameters, field));
+
+        return parameters;
+    }
+
+    private void putValue(Map<String, Object> parameters, Field field) {
+        if (!Modifier.isStatic(field.getModifiers())
+                && (field.getType() == FlattenDescriptor.class
+                        || field.getType().isPrimitive()
+                        || field.getType() == Boolean.class
+                        || field.getType() == String.class
+                        || Number.class.isAssignableFrom(field.getType()))) {
+            parameters.put(field.getName(), this.getFieldValue(field));
+        }
+    }
+
+    public Object getFieldValue(Field field) {
+        field.setAccessible(true);
+
+        try {
+            final Object value = field.get(this);
+
+            if (value instanceof FlattenDescriptor) {
+                return ((FlattenDescriptor) value).getName2handlingMap();
+            }
+            return value;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -569,36 +626,22 @@ public class FlattenMojo extends AbstractFlattenMojo {
      */
     protected Model createFlattenedPom(File pomFile) throws MojoExecutionException, MojoFailureException {
 
-        ModelBuildingRequest buildingRequest = createModelBuildingRequest(pomFile);
-        Model effectivePom = createEffectivePom(buildingRequest, isEmbedBuildProfileDependencies(), this.flattenMode);
+        ModelsFactory modelsFactory = new ModelsFactory(pomFile);
 
         Model flattenedPom = new Model();
 
         // keep original encoding (we could also normalize to UTF-8 here)
-        String modelEncoding = effectivePom.getModelEncoding();
+        String modelEncoding = modelsFactory.getEffectivePom().getModelEncoding();
         if (StringUtils.isEmpty(modelEncoding)) {
             modelEncoding = "UTF-8";
         }
         flattenedPom.setModelEncoding(modelEncoding);
 
-        Model cleanPom;
-        try {
-            cleanPom = createCleanPom(effectivePom);
-        } catch (Exception e) {
-            throw new MojoExecutionException("failed to create a clean pom", e);
-        }
-
         FlattenDescriptor descriptor = getFlattenDescriptor();
-        Model originalPom = getOriginalModel();
-        Model resolvedPom = this.project.getModel();
-        Model interpolatedPom = createResolvedPom(buildingRequest);
-
-        // copy the configured additional POM elements...
 
         for (PomProperty<?> property : PomProperty.getPomProperties()) {
             if (property.isElement()) {
-                Model sourceModel = getSourceModel(
-                        descriptor, property, effectivePom, originalPom, resolvedPom, interpolatedPom, cleanPom);
+                Model sourceModel = getSourceModel(descriptor, property, modelsFactory);
                 if (sourceModel == null) {
                     if (property.isRequired()) {
                         throw new MojoFailureException(
@@ -613,21 +656,55 @@ public class FlattenMojo extends AbstractFlattenMojo {
         return flattenedPom;
     }
 
-    private Model createResolvedPom(ModelBuildingRequest buildingRequest) throws MojoExecutionException {
-        LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
-        Model originalModel = getOriginalModel();
-        if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
-            return this.modelCiFriendlyInterpolator.interpolateModel(
-                    originalModel, this.project.getModel().getProjectDirectory(), buildingRequest, problems);
+    Model createEffectivePom(ModelBuildingRequest buildingRequest) throws MojoExecutionException {
+        try {
+            return createEffectivePomImpl(buildingRequest);
+        } catch (Exception e) {
+            throw new MojoExecutionException("failed to create the effective pom", e);
         }
-        return this.modelInterpolator.interpolateModel(
-                originalModel, this.project.getModel().getProjectDirectory(), buildingRequest, problems);
     }
 
-    private Model getOriginalModel() throws MojoExecutionException {
+    private Model createCleanPom(Model effectivePom) throws MojoExecutionException {
+        try {
+            return createCleanPomImpl(effectivePom);
+        } catch (Exception e) {
+            throw new MojoExecutionException("failed to create a clean pom", e);
+        }
+    }
+
+    private Model createInterpolatedPom(
+            ModelBuildingRequest buildingRequest, Model originalPom, File projectDirectory) {
+        LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
+        if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+            return this.modelCiFriendlyInterpolator.interpolateModel(
+                    originalPom, projectDirectory, buildingRequest, problems);
+        }
+        return extendedModelInterpolator.interpolateModel(originalPom, projectDirectory, buildingRequest, problems);
+    }
+
+    private Model createExtendedInterpolatedPom(
+            ModelBuildingRequest buildingRequest, Model originalPom, Model effectivePom, File projectDirectory) {
+        LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
+        if (this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
+            return this.modelCiFriendlyInterpolator.interpolateModel(
+                    originalPom, projectDirectory, buildingRequest, problems);
+        }
+        final Model extendedInterpolatedPom = extendedModelInterpolator
+                .interpolateModel(effectivePom, originalPom, projectDirectory, buildingRequest, problems)
+                .clone();
+
+        // interpolate parent explicitly because parent is excluded from interpolation
+        if (effectivePom.getParent() != null) {
+            extendedInterpolatedPom.setParent(effectivePom.getParent().clone());
+        }
+
+        return extendedInterpolatedPom;
+    }
+
+    private Model createOriginalPom(File pomFile) throws MojoExecutionException {
         MavenXpp3Reader reader = new MavenXpp3Reader();
         try {
-            return reader.read(Files.newInputStream(this.project.getFile().toPath()));
+            return reader.read(Files.newInputStream(pomFile.toPath()));
         } catch (IOException | XmlPullParserException e) {
             throw new MojoExecutionException("Error reading raw model.", e);
         }
@@ -642,7 +719,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * @return the clean POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected Model createCleanPom(Model effectivePom) throws MojoExecutionException {
+    protected Model createCleanPomImpl(Model effectivePom) throws MojoExecutionException {
         Model cleanPom = new Model();
 
         cleanPom.setGroupId(effectivePom.getGroupId());
@@ -729,33 +806,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
         return cleanPom;
     }
 
-    private Model getSourceModel(
-            FlattenDescriptor descriptor,
-            PomProperty<?> property,
-            Model effectivePom,
-            Model originalPom,
-            Model resolvedPom,
-            Model interpolatedPom,
-            Model cleanPom) {
+    private Model getSourceModel(FlattenDescriptor descriptor, PomProperty<?> property, ModelsFactory modelsFactory)
+            throws MojoExecutionException {
 
         ElementHandling handling = descriptor.getHandling(property);
         getLog().debug("Property " + property.getName() + " will be handled using " + handling + " in flattened POM.");
-        switch (handling) {
-            case expand:
-                return effectivePom;
-            case keep:
-                return originalPom;
-            case resolve:
-                return resolvedPom;
-            case interpolate:
-                return interpolatedPom;
-            case flatten:
-                return cleanPom;
-            case remove:
-                return null;
-            default:
-                throw new IllegalStateException(handling.toString());
-        }
+        return modelsFactory.getModel(handling);
     }
 
     /**
@@ -776,10 +832,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
             }
             return flattenedRepositories;
         }
-        return repositories;
+        return null;
     }
 
-    private FlattenDescriptor getFlattenDescriptor() throws MojoFailureException {
+    private FlattenDescriptor getFlattenDescriptor() {
         FlattenDescriptor descriptor = this.pomElements;
         if (descriptor == null) {
             FlattenMode mode = this.flattenMode;
@@ -873,18 +929,11 @@ public class FlattenMojo extends AbstractFlattenMojo {
     /**
      * Creates the effective POM for the given <code>pomFile</code> trying its best to match the core maven behaviour.
      *
-     * @param buildingRequest               {@link ModelBuildingRequest}
-     * @param embedBuildProfileDependencies embed build profiles yes/no.
-     * @param flattenMode                   the flattening mode
+     * @param buildingRequest {@link ModelBuildingRequest}
      * @return the parsed and calculated effective POM.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected Model createEffectivePom(
-            ModelBuildingRequest buildingRequest,
-            final boolean embedBuildProfileDependencies,
-            final FlattenMode flattenMode)
-            throws MojoExecutionException {
-
+    protected Model createEffectivePomImpl(ModelBuildingRequest buildingRequest) throws MojoExecutionException {
         ModelBuildingResult buildingResult;
         try {
             ProfileInjector customInjector = (model, profile, request, problems) -> {
@@ -1270,7 +1319,95 @@ public class FlattenMojo extends AbstractFlattenMojo {
             }
             return !this.project.getPackaging().equals("pom");
         } else {
-            return this.updatePomFile.booleanValue();
+            return this.updatePomFile;
+        }
+    }
+
+    private class ModelsFactory {
+        private final File pomFile;
+        private Model effectivePom;
+        private Model originalPom;
+        private Model resolvedPom;
+        private Model interpolatedPom;
+        private Model extendedInterpolatedPom;
+        private Model cleanPom;
+
+        private ModelsFactory(File pomFile) {
+            this.pomFile = pomFile;
+        }
+
+        public Model getEffectivePom() throws MojoExecutionException {
+            if (effectivePom == null) {
+                this.effectivePom = FlattenMojo.this
+                        .createEffectivePom(createModelBuildingRequest(pomFile))
+                        .clone();
+            }
+            return this.effectivePom;
+        }
+
+        public Model getOriginalPom() throws MojoExecutionException {
+            if (this.originalPom == null) {
+                this.originalPom = createOriginalPom(this.pomFile);
+            }
+            return this.originalPom;
+        }
+
+        public Model getResolvedPom() {
+            if (this.resolvedPom == null) {
+                this.resolvedPom = FlattenMojo.this.project.getModel();
+            }
+            return this.resolvedPom;
+        }
+
+        public Model getInterpolatedPom() throws MojoExecutionException {
+            if (this.interpolatedPom == null) {
+                this.interpolatedPom = createInterpolatedPom(
+                                createModelBuildingRequest(pomFile),
+                                getOriginalPom().clone(),
+                                getResolvedPom().getProjectDirectory())
+                        .clone();
+            }
+            return this.interpolatedPom;
+        }
+
+        public Model getExtendedInterpolatedPom() throws MojoExecutionException {
+            if (this.extendedInterpolatedPom == null) {
+                this.extendedInterpolatedPom = createExtendedInterpolatedPom(
+                                createModelBuildingRequest(pomFile),
+                                getOriginalPom().clone(),
+                                getEffectivePom().clone(),
+                                getResolvedPom().getProjectDirectory())
+                        .clone();
+            }
+            return this.extendedInterpolatedPom;
+        }
+
+        public Model getCleanPom() throws MojoExecutionException {
+            if (this.cleanPom == null) {
+                this.cleanPom = createCleanPom(getEffectivePom().clone()).clone();
+            }
+            return this.cleanPom;
+        }
+
+        public Model getModel(ElementHandling handling) throws MojoExecutionException {
+            switch (handling) {
+                case expand:
+                    return this.getEffectivePom();
+                case keep:
+                    return this.getOriginalPom();
+                case resolve:
+                    return this.getResolvedPom();
+                case interpolate:
+                    return this.getInterpolatedPom();
+                case extended_interpolate:
+                    return this.getExtendedInterpolatedPom();
+                case flatten:
+                    return this.getCleanPom();
+                case remove:
+                    return null;
+                default:
+                    throw new IllegalStateException(handling.toString());
+            }
         }
     }
 
@@ -1311,7 +1448,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
          * {@inheritDoc}
          */
         @Override
-        public void comment(char[] ch, int start, int length) throws SAXException {
+        public void comment(char[] ch, int start, int length) {
 
             if (!this.rootTagSeen) {
                 if (this.headerComment == null) {
@@ -1326,7 +1463,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
          * {@inheritDoc}
          */
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attrs) {
 
             this.rootTagSeen = true;
         }

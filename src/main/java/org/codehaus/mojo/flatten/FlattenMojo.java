@@ -48,9 +48,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -456,24 +453,35 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     private void logParameters() {
 
-        try {
-            getLog().info("Generating flattened POM of project " + this.project.getId() + " with following parameters "
-                    + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.getParameters()));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        getLog().info("Generating flattened POM of project " + this.project.getId() + " with following parameters "
+                + this.asString(this.getParameters()));
+    }
+
+    private String asString(Map<String, Object> map) {
+        final StringBuilder stringBuilder = new StringBuilder("{");
+        int i = 0;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (i > 0) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder
+                    .append(entry.getKey())
+                    .append("='")
+                    .append(entry.getValue())
+                    .append("'");
+            i++;
         }
+        stringBuilder.append(" }");
+        return stringBuilder.toString();
     }
 
     private Map<String, Object> getParameters() {
 
-        final Map<String, Object> parameters = new HashMap<>();
+        final List<Field> fields = new ArrayList<>(Arrays.asList(this.getClass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(this.getClass().getSuperclass().getDeclaredFields()));
 
-        final ImmutableList.Builder<Field> fieldsBuilder = ImmutableList.builder();
-        Arrays.stream(this.getClass().getDeclaredFields()).forEach(fieldsBuilder::add);
-        Arrays.stream(this.getClass().getSuperclass().getDeclaredFields()).forEach(fieldsBuilder::add);
-        fieldsBuilder.build().stream()
-                .sorted(Comparator.comparing(Field::getName))
-                .forEach(field -> putValue(parameters, field));
+        final Map<String, Object> parameters = new HashMap<>();
+        fields.stream().sorted(Comparator.comparing(Field::getName)).forEach(field -> putValue(parameters, field));
 
         return parameters;
     }

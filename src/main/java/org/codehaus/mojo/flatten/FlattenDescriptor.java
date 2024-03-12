@@ -19,10 +19,10 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -46,8 +46,8 @@ public class FlattenDescriptor {
         this.name2handlingMap = new HashMap<>();
     }
 
-    public ImmutableMap<String, ElementHandling> getName2handlingMap() {
-        return ImmutableMap.copyOf(name2handlingMap);
+    public Map<String, ElementHandling> getName2handlingMap() {
+        return Collections.unmodifiableMap(name2handlingMap);
     }
 
     /**

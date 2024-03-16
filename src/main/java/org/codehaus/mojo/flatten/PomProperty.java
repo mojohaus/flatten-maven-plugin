@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringJoiner;
 
 import org.apache.maven.model.Build;
 import org.apache.maven.model.CiManagement;
@@ -620,6 +621,14 @@ public abstract class PomProperty<V> {
         if (value != null) {
             set(target, value);
         }
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PomProperty.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("valueType=" + valueType)
+                .toString();
     }
 
     /**

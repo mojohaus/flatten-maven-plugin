@@ -19,6 +19,7 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +44,10 @@ public class FlattenDescriptor {
     public FlattenDescriptor() {
         super();
         this.name2handlingMap = new HashMap<>();
+    }
+
+    public Map<String, ElementHandling> getName2handlingMap() {
+        return Collections.unmodifiableMap(name2handlingMap);
     }
 
     /**

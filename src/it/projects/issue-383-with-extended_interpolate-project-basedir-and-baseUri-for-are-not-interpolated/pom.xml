@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>issue-383-project-basedir-and-baseUri-for-are-not-interpolated</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+
+    <properties>
+        <projectBuild>x${project.build}y</projectBuild>
+        <projectArtifactId>x${project.artifactId}y</projectArtifactId>
+        <projectGroupId>x${project.groupId}y</projectGroupId>
+        <projectVersion>x${project.version}y</projectVersion>
+        <projectParentArtifactId>x${project.parent.artifactId}y</projectParentArtifactId>
+        <projectParentGroupId>x${project.parent.groupId}y</projectParentGroupId>
+        <projectBuildSourceDirectory>x${project.build.sourceDirectory}y</projectBuildSourceDirectory>
+        <projectBuildOutputDirectory>x${project.build.outputDirectory}y</projectBuildOutputDirectory>
+        <projectBuildDirectory>x${project.build.directory}y</projectBuildDirectory>
+        <projectBasedir>x${project.basedir}y</projectBasedir>
+        <projectBaseUri>x${project.baseUri}y</projectBaseUri>
+        <projectBuildScriptSourceDirectory>x${project.build.scriptSourceDirectory}y</projectBuildScriptSourceDirectory>
+        <projectBuildTestSourceDirectory>x${project.build.testSourceDirectory}y</projectBuildTestSourceDirectory>
+        <projectReportingOutputDirectory>x${project.reporting.outputDirectory}y</projectReportingOutputDirectory>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>@project.version@</version>
+                <configuration>
+                    <pomElements>
+                        <properties>extended_interpolate</properties>
+                    </pomElements>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -254,9 +254,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <configLocation>${checkstyle.spotless.config}</configLocation>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -289,20 +286,6 @@
 
   <profiles>
     <profile>
-      <id>java11+</id>
-      <activation>
-        <jdk>[11,)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.diffplug.spotless</groupId>
-            <artifactId>spotless-maven-plugin</artifactId>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
       <id>run-its</id>
       <build>
         <plugins>
@@ -314,9 +297,6 @@
               <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
               <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
               <settingsFile>src/it/mrm/settings.xml</settingsFile>
-              <filterProperties>
-                <repository.proxy.url>${repository.proxy.url}</repository.proxy.url>
-              </filterProperties>
               <properties>
                 <settingsFile>${project.build.directory}/it/interpolated-settings.xml</settingsFile>
               </properties>

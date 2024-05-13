@@ -128,7 +128,6 @@
 
   <properties>
     <mavenVersion>3.6.3</mavenVersion>
-    <recommendedJavaBuildVersion>11</recommendedJavaBuildVersion>
     <project.build.outputTimestamp>2024-01-14T11:28:18Z</project.build.outputTimestamp>
   </properties>
 
@@ -227,29 +226,6 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-plugin-report-plugin</artifactId>
-          <configuration>
-            <requirementsHistories>
-              <requirementsHistory>
-                <version>1.5.0</version>
-                <maven>3.5.4</maven>
-                <jdk>1.8</jdk>
-              </requirementsHistory>
-              <requirementsHistory>
-                <version>1.4.0</version>
-                <maven>3.2.5</maven>
-                <jdk>1.8</jdk>
-              </requirementsHistory>
-            </requirementsHistories>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -317,7 +293,6 @@
               </execution>
             </executions>
           </plugin>
-
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>mrm-maven-plugin</artifactId>

@@ -23,28 +23,11 @@ import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,16 +35,7 @@ import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Activation;
-import org.apache.maven.model.Build;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.DependencyManagement;
-import org.apache.maven.model.Exclusion;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.model.Profile;
-import org.apache.maven.model.Repository;
-import org.apache.maven.model.RepositoryPolicy;
+import org.apache.maven.model.*;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
@@ -407,6 +381,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     @Inject
     private RepositorySystem repositorySystem;
+
     /**
      * The constructor.
      */
@@ -426,7 +401,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         getLog().info("Generating flattened POM of project " + this.project.getId() + "...");
 
-        logParameters();
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
@@ -449,12 +423,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Override
     protected boolean shouldSkipGoal() {
         return skipFlatten;
-    }
-
-    private void logParameters() {
-
-        getLog().info("Generating flattened POM of project " + this.project.getId() + " with following parameters "
-                + this.asString(this.getParameters()));
     }
 
     private String asString(Map<String, Object> map) {

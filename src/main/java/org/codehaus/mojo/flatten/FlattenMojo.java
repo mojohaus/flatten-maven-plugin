@@ -28,15 +28,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -449,61 +445,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Override
     protected boolean shouldSkipGoal() {
         return skipFlatten;
-    }
-
-    private String asString(Map<String, Object> map) {
-        final StringBuilder stringBuilder = new StringBuilder("{");
-        int i = 0;
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (i > 0) {
-                stringBuilder.append(", ");
-            }
-            stringBuilder
-                    .append(entry.getKey())
-                    .append("='")
-                    .append(entry.getValue())
-                    .append("'");
-            i++;
-        }
-        stringBuilder.append(" }");
-        return stringBuilder.toString();
-    }
-
-    private Map<String, Object> getParameters() {
-
-        final List<Field> fields = new ArrayList<>(Arrays.asList(this.getClass().getDeclaredFields()));
-        fields.addAll(Arrays.asList(this.getClass().getSuperclass().getDeclaredFields()));
-
-        final Map<String, Object> parameters = new HashMap<>();
-        fields.stream().sorted(Comparator.comparing(Field::getName)).forEach(field -> putValue(parameters, field));
-
-        return parameters;
-    }
-
-    private void putValue(Map<String, Object> parameters, Field field) {
-        if (!Modifier.isStatic(field.getModifiers())
-                && (field.getType() == FlattenDescriptor.class
-                        || field.getType().isPrimitive()
-                        || field.getType() == Boolean.class
-                        || field.getType() == String.class
-                        || Number.class.isAssignableFrom(field.getType()))) {
-            parameters.put(field.getName(), this.getFieldValue(field));
-        }
-    }
-
-    public Object getFieldValue(Field field) {
-        field.setAccessible(true);
-
-        try {
-            final Object value = field.get(this);
-
-            if (value instanceof FlattenDescriptor) {
-                return ((FlattenDescriptor) value).getName2handlingMap();
-            }
-            return value;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     /**

@@ -27,13 +27,18 @@ package org.codehaus.mojo.flatten;
  */
 public enum FlattenDependencyMode {
     /**
-     * Flatten only the direct dependency versions. This is the default mode and compatible with
-     * Flatten Plugin prior to 1.2.0.
+     * Flatten only the direct dependency versions, excluding inherited dependencies from a parent module.
      */
     direct,
 
     /**
-     * Flatten both direct and transitive dependencies. This will examine the full dependency tree, and pull up
+     * Flatten dependencies, including inherited dependencies from a parent module.
+     * This is the default mode and compatible with Flatten Plugin prior to 1.2.0.
+     */
+    inherited,
+
+    /**
+     * Flatten both direct, inherited and transitive dependencies. This will examine the full dependency tree, and pull up
      * all transitive dependencies as a direct dependency, and setting their versions appropriately.
      *
      * This is recommended if you are releasing a library that uses dependency management to manage dependency

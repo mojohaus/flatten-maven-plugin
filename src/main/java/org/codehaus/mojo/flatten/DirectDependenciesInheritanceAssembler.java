@@ -144,7 +144,7 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
         @Override
         protected void mergeModelBase_Dependencies(
                 ModelBase target, ModelBase source, boolean sourceDominant, Map<Object, Object> context) {
-            if (flattenDependencyMode == null || flattenDependencyMode == FlattenDependencyMode.direct) {
+            if (flattenDependencyMode == FlattenDependencyMode.direct) {
                 return;
             }
             super.mergeModelBase_Dependencies(target, source, sourceDominant, context);

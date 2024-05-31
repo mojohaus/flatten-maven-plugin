@@ -339,8 +339,16 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * </thead><tbody>
      * <tr>
      * <td>direct</td>
-     * <td>Flatten only the direct dependency versions.
-     * This is the default mode and compatible with Flatten Plugin prior to 1.2.0.</td>
+     * <td><p>Flatten only the direct dependency versions, excluding inherited dependencies from a parent module.</p>
+     * <p>This was the default mode with Flatten Plugin in versions 1.4.0 up to 1.6.0.
+     * </td>
+     * </tr>
+     * <tr>
+     * <td>inherited</td>
+     * <td><p>Flatten the dependency versions, including inherited dependencies from a parent module</p>
+     * <p>This is the default mode and compatible with Flatten Plugin prior to 1.2.0, this mode was called <tt>direct</tt> between versions 1.2.0 and 1.3.0.</p>
+     * </td>
+     * </tr>
      * <tr>
      * <td>all</td>
      * <td><p>Flatten both direct and transitive dependencies. This will examine the full dependency tree, and pull up
@@ -1217,7 +1225,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
         // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
         List<Dependency> projectDependencies = effectiveModel.getDependencies();
 
-        if (flattenDependencyMode == null | flattenDependencyMode == FlattenDependencyMode.direct) {
+        if (flattenDependencyMode == null
+                || flattenDependencyMode == FlattenDependencyMode.direct
+                || flattenDependencyMode == FlattenDependencyMode.inherited) {
             createFlattenedDependenciesDirect(projectDependencies, flattenedDependencies);
         } else if (flattenDependencyMode == FlattenDependencyMode.all) {
             try {

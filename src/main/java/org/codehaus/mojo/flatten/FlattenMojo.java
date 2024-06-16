@@ -19,31 +19,6 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import javax.inject.Inject;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -98,6 +73,30 @@ import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
+
+import javax.inject.Inject;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This MOJO realizes the goal <code>flatten</code> that generates the flattened POM and {@link #isUpdatePomFile()
@@ -339,8 +338,16 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * </thead><tbody>
      * <tr>
      * <td>direct</td>
-     * <td>Flatten only the direct dependency versions.
-     * This is the default mode and compatible with Flatten Plugin prior to 1.2.0.</td>
+     * <td><p>Flatten only the direct dependency versions, excluding inherited dependencies from a parent module.</p>
+     * <p>This was the default mode with Flatten Plugin in versions 1.4.0 up to 1.6.0.
+     * </td>
+     * </tr>
+     * <tr>
+     * <td>inherited</td>
+     * <td><p>Flatten the dependency versions, including inherited dependencies from a parent module</p>
+     * <p>This is the default mode and compatible with Flatten Plugin prior to 1.2.0, this mode was called <tt>direct</tt> between versions 1.2.0 and 1.3.0.</p>
+     * </td>
+     * </tr>
      * <tr>
      * <td>all</td>
      * <td><p>Flatten both direct and transitive dependencies. This will examine the full dependency tree, and pull up
@@ -1225,7 +1232,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
         // List<Dependency> projectDependencies = currentProject.getOriginalModel().getDependencies();
         List<Dependency> projectDependencies = effectiveModel.getDependencies();
 
-        if (flattenDependencyMode == null | flattenDependencyMode == FlattenDependencyMode.direct) {
+        if (flattenDependencyMode == null
+                || flattenDependencyMode == FlattenDependencyMode.direct
+                || flattenDependencyMode == FlattenDependencyMode.inherited) {
             createFlattenedDependenciesDirect(projectDependencies, flattenedDependencies);
         } else if (flattenDependencyMode == FlattenDependencyMode.all) {
             try {

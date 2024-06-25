@@ -1,0 +1,59 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codehaus.mojo.flatten.its</groupId>
+        <artifactId>issue-382-with-extended_interpolate-properties-from-parent-are-interpolated</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>bom</artifactId>
+
+    <packaging>pom</packaging>
+
+    <properties>
+        <version.grpc>1.57.1</version.grpc>
+        <interpolated-version-springboot>${version.springboot}</interpolated-version-springboot>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${version.springboot}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- gRPC/protobuf -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${version.grpc}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>@project.version@</version>
+                <configuration>
+                    <pomElements>
+                        <parent>remove</parent>
+                        <properties>extended_interpolate</properties>
+                        <dependencyManagement>extended_interpolate</dependencyManagement>
+                    </pomElements>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -41,6 +41,12 @@ public enum ElementHandling {
 
     /** Take the element from the interpolated POM (original POM with variables interpolated). */
     interpolate,
+    /**
+     * Take the element from the interpolated POM, but resolve the variables with the properties from the effective POM.<br>
+     * Don't resolve the following variables "project.basedir", "project.baseUri", "project.build.directory", "project.build.outputDirectory", "project.build.sourceDirectory", "project.build.scriptSourceDirectory", "project.build.testSourceDirectory", "project.reporting.outputDirectory"<br>
+     * Interpolate the parent version
+     */
+    extended_interpolate,
 
     /** Take the element untouched from the original POM. */
     keep,

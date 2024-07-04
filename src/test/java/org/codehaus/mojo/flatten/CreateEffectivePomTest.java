@@ -80,7 +80,7 @@ public class CreateEffectivePomTest {
         FlattenMojo tested = (FlattenMojo) rule.lookupConfiguredMojo(mavenProject, "flatten");
         rule.setVariableValueToObject(
                 tested, "modelBuilderThreadSafetyWorkaround", buildModelBuilderThreadSafetyWorkaroundForTest());
-        Model effectivePom = tested.createEffectivePom(buildingRequest, false, FlattenMode.defaults);
+        Model effectivePom = tested.createEffectivePom(buildingRequest);
         assertThat(effectivePom.getName()).isEqualTo(magicValue);
     }
 

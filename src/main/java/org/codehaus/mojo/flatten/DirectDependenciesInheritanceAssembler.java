@@ -18,18 +18,17 @@
  */
 package org.codehaus.mojo.flatten;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.maven.model.Model;
 import org.apache.maven.model.ModelBase;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.inheritance.DefaultInheritanceAssembler;
 import org.apache.maven.model.merge.MavenModelMerger;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The DefaultInheritanceAssembler is encapsulating the InheritanceModelMerger.
@@ -144,7 +143,7 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
         @Override
         protected void mergeModelBase_Dependencies(
                 ModelBase target, ModelBase source, boolean sourceDominant, Map<Object, Object> context) {
-            if (flattenDependencyMode == null || flattenDependencyMode == FlattenDependencyMode.direct) {
+            if (flattenDependencyMode == FlattenDependencyMode.direct) {
                 return;
             }
             super.mergeModelBase_Dependencies(target, source, sourceDominant, context);

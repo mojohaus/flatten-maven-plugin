@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblemCollector;
-import org.apache.maven.model.interpolation.StringSearchModelInterpolator;
+import org.apache.maven.model.interpolation.StringVisitorModelInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 
 @Named
-public class ExtendedStringSearchModelInterpolator extends StringSearchModelInterpolator
+public class ExtendedStringSearchModelInterpolator extends StringVisitorModelInterpolator
         implements ExtendedModelInterpolator {
 
     private static final List<String> NOT_INTERPOLATABLES = Stream.of(

@@ -3,6 +3,7 @@ package org.codehaus.mojo.flatten.extendedinterpolation;
 import javax.inject.Named;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,6 +13,9 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.interpolation.StringVisitorModelInterpolator;
+import org.apache.maven.model.path.PathTranslator;
+import org.apache.maven.model.path.UrlNormalizer;
+import org.apache.maven.model.root.RootLocator;
 import org.codehaus.plexus.interpolation.ValueSource;
 
 @Named
@@ -31,15 +35,20 @@ public class ExtendedStringSearchModelInterpolator extends StringVisitorModelInt
             .collect(Collectors.toList());
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private Optional<Model> valueSourceOriginModel = Optional.empty();
+    private Optional<org.apache.maven.api.model.Model> valueSourceOriginModel = Optional.empty();
 
-    public ExtendedStringSearchModelInterpolator() {
+    public ExtendedStringSearchModelInterpolator(
+            PathTranslator pathTranslator, UrlNormalizer urlNormalizer, RootLocator rootLocator) {
+        super(pathTranslator, urlNormalizer, rootLocator);
         FilteringValueSourceWrapper.setClassLoader(getClass().getSuperclass().getClassLoader());
     }
 
     @Override
     protected List<ValueSource> createValueSources(
-            Model model, File projectDir, ModelBuildingRequest config, ModelProblemCollector problems) {
+            org.apache.maven.api.model.Model model,
+            Path projectDir,
+            ModelBuildingRequest config,
+            ModelProblemCollector problems) {
 
         if (valueSourceOriginModel.isPresent()) {
             return FilteringValueSourceWrapper.wrap(
@@ -69,7 +78,7 @@ public class ExtendedStringSearchModelInterpolator extends StringVisitorModelInt
             throw new IllegalArgumentException("model is null");
         }
 
-        this.valueSourceOriginModel = Optional.of(valueSourceOriginModel);
+        this.valueSourceOriginModel = Optional.of(valueSourceOriginModel.getDelegate());
         try {
             return super.interpolateModel(model, projectDir, config, problems);
         } finally {

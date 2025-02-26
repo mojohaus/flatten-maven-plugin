@@ -24,8 +24,8 @@ import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.ModelBase;
+import org.apache.maven.api.model.Model;
+import org.apache.maven.api.model.ModelBase;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.inheritance.DefaultInheritanceAssembler;
@@ -67,13 +67,16 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
     public DirectDependenciesInheritanceAssembler() {}
 
     @Override
-    public void assembleModelInheritance(
+    public Model assembleModelInheritance(
             Model child, Model parent, ModelBuildingRequest request, ModelProblemCollector problems) {
         Map<Object, Object> hints = new HashMap<>();
-        String childPath = child.getProperties().getProperty(CHILD_DIRECTORY_PROPERTY, child.getArtifactId());
+        String childPath = child.getProperties().get(CHILD_DIRECTORY_PROPERTY);
+        if (childPath == null) {
+            childPath = child.getArtifactId();
+        }
         hints.put(CHILD_DIRECTORY, childPath);
         hints.put(MavenModelMerger.CHILD_PATH_ADJUSTMENT, getChildPathAdjustment(child, parent, childPath));
-        merger.merge(child, parent, false, hints);
+        return merger.merge(child, parent, false, hints);
     }
 
     /**
@@ -101,7 +104,7 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
              * repository).
              */
             if (child.getProjectDirectory() != null) {
-                childName = child.getProjectDirectory().getName();
+                childName = child.getProjectDirectory().getFileName().toString();
             }
 
             for (String module : parent.getModules()) {
@@ -137,17 +140,21 @@ public class DirectDependenciesInheritanceAssembler extends DefaultInheritanceAs
             extends DefaultInheritanceAssembler.InheritanceModelMerger {
 
         @Override
-        public void merge(Model target, Model source, boolean sourceDominant, Map<?, ?> hints) {
-            super.merge(target, source, sourceDominant, hints);
+        public Model merge(Model target, Model source, boolean sourceDominant, Map<?, ?> hints) {
+            return super.merge(target, source, sourceDominant, hints);
         }
 
         @Override
         protected void mergeModelBase_Dependencies(
-                ModelBase target, ModelBase source, boolean sourceDominant, Map<Object, Object> context) {
+                ModelBase.Builder builder,
+                ModelBase target,
+                ModelBase source,
+                boolean sourceDominant,
+                Map<Object, Object> context) {
             if (flattenDependencyMode == FlattenDependencyMode.direct) {
                 return;
             }
-            super.mergeModelBase_Dependencies(target, source, sourceDominant, context);
+            super.mergeModelBase_Dependencies(builder, target, source, sourceDominant, context);
         }
     }
 }

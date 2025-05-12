@@ -629,4 +629,9 @@ public abstract class PomProperty<V> {
     public static List<PomProperty<?>> getPomProperties() {
         return POM_PROPERTIES;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

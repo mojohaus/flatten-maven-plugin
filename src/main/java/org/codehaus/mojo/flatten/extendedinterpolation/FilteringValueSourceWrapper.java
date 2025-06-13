@@ -46,7 +46,7 @@ public class FilteringValueSourceWrapper {
 
         return Proxy.newProxyInstance(classLoader, new Class[] {this.valueSourceClass}, (proxy, method, args) -> {
             if (method.getName().equals("getValue")) {
-                if (args.length != 1 || (args[0] != null && !(args[0] instanceof String))) {
+                if ((args.length != 1 && args.length != 3) || (args[0] != null && !(args[0] instanceof String))) {
                     throw new InternalError(
                             "The class " + valueSourceClass.getName() + " got a changed getValue method: " + method);
                 }

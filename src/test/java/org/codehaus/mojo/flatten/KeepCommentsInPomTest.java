@@ -21,6 +21,7 @@ package org.codehaus.mojo.flatten;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
@@ -75,7 +76,7 @@ public class KeepCommentsInPomTest {
 
         Path expectedContentFile = Paths.get(EXPECTED_FLATTENED_POM);
         Path actualContentFile = Paths.get(FLATTENED_POM);
-        assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile);
+        assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile, StandardCharsets.UTF_8);
         assertHasLineSeparator(actualContentFile, System.lineSeparator());
     }
 

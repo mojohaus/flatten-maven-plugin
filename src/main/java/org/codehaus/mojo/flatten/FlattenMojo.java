@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -211,6 +212,8 @@ import org.xml.sax.ext.DefaultHandler2;
 public class FlattenMojo extends AbstractFlattenMojo {
 
     private static final int INITIAL_POM_WRITER_SIZE = 4096;
+
+    private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n|\\r\\n?");
 
     /**
      * The {@link Settings} used to get active profile properties.
@@ -570,9 +573,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected void writeStringToFile(String data, File file, String encoding) throws MojoExecutionException {
-        if (!"\n".equals(System.lineSeparator())) {
-            data = data.replace("\n", System.lineSeparator());
-        }
+        data = NEW_LINE_PATTERN.matcher(data).replaceAll(System.lineSeparator());
+
         byte[] binaryData;
 
         try {

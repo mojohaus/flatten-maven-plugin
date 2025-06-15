@@ -33,6 +33,7 @@ import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,6 +51,9 @@ public class KeepCommentsInPomTest {
 
     @Rule
     public MojoRule rule = new MojoRule();
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setup() {
@@ -78,6 +82,21 @@ public class KeepCommentsInPomTest {
         Path actualContentFile = Paths.get(FLATTENED_POM);
         assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile, StandardCharsets.UTF_8);
         assertHasLineSeparator(actualContentFile, System.lineSeparator());
+    }
+
+    @Test
+    public void allNewLineSeparatorShouldBeNormalized() throws Exception {
+
+        FlattenMojo flattenMojo = new FlattenMojo();
+
+        File tempFile = temporaryFolder.newFile();
+        flattenMojo.writeStringToFile("line 1\n" + "line 2\r\n" + "line 3\r", tempFile, "UTF-8");
+
+        String lf = System.lineSeparator();
+
+        assertHasLineSeparator(tempFile.toPath(), lf);
+        assertThat(tempFile)
+                .hasBinaryContent(("line 1" + lf + "line 2" + lf + "line 3" + lf).getBytes(StandardCharsets.UTF_8));
     }
 
     private static void assertHasLineSeparator(final Path file, final String expectedSeparator) throws IOException {

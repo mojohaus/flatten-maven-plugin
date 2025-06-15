@@ -44,10 +44,6 @@ public class KeepCommentsInPomTest {
     private static final String TEST_TARGET_PATH = "target/test/resources/keep-comments-in-pom/";
     private static final String FLATTENED_POM = TEST_TARGET_PATH + ".flattened-pom.xml";
     private static final String EXPECTED_FLATTENED_POM = PATH + "expected-flattened-pom.xml";
-    /**
-     * Expected result since jdk11 with updated xml header and properties sequence.
-     */
-    private static final String EXPECTED_FLATTENED_POM_JDK11 = PATH + "expected-flattened-pom-jdk11.xml";
 
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n|\\r\\n?");
 
@@ -77,24 +73,10 @@ public class KeepCommentsInPomTest {
         // execute writes new FLATTENED_POM
         flattenMojo.execute();
 
-        Path expectedContentFile = Paths.get(isJdk8() ? EXPECTED_FLATTENED_POM : EXPECTED_FLATTENED_POM_JDK11);
+        Path expectedContentFile = Paths.get(EXPECTED_FLATTENED_POM);
         Path actualContentFile = Paths.get(FLATTENED_POM);
         assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile);
         assertHasLineSeparator(actualContentFile, System.lineSeparator());
-    }
-
-    /**
-     * Check runtime version.
-     *
-     * @return true when runtime is JDK11
-     */
-    private boolean isJdk8() {
-        // With Java 9 can be switched to java.lang.Runtime.version()
-        String tempPropertyVersion = System.getProperty("java.version");
-        if (tempPropertyVersion.startsWith("1.8.")) {
-            return true;
-        }
-        return false;
     }
 
     private static void assertHasLineSeparator(final Path file, final String expectedSeparator) throws IOException {

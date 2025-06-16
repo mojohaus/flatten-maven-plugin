@@ -12,6 +12,10 @@
 		<!-- comment1 for propertyWithTwoComments -->
 		<!-- comment2 for propertyWithTwoComments -->
 		<propertyWithTwoComments>test-propertyWithTwoComments</propertyWithTwoComments>
+
+		<hello>me</hello>
+		<test1.prop>HELLO${hello}${revision}</test1.prop>
+		<test2.prop>HELLO${hello}</test2.prop>
 	</properties>
 
 	<build>

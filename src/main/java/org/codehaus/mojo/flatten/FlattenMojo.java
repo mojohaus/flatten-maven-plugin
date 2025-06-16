@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,6 +77,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
+import org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator;
 import org.codehaus.mojo.flatten.extendedinterpolation.ExtendedModelInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
@@ -210,6 +212,8 @@ import org.xml.sax.ext.DefaultHandler2;
 public class FlattenMojo extends AbstractFlattenMojo {
 
     private static final int INITIAL_POM_WRITER_SIZE = 4096;
+
+    private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n|\\r\\n?");
 
     /**
      * The {@link Settings} used to get active profile properties.
@@ -434,16 +438,52 @@ public class FlattenMojo extends AbstractFlattenMojo {
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
-        KeepCommentsInPom commentsOfOriginalPomFile = null;
-        if (keepCommentsInPom) {
-            commentsOfOriginalPomFile = KeepCommentsInPom.create(getLog(), originalPomFile);
-        }
-        Model flattenedPom = createFlattenedPom(originalPomFile);
-        String headerComment = extractHeaderComment(originalPomFile);
-
         File flattenedPomFile = getFlattenedPomFile();
-        writePom(flattenedPom, flattenedPomFile, headerComment, commentsOfOriginalPomFile);
+        Model flattenedPom;
+        /*
+         * Non-destructive CI-friendly version flattening?
+         *
+         * NOTE: Regular flattening implies POM rebuilding from scratch, losing original formatting, ordering and
+         * comments (`KeepCommentsInPom` itself is testament to this anything-but-ideal arrangement). Such side
+         * effects are undesirable when it comes to POMs requiring just CI-friendly version interpolation, which are
+         * typically expected to retain their original representation for later inspection. Despite far from elegant,
+         * this dedicated solution ensures POMs are flattened non-destructively.
+         */
+        if (flattenMode == FlattenMode.resolveCiFriendliesOnly && this.pomElements == null) {
+            ModelsFactory modelsFactory = new ModelsFactory(originalPomFile);
+            String modelEncoding = getModelEncoding(modelsFactory.getEffectivePom());
 
+            // Load original POM content!
+            String pomString;
+            try {
+                pomString = new String(Files.readAllBytes(originalPomFile.toPath()), modelEncoding);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Original POM file loading FAILED: " + originalPomFile, e);
+            }
+
+            // Interpolate POM content!
+            CiModelInterpolator interpolator = (CiModelInterpolator) this.modelCiFriendlyInterpolator;
+            Model originalPom = this.project.getModel();
+            File projectDir = modelsFactory.getResolvedPom().getProjectDirectory();
+            ModelBuildingRequest config = createModelBuildingRequest(originalPomFile);
+            LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
+            pomString = interpolator.interpolateModelContent(pomString, originalPom, projectDir, config, problems);
+
+            // Save flattened POM content!
+            writeStringToFile(pomString, flattenedPomFile, modelEncoding);
+
+            // Load flattened POM!
+            flattenedPom = createOriginalPom(flattenedPomFile);
+        } else {
+            KeepCommentsInPom commentsOfOriginalPomFile = null;
+            if (keepCommentsInPom) {
+                commentsOfOriginalPomFile = KeepCommentsInPom.create(getLog(), originalPomFile);
+            }
+            flattenedPom = createFlattenedPom(originalPomFile);
+            String headerComment = extractHeaderComment(originalPomFile);
+
+            writePom(flattenedPom, flattenedPomFile, headerComment, commentsOfOriginalPomFile);
+        }
         if (isUpdatePomFile()) {
             this.project.setPomFile(flattenedPomFile);
             this.project.setOriginalModel(flattenedPom);
@@ -533,9 +573,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * @throws MojoExecutionException if anything goes wrong.
      */
     protected void writeStringToFile(String data, File file, String encoding) throws MojoExecutionException {
-        if (!"\n".equals(System.lineSeparator())) {
-            data = data.replace("\n", System.lineSeparator());
-        }
+        data = NEW_LINE_PATTERN.matcher(data).replaceAll(System.lineSeparator());
+
         byte[] binaryData;
 
         try {
@@ -582,10 +621,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         Model flattenedPom = new Model();
 
         // keep original encoding (we could also normalize to UTF-8 here)
-        String modelEncoding = modelsFactory.getEffectivePom().getModelEncoding();
-        if (StringUtils.isEmpty(modelEncoding)) {
-            modelEncoding = "UTF-8";
-        }
+        String modelEncoding = getModelEncoding(modelsFactory.getEffectivePom());
         flattenedPom.setModelEncoding(modelEncoding);
 
         FlattenDescriptor descriptor = getFlattenDescriptor();
@@ -813,6 +849,15 @@ public class FlattenMojo extends AbstractFlattenMojo {
         }
         descriptor.setDefaultOperation(defaultOperation);
         return descriptor;
+    }
+
+    private static String getModelEncoding(Model pom) {
+        // keep original encoding (we could also normalize to UTF-8 here)
+        String modelEncoding = pom.getModelEncoding();
+        if (StringUtils.isEmpty(modelEncoding)) {
+            modelEncoding = "UTF-8";
+        }
+        return modelEncoding;
     }
 
     /**

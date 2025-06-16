@@ -122,6 +122,22 @@ public class CiModelInterpolator implements CiInterpolator {
         return model;
     }
 
+    public String interpolateModelContent(
+            String modelContent,
+            Model model,
+            File projectDir,
+            ModelBuildingRequest config,
+            ModelProblemCollector problems) {
+        try {
+            List<? extends ValueSource> valueSources = createValueSources(model, projectDir, config, problems);
+            List<? extends InterpolationPostProcessor> postProcessors = createPostProcessors(model, projectDir, config);
+
+            return interpolateInternal(modelContent, valueSources, postProcessors, problems);
+        } finally {
+            getInterpolator().clearAnswers();
+        }
+    }
+
     protected void interpolateObject(
             Object obj, Model model, File projectDir, ModelBuildingRequest config, ModelProblemCollector problems) {
         try {
@@ -361,6 +377,11 @@ public class CiModelInterpolator implements CiInterpolator {
             }
 
             abstract void doInterpolate(Object target, InterpolateObjectAction ctx) throws IllegalAccessException;
+
+            @Override
+            public String toString() {
+                return field.toString();
+            }
         }
 
         static final class StringField extends CacheField {

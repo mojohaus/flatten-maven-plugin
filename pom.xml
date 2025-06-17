@@ -128,6 +128,7 @@
 
   <properties>
     <mavenVersion>3.9.10</mavenVersion>
+    <minimalMavenBuildVersion>3.6.3</minimalMavenBuildVersion>
     <project.build.outputTimestamp>2025-02-25T21:55:28Z</project.build.outputTimestamp>
   </properties>
 

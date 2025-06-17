@@ -22,6 +22,7 @@ package org.codehaus.mojo.flatten;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.maven.api.annotations.Nullable;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
@@ -42,7 +43,6 @@ import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.model.superpom.SuperPomProvider;
 import org.apache.maven.model.validation.ModelValidator;
-import org.eclipse.sisu.Nullable;
 
 /**
  * Works around thread safety issues when modifying the global singleton

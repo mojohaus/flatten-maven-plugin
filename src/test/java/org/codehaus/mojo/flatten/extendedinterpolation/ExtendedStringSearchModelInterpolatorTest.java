@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblemCollectorRequest;
+import org.apache.maven.model.interpolation.DefaultModelVersionProcessor;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -15,7 +16,8 @@ public class ExtendedStringSearchModelInterpolatorTest {
 
     @Test
     public void testExtendedStringSearchModelInterpolator() throws Exception {
-        ExtendedModelInterpolator interpolator = new ExtendedStringSearchModelInterpolator();
+        ExtendedStringSearchModelInterpolator interpolator = new ExtendedStringSearchModelInterpolator();
+        interpolator.setVersionPropertiesProcessor(new DefaultModelVersionProcessor());
 
         Model efectiveModel = new Model();
         efectiveModel.addProperty("foo", "bar");

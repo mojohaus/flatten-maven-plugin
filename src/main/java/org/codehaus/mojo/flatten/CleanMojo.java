@@ -30,8 +30,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * This MOJO realizes the goal <code>flatten:clean</code> that deletes any files created by
  * <code>{@link FlattenMojo flatten:flatten}</code> (more specific the flattened POM file which is by default
- * <code>.flattened-pom.xml</code>). See also <a href="http://jira.codehaus.org/browse/MOJO-2030">MOJO-2030</a> for
- * further details.
+ * <code>.flattened-pom.xml</code>).
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-2

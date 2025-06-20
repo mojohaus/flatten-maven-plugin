@@ -30,7 +30,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <!--<version>${project.version}</version>-->
+        <version>${project.version}</version>
         <configuration>
         </configuration>
         <executions>

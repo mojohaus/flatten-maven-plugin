@@ -15,7 +15,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <!--<version>${project.version}</version>-->
+        <version>${project.version}</version>
         <configuration>
         </configuration>
         <executions>
@@ -41,11 +41,11 @@
       ]]></source>
       <subsection name="Keep developer information">
         If you want to keep additional development information in your POM you can configure predefined modes via the <code>flattenMode</code> parameter.
-        For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "minimum". 
+        For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "resolveCiFriendliesOnly".
         Here is an example configuration:
       <source><![CDATA[
         <configuration>
-          <flattenMode>minimum</flattenMode>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
         </configuration>
       ]]></source>
       </subsection>

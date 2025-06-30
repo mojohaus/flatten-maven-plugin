@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -599,7 +600,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("cannot read String as bytes", e);
         }
-        try (OutputStream outStream = Files.newOutputStream(file.toPath())) {
+        Path filePath = file.toPath();
+        try {
+            Files.createDirectories(filePath.getParent());
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to create " + filePath.getParent(), e);
+        }
+        try (OutputStream outStream = Files.newOutputStream(filePath)) {
             outStream.write(binaryData);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write to " + file, e);

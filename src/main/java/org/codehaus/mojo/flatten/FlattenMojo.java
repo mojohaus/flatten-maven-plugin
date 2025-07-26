@@ -25,10 +25,10 @@ import javax.xml.parsers.SAXParserFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -438,7 +438,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
         File originalPomFile = this.project.getFile();
-        File flattenedPomFile = getFlattenedPomFile();
+        Path flattenedPomFile = getFlattenedPomFile();
         Model flattenedPom;
         /*
          * Non-destructive CI-friendly version flattening?
@@ -485,7 +485,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             writePom(flattenedPom, flattenedPomFile, headerComment, commentsOfOriginalPomFile);
         }
         if (isUpdatePomFile()) {
-            this.project.setPomFile(flattenedPomFile);
+            this.project.setPomFile(flattenedPomFile.toFile());
             this.project.setOriginalModel(flattenedPom);
         }
     }
@@ -520,23 +520,16 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * Writes the given POM {@link Model} to the given {@link File}.
      *
      * @param pom           the {@link Model} of the POM to write.
-     * @param pomFile       the {@link File} where to write the given POM will be written to.
+     * @param pomFile       the {@link Path} where to write the given POM will be written to.
      *                      {@link File#getParentFile()
      *                      Parent directories} are {@link File#mkdirs() created} automatically.
      * @param headerComment is the content of a potential XML comment at the top of the XML (after XML declaration and
      *                      before root tag). May be <code>null</code> if not present and to be omitted in target POM.
      * @throws MojoExecutionException if the operation failed (e.g. due to an {@link IOException}).
      */
-    protected void writePom(Model pom, File pomFile, String headerComment, KeepCommentsInPom anOriginalCommentsPath)
+    protected void writePom(Model pom, Path pomFile, String headerComment, KeepCommentsInPom anOriginalCommentsPath)
             throws MojoExecutionException {
 
-        File parentFile = pomFile.getParentFile();
-        if (!parentFile.exists()) {
-            boolean success = parentFile.mkdirs();
-            if (!success) {
-                throw new MojoExecutionException("Failed to create directory " + pomFile.getParent());
-            }
-        }
         // MavenXpp3Writer could internally add the comment but does not expose such feature to API!
         // Instead we have to write POM XML to String and do post processing on that :(
         MavenXpp3Writer pomWriter = new MavenXpp3Writer();
@@ -568,21 +561,18 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * Writes the given <code>data</code> to the given <code>file</code> using the specified <code>encoding</code>.
      *
      * @param data     is the {@link String} to write.
-     * @param file     is the {@link File} to write to.
+     * @param file     is the {@link Path} to write to.
      * @param encoding is the encoding to use for writing the file.
      * @throws MojoExecutionException if anything goes wrong.
      */
-    protected void writeStringToFile(String data, File file, String encoding) throws MojoExecutionException {
+    protected void writeStringToFile(String data, Path file, String encoding) throws MojoExecutionException {
         data = NEW_LINE_PATTERN.matcher(data).replaceAll(System.lineSeparator());
 
-        byte[] binaryData;
-
         try {
-            binaryData = data.getBytes(encoding);
-            if (file.isFile() && file.canRead() && file.length() == binaryData.length) {
-                try (InputStream inputStream = Files.newInputStream(file.toPath())) {
-                    byte[] buffer = new byte[binaryData.length];
-                    inputStream.read(buffer);
+            byte[] binaryData = data.getBytes(encoding);
+            if (Files.isReadable(file) && Files.size(file) == binaryData.length) {
+                try {
+                    byte[] buffer = Files.readAllBytes(file);
                     if (Arrays.equals(buffer, binaryData)) {
                         getLog().debug("Arrays.equals( buffer, binaryData ) ");
                         return;
@@ -590,17 +580,22 @@ public class FlattenMojo extends AbstractFlattenMojo {
                     getLog().debug("Not Arrays.equals( buffer, binaryData ) ");
                 } catch (IOException e) {
                     // ignore those exceptions, we will overwrite the file
-                    getLog().debug("Issue reading file: " + file.getPath(), e);
+                    getLog().debug("Issue reading file: " + file, e);
                 }
             } else {
-                getLog().debug("file: " + file + ",file.length(): " + file.length() + ", binaryData.length: "
+                getLog().debug("file: " + file + ", not exist or has the same length as binaryData.length: "
                         + binaryData.length);
             }
-        } catch (IOException e) {
-            throw new MojoExecutionException("cannot read String as bytes", e);
-        }
-        try (OutputStream outStream = Files.newOutputStream(file.toPath())) {
-            outStream.write(binaryData);
+            Path parent = file.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            Files.write(
+                    file,
+                    binaryData,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write to " + file, e);
         }
@@ -688,10 +683,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
         return extendedInterpolatedPom;
     }
 
-    private Model createOriginalPom(File pomFile) throws MojoExecutionException {
+    private Model createOriginalPom(Path pomFile) throws MojoExecutionException {
         MavenXpp3Reader reader = new MavenXpp3Reader();
         try {
-            return reader.read(Files.newInputStream(pomFile.toPath()));
+            return reader.read(Files.newInputStream(pomFile));
         } catch (IOException | XmlPullParserException e) {
             throw new MojoExecutionException("Error reading raw model.", e);
         }
@@ -1345,7 +1340,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         public Model getOriginalPom() throws MojoExecutionException {
             if (this.originalPom == null) {
-                this.originalPom = createOriginalPom(this.pomFile);
+                this.originalPom = createOriginalPom(this.pomFile.toPath());
             }
             return this.originalPom;
         }

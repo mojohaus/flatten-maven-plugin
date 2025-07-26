@@ -27,7 +27,7 @@ assert '${basedir}/file.txt' == originalProject.profiles.profile[1].activation.f
 assert '${any.property}' == originalProject.profiles.profile[2].activation.file.exists.text()
 assert '${revision}' == originalProject.profiles.profile[3].activation.file.exists.text()
 
-File flattenedPom = new File( basedir, '.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPom.exists()
 def flattenedProject = new XmlSlurper().parse( flattenedPom )
 

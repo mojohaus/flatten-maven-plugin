@@ -20,6 +20,7 @@ package org.codehaus.mojo.flatten;
  */
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -76,8 +77,8 @@ public abstract class AbstractFlattenMojo extends AbstractMojo {
     /**
      * @return a {@link File} instance pointing to the flattened POM.
      */
-    protected File getFlattenedPomFile() {
-        return new File(getOutputDirectory(), getFlattenedPomFilename());
+    protected Path getFlattenedPomFile() {
+        return getOutputDirectory().toPath().resolve(getFlattenedPomFilename());
     }
 
     protected boolean shouldSkip() {

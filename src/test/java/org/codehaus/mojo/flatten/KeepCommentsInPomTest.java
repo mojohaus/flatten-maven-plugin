@@ -90,7 +90,7 @@ public class KeepCommentsInPomTest {
         FlattenMojo flattenMojo = new FlattenMojo();
 
         File tempFile = temporaryFolder.newFile();
-        flattenMojo.writeStringToFile("line 1\n" + "line 2\r\n" + "line 3\r", tempFile, "UTF-8");
+        flattenMojo.writeStringToFile("line 1\n" + "line 2\r\n" + "line 3\r", tempFile.toPath(), "UTF-8");
 
         String lf = System.lineSeparator();
 

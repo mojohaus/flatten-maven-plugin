@@ -15,6 +15,7 @@
         <version>@project.version@</version>
         <configuration>
           <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          <outputDirectory>${project.build.directory}</outputDirectory>
         </configuration>
       </plugin>
     </plugins>

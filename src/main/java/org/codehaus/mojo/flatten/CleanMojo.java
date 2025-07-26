@@ -19,7 +19,9 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -68,12 +70,13 @@ public class CleanMojo extends AbstractFlattenMojo {
             return;
         }
 
-        File flattenedPomFile = getFlattenedPomFile();
-        if (flattenedPomFile.isFile()) {
-            getLog().info("Deleting " + flattenedPomFile.getPath());
-            boolean deleted = flattenedPomFile.delete();
-            if (!deleted) {
-                throw new MojoFailureException("Could not delete " + flattenedPomFile.getAbsolutePath());
+        Path flattenedPomFile = getFlattenedPomFile();
+        if (Files.isRegularFile(flattenedPomFile)) {
+            getLog().info("Deleting " + flattenedPomFile);
+            try {
+                Files.delete(flattenedPomFile);
+            } catch (IOException e) {
+                throw new MojoFailureException("Could not delete " + flattenedPomFile, e);
             }
         }
     }

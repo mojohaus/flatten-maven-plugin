@@ -19,5 +19,4 @@
 
 File flattendPom = new File( basedir, '.flattened-pom.xml' )
 assert flattendPom.exists()
-long now = System.currentTimeMillis()
-assert now - flattendPom.lastModified() > 20*1000
+assert context.get('flattend-lastModified') == flattendPom.lastModified()

@@ -9,8 +9,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>@project.groupId@</groupId>
-        <artifactId>@project.artifactId@</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
         <configuration>
           <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
         </configuration>

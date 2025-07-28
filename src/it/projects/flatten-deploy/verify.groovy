@@ -24,22 +24,51 @@ assert flattenedPomFile.exists()
 
 def flattenedPom = new XmlSlurper().parse(flattenedPomFile)
 // check that the pom is flattened
-assert 0 ==  flattenedPom.build.pluginManagement.size()
-assert 0 ==  flattenedPom.build.plugins.size()
+assert 0 == flattenedPom.build.pluginManagement.size()
+assert 0 == flattenedPom.build.plugins.size()
 assert "1.1" == flattenedPom.dependencies.dependency[0].version.toString()
 
-// check installed pom
-File flattenedInstallPomFile = new File(localRepositoryPath, 'org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1.pom')
-assert flattenedInstallPomFile.exists()
-assert flattenedInstallPomFile.size() == flattenedPomFile.size()
+if (mavenVersion.startsWith('3.')) {
 
-def flattenedInstallPom = new XmlSlurper().parse(flattenedInstallPomFile)
-assert  flattenedInstallPom == flattenedPom
+    // check installed pom
+    File flattenedInstallPomFile = new File(localRepositoryPath, 'org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1.pom')
+    assert flattenedInstallPomFile.exists()
+    assert flattenedInstallPomFile.size() == flattenedPomFile.size()
 
-// check deployed pom
-File flattenedDeployPomFile = new File(basedir, 'target/repo/org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1.pom')
-assert flattenedDeployPomFile.exists()
-assert flattenedDeployPomFile.size() == flattenedPomFile.size()
+    def flattenedInstallPom = new XmlSlurper().parse(flattenedInstallPomFile)
+    assert flattenedInstallPom == flattenedPom
 
-def flattenedDeployPom = new XmlSlurper().parse(flattenedInstallPomFile)
-assert flattenedDeployPom == flattenedPom
+    // check deployed pom
+    File flattenedDeployPomFile = new File(basedir, 'target/repo/org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1.pom')
+    assert flattenedDeployPomFile.exists()
+    assert flattenedDeployPomFile.size() == flattenedPomFile.size()
+
+    def flattenedDeployPom = new XmlSlurper().parse(flattenedDeployPomFile)
+    assert flattenedDeployPom == flattenedPom
+} else {
+    // Maven 4.x
+    // check installed build pom
+    File flattenedInstallPomFile = new File(localRepositoryPath, 'org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1-build.pom')
+    assert flattenedInstallPomFile.exists()
+    assert flattenedInstallPomFile.size() == flattenedPomFile.size()
+
+    def flattenedInstallPom = new XmlSlurper().parse(flattenedInstallPomFile)
+    assert flattenedInstallPom == flattenedPom
+
+    // check deployed consumer pom
+    flattenedInstallPomFile = new File(localRepositoryPath, 'org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1.pom')
+    flattenedInstallPom = new XmlSlurper().parse(flattenedInstallPomFile)
+    assert flattenedInstallPom == flattenedPom
+
+    // check deployed build pom
+    File flattenedDeployPomFile = new File(basedir, 'target/repo/org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1-build.pom')
+    assert flattenedDeployPomFile.exists()
+    assert flattenedDeployPomFile.size() == flattenedPomFile.size()
+
+    def flattenedDeployPom = new XmlSlurper().parse(flattenedDeployPomFile)
+    assert flattenedDeployPom == flattenedPom
+
+    flattenedDeployPomFile = new File(basedir, 'target/repo/org/codehaus/mojo/flatten/its/flatten-deploy/0.0.1/flatten-deploy-0.0.1.pom')
+    flattenedDeployPom = new XmlSlurper().parse(flattenedDeployPomFile)
+    assert flattenedDeployPom == flattenedPom
+}

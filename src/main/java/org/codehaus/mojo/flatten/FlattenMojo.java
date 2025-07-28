@@ -1310,7 +1310,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
             if (this.flattenMode == FlattenMode.bom) {
                 return true;
             }
-            return !this.project.getPackaging().equals("pom");
+            if (this.project.getPackaging().equals("pom")) {
+                getLog().info("Project POM file not updated to point to the flattened POM due to 'pom' packaging");
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return this.updatePomFile;
         }

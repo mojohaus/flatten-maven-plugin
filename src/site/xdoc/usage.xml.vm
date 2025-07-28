@@ -39,6 +39,16 @@
     </plugins>
   </build>
       ]]></source>
+
+      <subsection name="NOTICE">
+        <p>The generated flattened POM will be set as POM file to the current project only for projects with packaging other than <code>pom</code>.
+        You may want to also do this for <code>pom</code> packaging projects by setting the parameter <code>updatePomFile</code> to <code>true</code>.</p>
+
+        <p>If <code>flattenMode</code> is set to <code>bom</code> the generated flattened POM will be set as a project POM file also for <code>pom</code> packaging.</p>
+
+        <p>Setting generated flattened POM as a project POM file will allow to install/deploy the generated POM instead of actual project POM file.</p>
+      </subsection>
+
       <subsection name="Keep developer information">
         If you want to keep additional development information in your POM you can configure predefined modes via the <code>flattenMode</code> parameter.
         For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "resolveCiFriendliesOnly".

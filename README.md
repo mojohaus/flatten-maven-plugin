@@ -10,27 +10,7 @@ This is the [flatten-maven-plugin](http://www.mojohaus.org/flatten-maven-plugin/
 
 This plugin generates a flattened version of your pom.xml and makes maven to install and deploy this one instead of the original pom.xml.
 
-```
-<build>
-  <plugins>
-    <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>flatten-maven-plugin</artifactId>
-      <!--<version>INSERT LATEST VERSION HERE</version>-->
-      <executions>
-        <execution>
-          <goals>
-            <goal>flatten</goal>
-          </goals>
-        </execution>
-      </executions>
-      <configuration>
-        <!-- See usage on maven site from link above for details -->
-      </configuration>
-    </plugin>
-  </plugins>
-</build>
-```
+Please refer to the [Usage page](https://www.mojohaus.org/flatten-maven-plugin/usage.html) for simple example.
 
 ## Releasing
 

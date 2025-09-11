@@ -635,6 +635,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
             }
         }
 
+        // remove pom.xml properties revision property
+        String oldVersion = originalPom.getVersion();
+        if (oldVersion != null && !oldVersion.isEmpty() && oldVersion.startsWith("${") && oldVersion.endsWith("}")) {
+            getLog().info("find version " + oldVersion + " remove to properties");
+            flattenedPom.getProperties().remove(oldVersion.substring(2, oldVersion.length() - 1));
+        }
+
         return flattenedPom;
     }
 
@@ -962,9 +969,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
                     }
                 }
             };
-
             buildingResult = modelBuilderThreadSafetyWorkaround.build(
                     buildingRequest, customInjector, new DefaultProfileSelector());
+
         } catch (ModelBuildingException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

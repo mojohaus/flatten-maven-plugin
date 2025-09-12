@@ -66,8 +66,8 @@ import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
-import org.apache.maven.model.profile.DefaultProfileSelector;
 import org.apache.maven.model.profile.ProfileInjector;
+import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -415,6 +415,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     @Inject
     private RepositorySystem repositorySystem;
+
+    @Inject
+    private ProfileSelector profileSelector;
 
     /**
      * The constructor.
@@ -963,8 +966,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 }
             };
 
-            buildingResult = modelBuilderThreadSafetyWorkaround.build(
-                    buildingRequest, customInjector, new DefaultProfileSelector());
+            buildingResult = modelBuilderThreadSafetyWorkaround.build(buildingRequest, customInjector, profileSelector);
         } catch (ModelBuildingException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

@@ -966,8 +966,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 }
             };
 
-            buildingResult = modelBuilderThreadSafetyWorkaround.build(
-                    buildingRequest, customInjector, profileSelector);
+            buildingResult = modelBuilderThreadSafetyWorkaround.build(buildingRequest, customInjector, profileSelector);
         } catch (ModelBuildingException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

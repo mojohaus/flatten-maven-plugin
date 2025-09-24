@@ -1123,10 +1123,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
                     dependency, session.getRepositorySession().getArtifactTypeRegistry()));
         }
 
-        for (Artifact artifact : project.getArtifacts()) {
-            collectRequest.addDependency(RepositoryUtils.toDependency(artifact, null));
-        }
-
         for (Dependency dependency : managedDependencies) {
             collectRequest.addManagedDependency(RepositoryUtils.toDependency(
                     dependency, session.getRepositorySession().getArtifactTypeRegistry()));

@@ -1,7 +1,5 @@
 package org.codehaus.mojo.flatten;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -26,6 +24,8 @@ import org.eclipse.aether.repository.NoLocalRepositoryManagerException;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 /**
  * Test-Case for {@link FlattenMojo}.

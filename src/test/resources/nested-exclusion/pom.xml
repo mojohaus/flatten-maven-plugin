@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.codehaus.mojo.flatten.its</groupId>
+	<artifactId>nested-exclusion</artifactId>
+	<version>${revision}</version>
+
+	<properties>
+		<revision>1.2.3.4</revision>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>flatten-maven-plugin</groupId>
+			<artifactId>a</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+	    <defaultGoal>verify</defaultGoal>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<configuration>
+					<flattenMode>bom</flattenMode>
+					<flattenDependencyMode>all</flattenDependencyMode>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

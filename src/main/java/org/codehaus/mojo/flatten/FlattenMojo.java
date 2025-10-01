@@ -392,6 +392,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
     @Parameter(property = "flatten.dependency.defaultOperation", required = false, defaultValue = "flatten")
     private ElementHandling defaultOperation;
 
+    /**
+     * The name of the variable which will be used as the project version for the resolveCiFriendliesOnly flatten mode.
+     * Defaults to <code>revision</code>.
+     */
+    @Parameter(property = "flatten.revision.variable.name", required = false, defaultValue = "revision")
+    private String revisionVariableName;
+
     @Inject
     private DirectDependenciesInheritanceAssembler inheritanceAssembler;
 
@@ -455,6 +462,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         if (flattenMode == FlattenMode.resolveCiFriendliesOnly && this.pomElements == null) {
             ModelsFactory modelsFactory = new ModelsFactory(originalPomFile);
             String modelEncoding = getModelEncoding(modelsFactory.getEffectivePom());
+            String revisionVariablePattern = String.format("${%s}", revisionVariableName);
 
             // Load original POM content!
             String pomString;
@@ -466,6 +474,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
             // Interpolate POM content!
             CiModelInterpolator interpolator = (CiModelInterpolator) this.modelCiFriendlyInterpolator;
+            interpolator.setRevisionVariablePattern(revisionVariablePattern);
             Model originalPom = this.project.getModel();
             File projectDir = modelsFactory.getResolvedPom().getProjectDirectory();
             ModelBuildingRequest config = createModelBuildingRequest(originalPomFile);

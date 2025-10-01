@@ -57,6 +57,8 @@ public class CiInterpolatorImpl implements Interpolator {
 
     private final String endExpr;
 
+    private String revisionVariablePattern;
+
     public CiInterpolatorImpl() {
         this.startExpr = DEFAULT_START_EXPR;
         this.endExpr = DEFAULT_END_EXPR;
@@ -164,7 +166,7 @@ public class CiInterpolatorImpl implements Interpolator {
                 recursionInterceptor.expressionResolutionStarted(realExpr);
                 try {
                     Object value = null;
-                    if (wholeExpr.equals("${revision}")
+                    if (wholeExpr.equals(revisionVariablePattern)
                             || wholeExpr.contains("${sha1}")
                             || wholeExpr.contains("${changelist}")) {
                         value = existingAnswers.get(realExpr);
@@ -277,5 +279,9 @@ public class CiInterpolatorImpl implements Interpolator {
     @Override
     public void clearAnswers() {
         existingAnswers.clear();
+    }
+
+    void setRevisionVariablePattern(String revisionVariablePattern) {
+        this.revisionVariablePattern = revisionVariablePattern;
     }
 }

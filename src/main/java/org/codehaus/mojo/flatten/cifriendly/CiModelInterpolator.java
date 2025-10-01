@@ -106,6 +106,8 @@ public class CiModelInterpolator implements CiInterpolator {
 
     private final UrlNormalizer urlNormalizer;
 
+    private String revisionVariablePattern;
+
     @Inject
     public CiModelInterpolator(PathTranslator pathTranslator, UrlNormalizer urlNormalizer) {
         this.pathTranslator = pathTranslator;
@@ -155,7 +157,10 @@ public class CiModelInterpolator implements CiInterpolator {
             List<? extends ValueSource> valueSources,
             List<? extends InterpolationPostProcessor> postProcessors,
             ModelProblemCollector problems) {
-        if (src != null && !src.contains("${revision}") && !src.contains("${sha1}") && !src.contains("${changelist}")) {
+        if (src != null
+                && !src.contains(revisionVariablePattern)
+                && !src.contains("${sha1}")
+                && !src.contains("${changelist}")) {
             return src;
         }
 
@@ -171,6 +176,9 @@ public class CiModelInterpolator implements CiInterpolator {
 
             try {
                 try {
+                    if (getInterpolator() instanceof CiInterpolatorImpl) {
+                        ((CiInterpolatorImpl) getInterpolator()).setRevisionVariablePattern(revisionVariablePattern);
+                    }
                     result = getInterpolator().interpolate(result, getRecursionInterceptor());
                 } catch (InterpolationException e) {
                     problems.add(new ModelProblemCollectorRequest(Severity.ERROR, Version.BASE)
@@ -198,6 +206,10 @@ public class CiModelInterpolator implements CiInterpolator {
         interpolator.setCacheAnswers(true);
 
         return interpolator;
+    }
+
+    public void setRevisionVariablePattern(String revisionVariablePattern) {
+        this.revisionVariablePattern = revisionVariablePattern;
     }
 
     private static final class InterpolateObjectAction implements Runnable {

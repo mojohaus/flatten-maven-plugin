@@ -84,15 +84,14 @@ public enum FlattenMode {
     public FlattenDescriptor getDescriptor() {
 
         FlattenDescriptor descriptor = new FlattenDescriptor();
+        // fall-through switch for minimum, bom, oss, ossrh is on purpose
         switch (this) {
             case minimum:
                 descriptor.setPluginRepositories(ElementHandling.expand);
-                // $FALL-THROUGH$
             case bom:
                 // MOJO-2041
                 descriptor.setDependencyManagement(ElementHandling.keep);
                 descriptor.setProperties(ElementHandling.expand);
-                // $FALL-THROUGH$
             case oss:
                 descriptor.setCiManagement(ElementHandling.expand);
                 descriptor.setContributors(ElementHandling.expand);
@@ -102,14 +101,12 @@ public enum FlattenMode {
                 descriptor.setMailingLists(ElementHandling.expand);
                 descriptor.setOrganization(ElementHandling.expand);
                 descriptor.setPrerequisites(ElementHandling.expand);
-                // $FALL-THROUGH$
             case ossrh:
                 descriptor.setName(ElementHandling.expand);
                 descriptor.setDescription(ElementHandling.expand);
                 descriptor.setUrl(ElementHandling.expand);
                 descriptor.setScm(ElementHandling.expand);
                 descriptor.setDevelopers(ElementHandling.expand);
-                // $FALL-THROUGH$
             case defaults:
                 descriptor.setRepositories(ElementHandling.expand);
                 break;

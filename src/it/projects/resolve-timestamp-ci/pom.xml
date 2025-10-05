@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>resolve-timestamp-ci</artifactId>
+  <version>${timestamp}-GID${revision}</version>
+
+  <properties>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.mojo.flatten.its</groupId>
+      <artifactId>dep</artifactId>
+      <version>${timestamp}-GID${revision}</version>
+    </dependency>
+  </dependencies>
+
+  <!-- banned -->
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

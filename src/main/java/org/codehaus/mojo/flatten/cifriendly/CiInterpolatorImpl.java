@@ -163,30 +163,25 @@ public class CiInterpolatorImpl implements Interpolator {
 
                 recursionInterceptor.expressionResolutionStarted(realExpr);
                 try {
-                    Object value = null;
-                    if (wholeExpr.equals("${revision}")
-                            || wholeExpr.contains("${sha1}")
-                            || wholeExpr.contains("${changelist}")) {
-                        value = existingAnswers.get(realExpr);
-                        Object bestAnswer = null;
-                        for (ValueSource valueSource : valueSources) {
-                            if (value != null) {
-                                break;
-                            }
-
-                            value = valueSource.getValue(realExpr);
-                            if (value != null && value.toString().contains(wholeExpr)) {
-                                bestAnswer = value;
-                                value = null;
-                            }
+                    Object value = existingAnswers.get(realExpr);
+                    Object bestAnswer = null;
+                    for (ValueSource valueSource : valueSources) {
+                        if (value != null) {
+                            break;
                         }
 
-                        // this is the simplest recursion check to catch exact recursion
-                        // (non synonym), and avoid the extra effort of more string
-                        // searching.
-                        if (value == null && bestAnswer != null) {
-                            throw new InterpolationCycleException(recursionInterceptor, realExpr, wholeExpr);
+                        value = valueSource.getValue(realExpr);
+                        if (value != null && value.toString().contains(wholeExpr)) {
+                            bestAnswer = value;
+                            value = null;
                         }
+                    }
+
+                    // this is the simplest recursion check to catch exact recursion
+                    // (non synonym), and avoid the extra effort of more string
+                    // searching.
+                    if (value == null && bestAnswer != null) {
+                        throw new InterpolationCycleException(recursionInterceptor, realExpr, wholeExpr);
                     }
 
                     if (value != null) {

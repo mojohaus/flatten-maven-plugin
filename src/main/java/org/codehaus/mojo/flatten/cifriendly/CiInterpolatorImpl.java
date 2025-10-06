@@ -163,7 +163,12 @@ public class CiInterpolatorImpl implements Interpolator {
 
                 recursionInterceptor.expressionResolutionStarted(realExpr);
                 try {
-                    Object value = existingAnswers.get(realExpr);
+                    Object value = null;
+                    boolean isCiFriendly = wholeExpr.equals("${revision}")
+                            || wholeExpr.equals("${sha1}")
+                            || wholeExpr.equals("${changelist}");
+
+                    value = existingAnswers.get(realExpr);
                     Object bestAnswer = null;
                     for (ValueSource valueSource : valueSources) {
                         if (value != null) {
@@ -184,7 +189,20 @@ public class CiInterpolatorImpl implements Interpolator {
                         throw new InterpolationCycleException(recursionInterceptor, realExpr, wholeExpr);
                     }
 
-                    if (value != null) {
+                    // For non-CI-friendly variables, only use the value if recursive interpolation
+                    // actually resolves something (e.g., ${timestamp} -> ${maven.build.timestamp} -> actual timestamp)
+                    // This allows properties that reference Maven built-ins to be resolved
+                    if (!isCiFriendly && value != null) {
+                        String originalValue = String.valueOf(value);
+                        String interpolatedValue = interpolate(originalValue, recursionInterceptor, unresolvable);
+                        // Only use the value if interpolation actually resolved something
+                        if (originalValue.equals(interpolatedValue)) {
+                            value = null; // Don't resolve static values
+                        } else {
+                            value = interpolatedValue;
+                        }
+                    } else if (value != null) {
+                        // For CI-friendly variables, recursively interpolate
                         value = interpolate(String.valueOf(value), recursionInterceptor, unresolvable);
 
                         if (!postProcessors.isEmpty()) {
@@ -196,7 +214,9 @@ public class CiInterpolatorImpl implements Interpolator {
                                 }
                             }
                         }
+                    }
 
+                    if (value != null) {
                         // could use:
                         // result = matcher.replaceFirst( stringValue );
                         // but this could result in multiple lookups of stringValue, and replaceAll is not correct

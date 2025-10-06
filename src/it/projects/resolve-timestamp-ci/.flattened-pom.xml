@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.mojo.flatten.its</groupId>
   <artifactId>resolve-timestamp-ci</artifactId>
-  <version>20251005-193026-GIDdeveloper</version>
+  <version>${timestamp}-GIDdeveloper</version>
 
   <properties>
-    <timestamp>20251005-193027</timestamp>
+    <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
   </properties>
 
@@ -14,7 +14,7 @@
     <dependency>
       <groupId>org.codehaus.mojo.flatten.its</groupId>
       <artifactId>dep</artifactId>
-      <version>20251005-193026-GIDdeveloper</version>
+      <version>${timestamp}-GIDdeveloper</version>
     </dependency>
   </dependencies>
 

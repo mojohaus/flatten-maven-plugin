@@ -29,8 +29,6 @@ import static org.junit.Assert.fail;
 
 /**
  * Test-Case for {@link FlattenMojo}.
- *
- * @author treilhes
  */
 public class FlattenMojoNestedExclusionTest {
 
@@ -47,7 +45,7 @@ public class FlattenMojoNestedExclusionTest {
      * Test method to check that nested exclusion are correctly honored.
      * Three levels of dependencies are defined for this test:
      * <ul>
-     * <li>A depends on B with B excluding C</li>
+     * <li>A depends on B with A excluding C trough B</li>
      * <li>B depends on C</li>
      * </ul>
      *
@@ -82,11 +80,11 @@ public class FlattenMojoNestedExclusionTest {
     /**
      * Load a maven project with resolved dependencies (same as standard maven execution).
      * By default dependencies are not resolved by MojoRule and project.getArtifacts is empty
-     * @param session
-     * @param pomFile
-     * @return
-     * @throws ComponentLookupException
-     * @throws ProjectBuildingException
+     * @param session the Maven session to use for building the project
+     * @param pomFile the POM file to load and resolve dependencies for
+     * @return the resolved MavenProject instance with dependencies
+     * @throws ComponentLookupException if the ProjectBuilder component cannot be found
+     * @throws ProjectBuildingException if an error occurs while building the project
      */
     private MavenProject loadResolvedProject(MavenSession session, File pomFile)
             throws ComponentLookupException, ProjectBuildingException {
@@ -101,9 +99,9 @@ public class FlattenMojoNestedExclusionTest {
 
     /**
      * Create a new maven session with a local repository at the given path.
-     * @param repoPath
-     * @return
-     * @throws NoLocalRepositoryManagerException
+     * @param repoPath the path to the local repository to use for the session
+     * @return a new MavenSession instance configured with the specified local repository
+     * @throws NoLocalRepositoryManagerException if the local repository manager cannot be created
      */
     protected MavenSession newMavenSession(String repoPath) throws NoLocalRepositoryManagerException {
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();

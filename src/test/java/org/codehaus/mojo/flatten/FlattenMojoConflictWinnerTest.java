@@ -58,7 +58,7 @@ public class FlattenMojoConflictWinnerTest {
      * as resolved transitive dependencies does not appear first anymore. This test ensure
      * that the conflicting dependencies are correctly filtered from collect
      * results and the winner version is kept.
-     * 
+     *
      * @see <a href=
      *      "https://github.com/mojohaus/flatten-maven-plugin/issues/408">Issue
      *      #408</a>
@@ -82,8 +82,8 @@ public class FlattenMojoConflictWinnerTest {
                 .filter(dep -> dep.getArtifactId().equals("b"))
                 .filter(dep -> dep.getVersion().equals("0.0.1"))
                 .findAny()
-                .ifPresent(dep -> fail(
-                        "B dependency version 0.0.2 must win the conflicting version match in flattened POM."));
+                .ifPresent(dep ->
+                        fail("B dependency version 0.0.2 must win the conflicting version match in flattened POM."));
     }
 
     /**

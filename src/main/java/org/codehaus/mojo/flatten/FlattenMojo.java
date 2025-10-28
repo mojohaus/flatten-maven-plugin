@@ -1151,6 +1151,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 if (root == node) {
                     return true;
                 }
+
+                if (node.getData().containsKey(ConflictResolver.NODE_DATA_WINNER)) {
+                    // if this node has a conflict winner in data, it means this node lost in conflict
+                    return false; // skip lost conflicts
+                }
+
                 if (JavaScopes.PROVIDED.equals(node.getDependency().getScope())) {
                     String dependencyKey = getKey(node.getDependency());
                     if (!directDependencyKeys.contains(dependencyKey)) {

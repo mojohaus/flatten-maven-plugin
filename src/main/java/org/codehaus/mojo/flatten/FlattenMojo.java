@@ -1,24 +1,5 @@
 package org.codehaus.mojo.flatten;
 
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -34,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,20 +66,24 @@ import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RequestTrace;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
-import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
-import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.internal.impl.collect.DefaultDependencyGraphTransformationContext;
 import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
+import org.eclipse.aether.util.graph.transformer.JavaScopeDeriver;
+import org.eclipse.aether.util.graph.transformer.JavaScopeSelector;
+import org.eclipse.aether.util.graph.transformer.NearestVersionSelector;
+import org.eclipse.aether.util.graph.transformer.SimpleOptionalitySelector;
 import org.xml.sax.Attributes;
 import org.xml.sax.ext.DefaultHandler2;
 
@@ -1103,14 +1089,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
      *
      * @param projectDependencies   is the effective POM {@link Model}'s current dependencies
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
-     * @throws DependencyCollectionException
-     * @throws ArtifactDescriptorException
+     * @throws RepositoryException throws on conflict
      */
     private void createFlattenedDependenciesAll(
             List<Dependency> projectDependencies,
             List<Dependency> managedDependencies,
             List<Dependency> flattenedDependencies)
-            throws ArtifactDescriptorException, DependencyCollectionException {
+            throws RepositoryException {
         final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<>();
         final Set<String> processedDependencies = new HashSet<>();
         final Artifact projectArtifact = this.project.getArtifact();
@@ -1140,6 +1125,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
         CollectResult collectResult = repositorySystem.collectDependencies(derived, collectRequest);
 
         final DependencyNode root = collectResult.getRoot();
+
+        removeTestDependencies(root);
+        resolveConflicts(derived, root);
+
         final Set<String> directDependencyKeys = Stream.concat(
                         projectDependencies.stream().map(this::getKey),
                         project.getArtifacts().stream().map(this::getKey))
@@ -1328,6 +1317,61 @@ public class FlattenMojo extends AbstractFlattenMojo {
         } else {
             return this.updatePomFile;
         }
+    }
+
+    /**
+     * Recursively removes all test-scoped dependencies from the given dependency node.
+     *
+     * @param node the root dependency node
+     */
+    private void removeTestDependencies(DependencyNode node) {
+        Iterator<DependencyNode> it = node.getChildren().iterator();
+        while (it.hasNext()) {
+            DependencyNode child = it.next();
+            org.eclipse.aether.graph.Dependency dep = child.getDependency();
+            if (dep != null && "test".equals(dep.getScope())) {
+                it.remove();
+            } else {
+                removeTestDependencies(child);
+            }
+        }
+    }
+
+    /**
+     * Recursively clears previous conflict resolution data from the dependency tree.
+     *
+     * @param node the root dependency node
+     */
+    private void clearPreviousConflictResolution(DependencyNode node) {
+        Iterator<DependencyNode> it = node.getChildren().iterator();
+        while (it.hasNext()) {
+            DependencyNode child = it.next();
+            child.getData().clear();
+            clearPreviousConflictResolution(child);
+        }
+    }
+
+    /**
+     * Resolves version conflicts in the dependency tree rooted at the given node.
+     *
+     * @param derived the repository system session
+     * @param root    the root dependency node
+     * @throws RepositoryException if an error occurs during conflict resolution
+     */
+    private void resolveConflicts(DefaultRepositorySystemSession derived, final DependencyNode root)
+            throws RepositoryException {
+        clearPreviousConflictResolution(root);
+
+        DefaultDependencyGraphTransformationContext transformationContext =
+                new DefaultDependencyGraphTransformationContext(derived);
+
+        ConflictResolver conflictResolver = new ConflictResolver(
+                new NearestVersionSelector(),
+                new JavaScopeSelector(),
+                new SimpleOptionalitySelector(),
+                new JavaScopeDeriver());
+
+        conflictResolver.transformGraph(root, transformationContext);
     }
 
     private class ModelsFactory {

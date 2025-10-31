@@ -33,12 +33,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
@@ -87,22 +89,20 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.RequestTrace;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.collection.DependencyGraphTransformationContext;
+import org.eclipse.aether.collection.DependencyGraphTransformer;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
-import org.eclipse.aether.internal.impl.collect.DefaultDependencyGraphTransformationContext;
 import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
-import org.eclipse.aether.util.graph.transformer.JavaScopeDeriver;
-import org.eclipse.aether.util.graph.transformer.JavaScopeSelector;
-import org.eclipse.aether.util.graph.transformer.NearestVersionSelector;
-import org.eclipse.aether.util.graph.transformer.SimpleOptionalitySelector;
 import org.xml.sax.Attributes;
 import org.xml.sax.ext.DefaultHandler2;
 
@@ -1377,20 +1377,15 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * @param root    the root dependency node
      * @throws RepositoryException if an error occurs during conflict resolution
      */
-    private void resolveConflicts(DefaultRepositorySystemSession derived, final DependencyNode root)
+    private void resolveConflicts(RepositorySystemSession derived, final DependencyNode root)
             throws RepositoryException {
         clearPreviousConflictResolution(root);
 
         DefaultDependencyGraphTransformationContext transformationContext =
                 new DefaultDependencyGraphTransformationContext(derived);
 
-        ConflictResolver conflictResolver = new ConflictResolver(
-                new NearestVersionSelector(),
-                new JavaScopeSelector(),
-                new SimpleOptionalitySelector(),
-                new JavaScopeDeriver());
-
-        conflictResolver.transformGraph(root, transformationContext);
+        DependencyGraphTransformer transformer = derived.getDependencyGraphTransformer();
+        transformer.transformGraph(root, transformationContext);
     }
 
     private class ModelsFactory {
@@ -1536,6 +1531,44 @@ public class FlattenMojo extends AbstractFlattenMojo {
         public void startElement(String uri, String localName, String qName, Attributes attrs) {
 
             this.rootTagSeen = true;
+        }
+    }
+
+    /**
+     * Default implementation of {@link DependencyGraphTransformationContext}.
+     * As maven libraries do not expose an implementation, we need to provide our own.
+     */
+    class DefaultDependencyGraphTransformationContext implements DependencyGraphTransformationContext {
+
+        private final RepositorySystemSession session;
+
+        private final Map<Object, Object> map;
+
+        DefaultDependencyGraphTransformationContext(RepositorySystemSession session) {
+            this.session = session;
+            this.map = new HashMap<>();
+        }
+
+        public RepositorySystemSession getSession() {
+            return session;
+        }
+
+        public Object get(Object key) {
+            return map.get(Objects.requireNonNull(key, "key cannot be null"));
+        }
+
+        public Object put(Object key, Object value) {
+            Objects.requireNonNull(key, "key cannot be null");
+            if (value != null) {
+                return map.put(key, value);
+            } else {
+                return map.remove(key);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(map);
         }
     }
 }

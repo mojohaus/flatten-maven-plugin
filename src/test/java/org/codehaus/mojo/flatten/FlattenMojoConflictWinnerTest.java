@@ -2,12 +2,15 @@ package org.codehaus.mojo.flatten;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
@@ -25,7 +28,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test-Case for {@link FlattenMojo}.
@@ -67,7 +70,7 @@ public class FlattenMojoConflictWinnerTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testNestedExclusionAreEnforced() throws Exception {
+    public void testConflictResolutionIsEnforced() throws Exception {
 
         MavenSession session = newMavenSession(REPO_PATH);
         MavenProject project = loadResolvedProject(session, new File(POM));
@@ -78,12 +81,16 @@ public class FlattenMojoConflictWinnerTest {
 
         MavenProject flattenedProject = loadResolvedProject(session, new File(FLATTENED_POM));
 
-        flattenedProject.getDependencies().stream()
+        List<Dependency> bDependencies = flattenedProject.getDependencies().stream()
                 .filter(dep -> dep.getArtifactId().equals("b"))
-                .filter(dep -> dep.getVersion().equals("0.0.1"))
-                .findAny()
-                .ifPresent(dep ->
-                        fail("B dependency version 0.0.2 must win the conflicting version match in flattened POM."));
+                .collect(Collectors.toList());
+
+        assertThat(bDependencies)
+                .hasSize(1)
+                .withFailMessage("There must be only one B dependency in flattened POM.")
+                .allMatch(
+                        dep -> dep.getVersion().equals("0.0.2"),
+                        "B dependency version 0.0.2 must win the conflicting version match in flattened POM.");
     }
 
     /**

@@ -36,7 +36,7 @@ import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,7 +55,7 @@ public class CreateEffectivePomTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testCreateEffectivePom() throws Exception {
+    void createEffectivePom() throws Exception {
 
         String magicValue = "magic-value";
         Properties userProperties = new Properties();

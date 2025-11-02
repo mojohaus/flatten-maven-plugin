@@ -9,11 +9,11 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test case for the omitexclusions configuration option.
@@ -32,7 +32,7 @@ public class FlattenMojoOmitExclusionsTest {
      * POM.
      */
     @Test
-    public void testOmitExclusions() throws Exception {
+    void omitExclusions() throws Exception {
         // -- Given...
         //
         MavenProject project = rule.readMavenProject(new File(PATH));
@@ -61,8 +61,8 @@ public class FlattenMojoOmitExclusionsTest {
      *
      * @throws IOException if can't remove file.
      */
-    @After
-    public void removeFlattenedPom() throws IOException {
+    @AfterEach
+    void removeFlattenedPom() throws IOException {
         File flattenedPom = new File(FLATTENED_POM);
         if (flattenedPom.exists()) {
             if (!flattenedPom.delete()) {

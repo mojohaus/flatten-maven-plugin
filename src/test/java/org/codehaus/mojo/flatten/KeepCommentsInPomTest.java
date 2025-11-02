@@ -30,10 +30,10 @@ import java.util.regex.Pattern;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,11 +52,11 @@ public class KeepCommentsInPomTest {
     @Rule
     public MojoRule rule = new MojoRule();
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         new File(TEST_TARGET_PATH).mkdirs();
     }
 
@@ -66,7 +66,7 @@ public class KeepCommentsInPomTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void keepsProfileActivationFile() throws Exception {
+    void keepsProfileActivationFile() throws Exception {
         MavenProject project = rule.readMavenProject(new File(PATH));
         FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
 
@@ -85,11 +85,11 @@ public class KeepCommentsInPomTest {
     }
 
     @Test
-    public void allNewLineSeparatorShouldBeNormalized() throws Exception {
+    void allNewLineSeparatorShouldBeNormalized() throws Exception {
 
         FlattenMojo flattenMojo = new FlattenMojo();
 
-        File tempFile = temporaryFolder.newFile();
+        File tempFile = File.createTempFile("junit", null, temporaryFolder);
         flattenMojo.writeStringToFile("line 1\n" + "line 2\r\n" + "line 3\r", tempFile.toPath(), "UTF-8");
 
         String lf = System.lineSeparator();

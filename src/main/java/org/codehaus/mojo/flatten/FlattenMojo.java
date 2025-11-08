@@ -1558,6 +1558,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             return map.get(Objects.requireNonNull(key, "key cannot be null"));
         }
 
+        @Override
         public Object put(Object key, Object value) {
             Objects.requireNonNull(key, "key cannot be null");
             if (value != null) {

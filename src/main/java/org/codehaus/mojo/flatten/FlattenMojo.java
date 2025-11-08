@@ -1538,7 +1538,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * Default implementation of {@link DependencyGraphTransformationContext}.
      * As maven libraries do not expose an implementation, we need to provide our own.
      */
-    class DefaultDependencyGraphTransformationContext implements DependencyGraphTransformationContext {
+    static class DefaultDependencyGraphTransformationContext implements DependencyGraphTransformationContext {
 
         private final RepositorySystemSession session;
 

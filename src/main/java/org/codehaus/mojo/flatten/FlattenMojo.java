@@ -1122,10 +1122,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.setRepositories(project.getRemoteProjectRepositories());
         collectRequest.setRootArtifact(RepositoryUtils.toArtifact(projectArtifact));
-        for (Dependency dependency : projectDependencies) {
-            collectRequest.addDependency(RepositoryUtils.toDependency(
-                    dependency, session.getRepositorySession().getArtifactTypeRegistry()));
-        }
 
         for (Dependency dependency : project.getDependencies()) {
             collectRequest.addDependency(RepositoryUtils.toDependency(
@@ -1149,7 +1145,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         resolveConflicts(derived, root);
 
         final Set<String> directDependencyKeys = Stream.concat(
-                        projectDependencies.stream().map(this::getKey),
+                        project.getDependencies().stream().map(this::getKey),
                         project.getArtifacts().stream().map(this::getKey))
                 .collect(Collectors.toSet());
 

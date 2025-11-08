@@ -1136,7 +1136,21 @@ public class FlattenMojo extends AbstractFlattenMojo {
         derived.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, true);
         derived.setConfigProperty(DependencyManagerUtils.CONFIG_PROP_VERBOSE, true);
 
-        CollectResult collectResult = repositorySystem.collectDependencies(derived, collectRequest);
+        CollectResult collectResult;
+        try {
+            collectResult = repositorySystem.collectDependencies(derived, collectRequest);
+        } catch (DependencyCollectionException e) {
+            // If dependency collection fails (e.g., due to unresolvable parent POMs),
+            // log a warning and fall back to using the already-resolved artifacts from the project.
+            // This restores the behavior from version 1.3.0 where parent resolution failures
+            // did not prevent flattening.
+            getLog().warn("Failed to collect dependencies: " + e.getMessage());
+            getLog().warn("Falling back to using pre-resolved project artifacts.");
+
+            // Fall back to creating dependencies from already-resolved artifacts
+            createFlattenedDependenciesFromResolvedArtifacts(flattenedDependencies);
+            return;
+        }
 
         final DependencyNode root = collectResult.getRoot();
         final Set<String> directDependencyKeys = Stream.concat(
@@ -1187,21 +1201,30 @@ public class FlattenMojo extends AbstractFlattenMojo {
             if (!omitExclusions) {
                 List<Exclusion> exclusions = new LinkedList<>();
 
-                org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(
-                        artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
-                ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
-                ArtifactDescriptorResult artifactDescriptorResult =
-                        repositorySystem.readArtifactDescriptor(this.session.getRepositorySession(), request);
+                try {
+                    org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(
+                            artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
+                    ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
+                    ArtifactDescriptorResult artifactDescriptorResult =
+                            repositorySystem.readArtifactDescriptor(this.session.getRepositorySession(), request);
 
-                for (org.eclipse.aether.graph.Dependency artifactDependency :
-                        artifactDescriptorResult.getDependencies()) {
-                    if (JavaScopes.TEST.equals(artifactDependency.getScope())) {
-                        continue;
+                    for (org.eclipse.aether.graph.Dependency artifactDependency :
+                            artifactDescriptorResult.getDependencies()) {
+                        if (JavaScopes.TEST.equals(artifactDependency.getScope())) {
+                            continue;
+                        }
+                        Exclusion exclusion = new Exclusion();
+                        exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
+                        exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());
+                        exclusions.add(exclusion);
                     }
-                    Exclusion exclusion = new Exclusion();
-                    exclusion.setGroupId(artifactDependency.getArtifact().getGroupId());
-                    exclusion.setArtifactId(artifactDependency.getArtifact().getArtifactId());
-                    exclusions.add(exclusion);
+                } catch (ArtifactDescriptorException e) {
+                    // If we cannot read the artifact descriptor (e.g., parent POM is unresolvable),
+                    // log a warning and continue without exclusions for this dependency.
+                    // This restores the behavior from version 1.3.0 where parent resolution was not required.
+                    getLog().warn("Unable to read artifact descriptor for " + artifact.getGroupId() + ":"
+                            + artifact.getArtifactId() + ":" + artifact.getVersion()
+                            + ". Skipping exclusions for this dependency. Reason: " + e.getMessage());
                 }
 
                 dependency.setExclusions(exclusions);
@@ -1210,6 +1233,46 @@ public class FlattenMojo extends AbstractFlattenMojo {
             // convert dependency to string for the set, since Dependency doesn't implement equals, etc.
             String dependencyString = dependency.getManagementKey();
 
+            if (!processedDependencies.add(dependencyString)) {
+                continue;
+            }
+
+            Dependency flattenedDependency = createFlattenedDependency(dependency);
+            if (flattenedDependency != null) {
+                flattenedDependencies.add(flattenedDependency);
+            }
+        }
+    }
+
+    /**
+     * Fallback method to create flattened dependencies from pre-resolved artifacts.
+     * This is used when dependency collection fails due to unresolvable parent POMs.
+     * It provides a more lenient approach similar to version 1.3.0.
+     *
+     * @param flattenedDependencies the list to add flattened dependencies to
+     */
+    private void createFlattenedDependenciesFromResolvedArtifacts(List<Dependency> flattenedDependencies) {
+        Set<String> processedDependencies = new HashSet<>();
+
+        // Use the already-resolved artifacts from the project
+        for (Artifact artifact : project.getArtifacts()) {
+            if (JavaScopes.TEST.equals(artifact.getScope())) {
+                continue;
+            }
+
+            Dependency dependency = new Dependency();
+            dependency.setGroupId(artifact.getGroupId());
+            dependency.setArtifactId(artifact.getArtifactId());
+            dependency.setVersion(artifact.getBaseVersion());
+            dependency.setClassifier(artifact.getClassifier());
+            dependency.setScope(artifact.getScope());
+            dependency.setType(artifact.getType());
+            dependency.setOptional(artifact.isOptional());
+
+            // In fallback mode, we don't add exclusions since we cannot reliably read artifact descriptors
+            dependency.setExclusions(Collections.emptyList());
+
+            String dependencyString = dependency.getManagementKey();
             if (!processedDependencies.add(dependencyString)) {
                 continue;
             }

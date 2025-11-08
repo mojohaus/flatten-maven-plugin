@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>flatten-dependency-all-unresolvable-parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <!-- This test reproduces the issue with querydsl-core dependency chain
+       querydsl-core:4.3.1 -> bridge-method-annotation:1.13 -> annotation-indexer:1.4 (excluded)
+       annotation-indexer:1.4 has an unpublished parent: jenkins:1.26
+  -->
+  <dependencies>
+    <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-core</artifactId>
+      <version>4.3.1</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <flattenDependencyMode>all</flattenDependencyMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

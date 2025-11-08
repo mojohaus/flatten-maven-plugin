@@ -45,7 +45,7 @@ public class FlattenMojoNestedExclusionTest {
      * Test method to check that nested exclusion are correctly honored.
      * Three levels of dependencies are defined for this test:
      * <ul>
-     * <li>A depends on B with A excluding C trough B</li>
+     * <li>A depends on B with A excluding C through B</li>
      * <li>B depends on C</li>
      * </ul>
      *

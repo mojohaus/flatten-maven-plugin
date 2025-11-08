@@ -1549,6 +1549,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             this.map = new HashMap<>();
         }
 
+        @Override
         public RepositorySystemSession getSession() {
             return session;
         }

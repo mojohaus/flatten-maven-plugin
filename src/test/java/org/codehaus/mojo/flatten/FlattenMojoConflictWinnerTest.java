@@ -45,7 +45,7 @@ public class FlattenMojoConflictWinnerTest {
     public MojoRule rule = new MojoRule();
 
     /**
-     * Test method to check that version conflict are correctly honored. Two levels
+     * Test method to check that version conflicts are correctly honored. Two levels
      * of dependencies are defined for this test:
      * <ul>
      * <li>A depends on B 0.0.1</li>

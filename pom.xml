@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>mojo-parent</artifactId>
-    <version>93</version>
+    <version>95</version>
   </parent>
 
   <artifactId>flatten-maven-plugin</artifactId>
@@ -128,7 +128,7 @@
 
   <properties>
     <mavenVersion>3.9.11</mavenVersion>
-    <minimalMavenBuildVersion>3.6.3</minimalMavenBuildVersion>
+    <minimalMavenBuildVersion>3.9</minimalMavenBuildVersion>
     <project.build.outputTimestamp>2025-09-21T08:21:45Z</project.build.outputTimestamp>
   </properties>
 
@@ -228,10 +228,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
       <plugin>
         <groupId>org.eclipse.sisu</groupId>
         <artifactId>sisu-maven-plugin</artifactId>

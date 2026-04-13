@@ -33,11 +33,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
@@ -84,15 +87,17 @@ import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.RequestTrace;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
-import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.collection.DependencyGraphTransformationContext;
+import org.eclipse.aether.collection.DependencyGraphTransformer;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.graph.DependencyVisitor;
-import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
@@ -1112,14 +1117,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
      *
      * @param projectDependencies   is the effective POM {@link Model}'s current dependencies
      * @param flattenedDependencies is the {@link List} where to add the collected {@link Dependency dependencies}.
-     * @throws DependencyCollectionException
-     * @throws ArtifactDescriptorException
+     * @throws RepositoryException throws on conflict
      */
     private void createFlattenedDependenciesAll(
             List<Dependency> projectDependencies,
             List<Dependency> managedDependencies,
             List<Dependency> flattenedDependencies)
-            throws ArtifactDescriptorException, DependencyCollectionException {
+            throws RepositoryException {
         final Queue<DependencyNode> dependencyNodeLinkedList = new LinkedList<>();
         final Set<String> processedDependencies = new HashSet<>();
         final Artifact projectArtifact = this.project.getArtifact();
@@ -1127,13 +1131,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.setRepositories(project.getRemoteProjectRepositories());
         collectRequest.setRootArtifact(RepositoryUtils.toArtifact(projectArtifact));
-        for (Dependency dependency : projectDependencies) {
+
+        for (Dependency dependency : project.getDependencies()) {
             collectRequest.addDependency(RepositoryUtils.toDependency(
                     dependency, session.getRepositorySession().getArtifactTypeRegistry()));
-        }
-
-        for (Artifact artifact : project.getArtifacts()) {
-            collectRequest.addDependency(RepositoryUtils.toDependency(artifact, null));
         }
 
         for (Dependency dependency : managedDependencies) {
@@ -1148,8 +1149,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
         CollectResult collectResult = repositorySystem.collectDependencies(derived, collectRequest);
 
         final DependencyNode root = collectResult.getRoot();
+
+        removeTestDependencies(root);
+        resolveConflicts(derived, root);
+
         final Set<String> directDependencyKeys = Stream.concat(
-                        projectDependencies.stream().map(this::getKey),
+                        project.getDependencies().stream().map(this::getKey),
                         project.getArtifacts().stream().map(this::getKey))
                 .collect(Collectors.toSet());
 
@@ -1159,6 +1164,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 if (root == node) {
                     return true;
                 }
+
+                if (node.getData().containsKey(ConflictResolver.NODE_DATA_WINNER)) {
+                    // if this node has a conflict winner in data, it means this node lost in conflict
+                    return false; // skip lost conflicts
+                }
+
                 if (JavaScopes.PROVIDED.equals(node.getDependency().getScope())) {
                     String dependencyKey = getKey(node.getDependency());
                     if (!directDependencyKeys.contains(dependencyKey)) {
@@ -1332,6 +1343,56 @@ public class FlattenMojo extends AbstractFlattenMojo {
         }
     }
 
+    /**
+     * Recursively removes all test-scoped dependencies from the given dependency node.
+     *
+     * @param node the root dependency node
+     */
+    private void removeTestDependencies(DependencyNode node) {
+        Iterator<DependencyNode> it = node.getChildren().iterator();
+        while (it.hasNext()) {
+            DependencyNode child = it.next();
+            org.eclipse.aether.graph.Dependency dep = child.getDependency();
+            if (dep != null && "test".equals(dep.getScope())) {
+                it.remove();
+            } else {
+                removeTestDependencies(child);
+            }
+        }
+    }
+
+    /**
+     * Recursively clears previous conflict resolution data from the dependency tree.
+     *
+     * @param node the root dependency node
+     */
+    private void clearPreviousConflictResolution(DependencyNode node) {
+        Iterator<DependencyNode> it = node.getChildren().iterator();
+        while (it.hasNext()) {
+            DependencyNode child = it.next();
+            child.getData().clear();
+            clearPreviousConflictResolution(child);
+        }
+    }
+
+    /**
+     * Resolves version conflicts in the dependency tree rooted at the given node.
+     *
+     * @param derived the repository system session
+     * @param root    the root dependency node
+     * @throws RepositoryException if an error occurs during conflict resolution
+     */
+    private void resolveConflicts(RepositorySystemSession derived, final DependencyNode root)
+            throws RepositoryException {
+        clearPreviousConflictResolution(root);
+
+        DefaultDependencyGraphTransformationContext transformationContext =
+                new DefaultDependencyGraphTransformationContext(derived);
+
+        DependencyGraphTransformer transformer = derived.getDependencyGraphTransformer();
+        transformer.transformGraph(root, transformationContext);
+    }
+
     private class ModelsFactory {
         private final File pomFile;
         private Model effectivePom;
@@ -1475,6 +1536,47 @@ public class FlattenMojo extends AbstractFlattenMojo {
         public void startElement(String uri, String localName, String qName, Attributes attrs) {
 
             this.rootTagSeen = true;
+        }
+    }
+
+    /**
+     * Default implementation of {@link DependencyGraphTransformationContext}.
+     * As maven libraries do not expose an implementation, we need to provide our own.
+     */
+    static class DefaultDependencyGraphTransformationContext implements DependencyGraphTransformationContext {
+
+        private final RepositorySystemSession session;
+
+        private final Map<Object, Object> map;
+
+        DefaultDependencyGraphTransformationContext(RepositorySystemSession session) {
+            this.session = session;
+            this.map = new HashMap<>();
+        }
+
+        @Override
+        public RepositorySystemSession getSession() {
+            return session;
+        }
+
+        @Override
+        public Object get(Object key) {
+            return map.get(Objects.requireNonNull(key, "key cannot be null"));
+        }
+
+        @Override
+        public Object put(Object key, Object value) {
+            Objects.requireNonNull(key, "key cannot be null");
+            if (value != null) {
+                return map.put(key, value);
+            } else {
+                return map.remove(key);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(map);
         }
     }
 }

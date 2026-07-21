@@ -1198,7 +1198,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
                 org.eclipse.aether.artifact.Artifact aetherArtifact = new DefaultArtifact(
                         artifact.getGroupId(), artifact.getArtifactId(), null, artifact.getVersion());
-                ArtifactDescriptorRequest request = new ArtifactDescriptorRequest(aetherArtifact, null, null);
+                ArtifactDescriptorRequest request =
+                        new ArtifactDescriptorRequest(aetherArtifact, project.getRemoteProjectRepositories(), null);
                 ArtifactDescriptorResult artifactDescriptorResult =
                         repositorySystem.readArtifactDescriptor(this.session.getRepositorySession(), request);
 

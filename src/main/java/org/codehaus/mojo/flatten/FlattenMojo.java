@@ -398,8 +398,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
     private ElementHandling defaultOperation;
 
     /**
-     * The name of the variable which will be used as the project version for the resolveCiFriendliesOnly flatten mode.
+     * The name of the variable that will be used as the project version for the resolveCiFriendliesOnly flatten mode.
      * Defaults to <code>revision</code>.
+     *
+     * @since 1.8.0
      */
     @Parameter(property = "flatten.revision.variable.name", required = false, defaultValue = "revision")
     private String revisionVariableName;

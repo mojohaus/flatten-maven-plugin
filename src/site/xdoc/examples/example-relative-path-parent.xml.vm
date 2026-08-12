@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<document>
+  <properties>
+    <title>Flattening a relative-path parent chain</title>
+  </properties>
+
+  <body>
+    <section name="Flattening a relative-path parent chain">
+      <p>
+        A project can inherit shared build configuration through one or more parents that exist only in the source
+        repository. Set <code>flattenRelativePathParent</code> to merge that complete local parent chain into the
+        flattened POM instead of publishing references to build-only POMs. The first parent that is not resolved from
+        the filesystem is retained as the published parent.
+      </p>
+
+      <subsection name="Repository-wide parent">
+        <p>
+          The repository-wide parent has fixed coordinates and inherits from a stable published parent. Its empty
+          <code>relativePath</code> marks the end of the local chain. It also configures the flatten plugin once for
+          every project using this layout.
+        </p>
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>published-parent</artifactId>
+    <version>2.0.0</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.example</groupId>
+  <artifactId>repository-common-parent</artifactId>
+  <version>LOCAL</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <repository.property>repository-value</repository.property>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <configuration>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          <flattenRelativePathParent>true</flattenRelativePathParent>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+        ]]></source>
+      </subsection>
+
+      <subsection name="Module-specific parent">
+        <p>
+          A second repository-only parent can add configuration for one module or a group of modules. Its parent is
+          resolved from another source-tree POM, so both local layers will be collapsed.
+        </p>
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>repository-common-parent</artifactId>
+    <version>LOCAL</version>
+    <relativePath>../common-pom.xml</relativePath>
+  </parent>
+
+  <groupId>com.example</groupId>
+  <artifactId>library-common-parent</artifactId>
+  <version>LOCAL</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <module.property>module-value</module.property>
+  </properties>
+</project>
+        ]]></source>
+      </subsection>
+
+      <subsection name="Published child">
+        <p>
+          The child points to its nearest repository-only parent explicitly. The coordinates in every local parent
+          reference must match the POM found at its <code>relativePath</code>.
+        </p>
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>library-common-parent</artifactId>
+    <version>LOCAL</version>
+    <relativePath>common-pom.xml</relativePath>
+  </parent>
+
+  <artifactId>example-library</artifactId>
+  <version>${revision}</version>
+</project>
+        ]]></source>
+
+        <p>The installed or deployed POM contains both inherited property sets and the published parent:</p>
+        <source><![CDATA[
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>published-parent</artifactId>
+    <version>2.0.0</version>
+  </parent>
+
+  <groupId>com.example</groupId>
+  <artifactId>example-library</artifactId>
+  <version>1.0.0</version>
+  <properties>
+    <repository.property>repository-value</repository.property>
+    <module.property>module-value</module.property>
+  </properties>
+</project>
+        ]]></source>
+        <p>
+          Neither repository-only parent nor the <code>flattenRelativePathParent</code> control flag is published. An
+          empty <code>relativePath</code> on the child's immediate parent is rejected because there is no local parent
+          to collapse. On a higher parent it ends the local chain and leaves that parent for repository resolution.
+        </p>
+      </subsection>
+    </section>
+  </body>
+</document>

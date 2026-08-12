@@ -12,6 +12,12 @@
         flattened POM instead of publishing references to build-only POMs. The first parent that is not resolved from
         the filesystem is retained as the published parent.
       </p>
+      <p>
+        These repository-only POMs are raw build inputs, not independently published or resolved parents. They may
+        reference release-line properties declared only by the child. The plugin merges the raw models so the
+        flattened POM contains both the child's property definition and each inherited reference. The published leaf
+        can therefore resolve normally even though the repository-only parent cannot resolve independently.
+      </p>
 
       <subsection name="Repository-wide parent">
         <p>
@@ -37,6 +43,18 @@
   <properties>
     <repository.property>repository-value</repository.property>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.example</groupId>
+        <artifactId>platform-bom</artifactId>
+        <version>${platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
@@ -114,6 +132,9 @@
 
   <artifactId>example-library</artifactId>
   <version>${revision}</version>
+  <properties>
+    <platform.version>4.2.0</platform.version>
+  </properties>
 </project>
         ]]></source>
 
@@ -133,7 +154,19 @@
   <properties>
     <repository.property>repository-value</repository.property>
     <module.property>module-value</module.property>
+    <platform.version>4.2.0</platform.version>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.example</groupId>
+        <artifactId>platform-bom</artifactId>
+        <version>${platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
         ]]></source>
         <p>

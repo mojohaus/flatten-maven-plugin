@@ -289,6 +289,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * mismatched coordinates causes the build to fail. An empty {@code relativePath} on a higher parent terminates the
      * local chain normally.
      * <p>
+     * A repository-only parent does not need to form an independently resolvable effective model. It may reference
+     * properties declared only by the published child, for example release-line versions used by imported BOMs. The
+     * plugin merges the raw parent models into the raw child first. The flattened POM therefore contains both the
+     * child's property definition and the inherited reference, allowing the published leaf to resolve normally even
+     * though the repository-only parent cannot resolve independently.
+     * <p>
      * Only raw local parent models are inherited. Settings properties, super-POM defaults, and model-builder expansion
      * of imported BOMs are therefore not copied into the source model merely because a local parent is collapsed.
      * The {@code flattenRelativePathParent} setting itself is removed from the flattened POM.

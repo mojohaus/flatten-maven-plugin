@@ -142,8 +142,10 @@ public class FlattenMojoTest {
                 .containsEntry("grandparent.property", "grandparent")
                 .containsEntry("shared.property", "shared")
                 .containsEntry("line.property", "line");
-        assertThat(flattenedPom.getDependencyManagement().getDependencies())
-                .anySatisfy(dependency -> assertThat(dependency.getArtifactId()).isEqualTo("managed-dependency"));
+        assertThat(flattenedPom.getDependencyManagement().getDependencies()).anySatisfy(dependency -> {
+            assertThat(dependency.getArtifactId()).isEqualTo("managed-dependency");
+            assertThat(dependency.getVersion()).isEqualTo("${line.property}");
+        });
         assertThat(flattenedPom.getBuild().getPlugins())
                 .anySatisfy(plugin -> assertThat(plugin.getArtifactId()).isEqualTo("maven-compiler-plugin"));
         Plugin flattenPlugin = flattenedPom.getBuild().getPlugins().stream()

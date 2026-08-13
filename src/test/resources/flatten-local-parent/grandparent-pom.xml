@@ -10,4 +10,15 @@
   <properties>
     <grandparent.property>grandparent</grandparent.property>
   </properties>
+  <profiles>
+    <profile>
+      <id>active-parent-profile</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <active.parent.property>profile-value</active.parent.property>
+      </properties>
+    </profile>
+  </profiles>
 </project>

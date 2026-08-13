@@ -16,4 +16,25 @@
     <revision>1.2.3.4</revision>
     <line.property>line</line.property>
   </properties>
+  <profiles>
+    <profile>
+      <id>inactive-control-profile</id>
+      <activation>
+        <property>
+          <name>never.activate.flatten.control.profile</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>flatten-maven-plugin</artifactId>
+            <configuration>
+              <flattenRelativePathParent>true</flattenRelativePathParent>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

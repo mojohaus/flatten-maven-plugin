@@ -1,23 +1,137 @@
 <?xml version="1.0"?>
 <document>
   <properties>
-    <title>Flattening a relative-path parent chain</title>
+    <title>Publishing release-specific POMs from local parent templates</title>
   </properties>
 
   <body>
-    <section name="Flattening a relative-path parent chain">
+    <section name="Publishing release-specific POMs from local parent templates">
       <p>
-        A project can inherit shared build configuration through one or more parents that exist only in the source
-        repository. Set <code>flattenRelativePathParent</code> to merge that complete local parent chain into the
-        flattened POM instead of publishing references to build-only POMs. The first parent that is not resolved from
-        the filesystem is retained as the published parent.
+        A local parent can be more than a place to share static configuration. It can be a build-time template whose
+        dependencies, imported BOMs, plugins, compiler settings, and source roots are parameterized by a thin leaf POM.
+        Different leaves can select different Java and library generations while the common configuration remains in
+        one place. Set <code>flattenRelativePathParent</code> to bake each selection into its installed or deployed POM.
       </p>
       <p>
-        These repository-only POMs are raw build inputs, not independently published or resolved parents. They may
-        reference release-line properties declared only by the child. The plugin merges the raw models so the
-        flattened POM contains both the child's property definition and each inherited reference. The published leaf
-        can therefore resolve normally even though the repository-only parent cannot resolve independently.
+        The Maven reactor still builds the original hierarchy from disk. For publication, the plugin merges the raw
+        local parent chain into each child and retains the first external parent. The consumer receives a conventional,
+        self-contained POM with concrete line-specific properties and no references to the repository's build-only
+        structure.
       </p>
+
+      <source><![CDATA[
+BUILD TIME                                  INSTALL / DEPLOY
+
+external published parent                  external published parent
+            ^                                           ^
+repository parent (local template)                      |
+  uses leaf version properties              published release-line artifact
+            ^                               + selected Java/framework properties
+module parent (local template)              + inherited dependencies and plugins
+  shared dependencies/plugins
+            ^
+thin release-line leaf
+  supplies Java, framework and library versions
+
+The source hierarchy and reactor do not change. Only each published child POM is collapsed.
+      ]]></source>
+
+      <subsection name="Three framework lines across two JDKs">
+        <p>
+          A parent POM or BOM often needs parallel release lines for consumers on different framework generations.
+          Keep the dependency and plugin declarations in one local template. Each thin leaf supplies a compatible
+          version set: for example framework 4 on Java 21, framework 5.0 on Java 25, and framework 5.1 on Java 25.
+          Flattening publishes the same artifact identity in disjoint version namespaces.
+        </p>
+        <source><![CDATA[
+common-parent.xml (local template)
+  imports framework-bom:${framework.version}
+  configures compiler for ${java.version}
+  configures framework plugin ${framework.plugin.version}
+               |
+       +-------+----------------+----------------+
+       |                        |                |
+pom.xml                    pom-v5.xml       pom-v51.xml
+Java 21                    Java 25          Java 25
+framework 4                framework 5.0    framework 5.1
+version 1.4                version v5-1.4   version v51-1.4
+       |                        |                |
+       +---------------- flatten each -----------+
+                                |
+              three self-contained published POMs
+              with concrete, mutually compatible versions
+        ]]></source>
+        <p>
+          The template may use properties declared only by the leaf. It does not have to resolve as an independent
+          published model because the plugin merges the raw models before flattening the selected line.
+        </p>
+      </subsection>
+
+      <subsection name="One library, different JDK implementations and adapters">
+        <p>
+          A library can share most of its sources while selecting a small JDK-specific implementation per line. A
+          module-local parent owns the source-selection plugin, and each leaf chooses its compiler release and source
+          root. A separate adapter parent can use the same pattern to select the matching framework BOM and plugin
+          generation.
+        </p>
+        <source><![CDATA[
+repository parent (local)
+|
++-- core parent (local)
+|   shared API, tests and source-selection plugin
+|   |
+|   +-- Java 21 leaf  -- src/main/java21 --> published core line
+|   +-- Java 22+ leaf -- src/main/java22 --> published core line
+|
++-- adapter parent (local)
+    shared framework dependencies and plugins
+    |
+    +-- Java 21 / framework 4 --> published adapter line
+    +-- Java 25 / framework 5 --> published adapter line
+
+Consumers choose a coherent line; the repository keeps one shared build definition.
+        ]]></source>
+      </subsection>
+
+      <subsection name="A multi-module compatibility matrix">
+        <p>
+          Larger reactors can layer repository-wide platform configuration with module-specific parents for database,
+          broker, HTTP, or test-container support. Release aggregators select the leaf POM for each line; every leaf
+          carries that line's Java and BOM properties. The local parents keep shared backend dependencies, test
+          plugins, and lifecycle setup out of the thin variants.
+        </p>
+        <source><![CDATA[
+release aggregator A                         release aggregator B
+selects */pom.xml                            selects */pom-v5.xml
+for Java 21 / framework 4                   for Java 25 / framework 5
+          |                                           |
+          +---------------+   +-----------------------+
+                          |   |
+repository parent (local; imports ${framework.bom.version})
+|
++-- core common parent --------> core leaf A       core leaf B
++-- database common parent ----> database leaf A   database leaf B
++-- broker common parent ------> broker leaf A     broker leaf B
++-- test common parent --------> test leaf A       test leaf B
+                                  |                 |
+                                  +-- flatten each -+
+
+Published modules contain their selected platform and inherited module setup.
+Build-only verification modules can still opt out of install or deploy normally.
+        ]]></source>
+        <p>
+          This separates two Maven roles cleanly: aggregators choose which variants enter a reactor, while parents
+          provide reusable configuration. <code>flattenRelativePathParent</code> removes the local inheritance
+          scaffolding from the consumer-facing result without changing either role during the build.
+        </p>
+      </subsection>
+
+      <subsection name="How the local parent chain is collapsed">
+        <p>
+          The following complete example shows the underlying mechanism with a repository-wide parent, a
+          module-specific parent, and one published child.
+        </p>
+      </subsection>
 
       <subsection name="Repository-wide parent">
         <p>
@@ -170,9 +284,11 @@
 </project>
         ]]></source>
         <p>
-          Neither repository-only parent nor the <code>flattenRelativePathParent</code> control flag is published. An
-          empty <code>relativePath</code> on the child's immediate parent is rejected because there is no local parent
-          to collapse. On a higher parent it ends the local chain and leaves that parent for repository resolution.
+          The flattened child does not reference either repository-only parent, and the
+          <code>flattenRelativePathParent</code> control flag is removed from every flattened POM. An empty
+          <code>relativePath</code>, a missing local POM, or mismatched local coordinates ends the local chain and leaves
+          that parent for repository resolution. This also allows the inherited execution to run safely on the
+          repository-only parents when they are included in the reactor.
         </p>
       </subsection>
     </section>

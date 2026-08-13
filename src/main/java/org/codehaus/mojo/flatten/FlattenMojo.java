@@ -54,6 +54,7 @@ import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Build;
+import org.apache.maven.model.BuildBase;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Exclusion;
@@ -72,6 +73,7 @@ import org.apache.maven.model.inheritance.InheritanceAssembler;
 import org.apache.maven.model.interpolation.ModelInterpolator;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.model.profile.DefaultProfileActivationContext;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.plugin.MojoExecution;
@@ -280,14 +282,30 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * parent, the plugin follows {@code relativePath} while it resolves to a POM whose coordinates match the parent
      * reference. Each matching local parent's raw model is inherited into its child.
      * <p>
+     * This lets a local parent act as a build-time template. Thin leaf POMs can supply different Java, platform, BOM,
+     * plugin, or source-root properties for several release lines while sharing the dependencies and build logic that
+     * consume those properties. Each line is flattened into a self-contained consumer POM:
+     *
+     * <pre>
+     * Build-time source models                       Installed or deployed POMs
+     *
+     * local parent uses ${line.properties}
+     *   +-- leaf: Java 21 / framework 4   -- flatten --> library:1.4
+     *   +-- leaf: Java 25 / framework 5.0 -- flatten --> library:v5-1.4
+     *   +-- leaf: Java 25 / framework 5.1 -- flatten --> library:v51-1.4
+     * </pre>
+     *
+     * <p>
+     * The source POMs and Maven reactor remain unchanged; only the POM used for installation or deployment is
+     * flattened.
+     * <p>
      * The first parent that is not resolved from the filesystem is retained as the flattened POM's parent, with its
      * {@code relativePath} removed so consumers resolve it from a repository. If the local chain ends without another
      * parent, the flattened POM has no parent.
      * <p>
-     * Enable this for build-only parent POMs that must not appear in installed or deployed POMs. The current project
-     * must have a parent that resolves locally; an absent parent, an empty {@code relativePath}, a missing POM, or
-     * mismatched coordinates causes the build to fail. An empty {@code relativePath} on a higher parent terminates the
-     * local chain normally.
+     * Enable this for build-only parent POMs that must not appear in installed or deployed child POMs. An absent parent,
+     * an empty {@code relativePath}, a missing POM, or mismatched coordinates terminates the local chain. This allows
+     * the setting and its execution to be inherited by every project in a reactor, including the highest local parent.
      * <p>
      * A repository-only parent does not need to form an independently resolvable effective model. It may reference
      * properties declared only by the published child, for example release-line versions used by imported BOMs. The
@@ -295,9 +313,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * child's property definition and the inherited reference, allowing the published leaf to resolve normally even
      * though the repository-only parent cannot resolve independently.
      * <p>
-     * Only raw local parent models are inherited. Settings properties, super-POM defaults, and model-builder expansion
-     * of imported BOMs are therefore not copied into the source model merely because a local parent is collapsed.
-     * The {@code flattenRelativePathParent} setting itself is removed from the flattened POM.
+     * Active profiles in local parents are injected before inheritance and their profile definitions are not copied.
+     * Otherwise only raw local parent models are inherited. Settings properties, super-POM defaults, and model-builder
+     * expansion of imported BOMs are therefore not copied into the source model merely because a local parent is
+     * collapsed. The {@code flattenRelativePathParent} setting itself is removed from the flattened POM.
      *
      * @since 1.8.1
      */
@@ -467,6 +486,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     @Inject
     private ProfileSelector profileSelector;
+
+    @Inject
+    private ProfileInjector profileInjector;
 
     /**
      * The constructor.
@@ -715,7 +737,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
     }
 
     private void removeFlattenRelativePathParentConfiguration(Model flattenedPom) {
-        Build build = flattenedPom.getBuild();
+        removeFlattenRelativePathParentConfiguration(flattenedPom.getBuild());
+        for (Profile profile : flattenedPom.getProfiles()) {
+            removeFlattenRelativePathParentConfiguration(profile.getBuild());
+        }
+    }
+
+    private void removeFlattenRelativePathParentConfiguration(BuildBase build) {
         if (build == null) {
             return;
         }
@@ -753,16 +781,16 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
     private Model createPomWithFlattenedRelativePathParent(File pomFile) throws MojoExecutionException {
         Model child = createOriginalPom(pomFile.toPath());
-        return collapseRelativePathParent(child, pomFile.toPath(), true);
+        Model collapsed = collapseRelativePathParent(child, pomFile.toPath());
+        if (collapsed.getParent() != null) {
+            collapsed.getParent().setRelativePath(null);
+        }
+        return collapsed;
     }
 
-    private Model collapseRelativePathParent(Model child, Path pomPath, boolean localParentRequired)
-            throws MojoExecutionException {
+    private Model collapseRelativePathParent(Model child, Path pomPath) throws MojoExecutionException {
         Parent parentReference = child.getParent();
         if (parentReference == null) {
-            if (localParentRequired) {
-                throw new MojoExecutionException("Cannot flatten a relative-path parent: project has no parent");
-            }
             return child;
         }
 
@@ -770,33 +798,23 @@ public class FlattenMojo extends AbstractFlattenMojo {
         if (relativePath == null) {
             relativePath = "../pom.xml";
         } else if (relativePath.isEmpty()) {
-            if (localParentRequired) {
-                throw new MojoExecutionException(
-                        "Cannot flatten a relative-path parent: parent relativePath explicitly disables local resolution");
-            }
             return child;
         }
 
         Path projectDirectory = pomPath.toAbsolutePath().getParent();
         Path parentPath = projectDirectory.resolve(relativePath).normalize();
         if (!Files.isRegularFile(parentPath)) {
-            if (localParentRequired) {
-                throw new MojoExecutionException(
-                        "Cannot flatten a relative-path parent: POM does not exist at " + parentPath);
-            }
             return child;
         }
 
         Model localParent = createOriginalPom(parentPath);
         if (!hasMatchingCoordinates(parentReference, localParent)) {
-            if (localParentRequired) {
-                throw new MojoExecutionException("Local parent coordinates at " + parentPath + " do not match "
-                        + parentReference.getGroupId() + ":" + parentReference.getArtifactId() + ":"
-                        + parentReference.getVersion());
-            }
             return child;
         }
-        Model collapsedParent = collapseRelativePathParent(localParent, parentPath, false);
+
+        ModelBuildingRequest parentRequest = createModelBuildingRequest(parentPath.toFile());
+        injectActiveProfiles(localParent, parentPath, parentRequest);
+        Model collapsedParent = collapseRelativePathParent(localParent, parentPath);
 
         LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
         this.modelInheritanceAssembler.assembleModelInheritance(
@@ -813,10 +831,40 @@ public class FlattenMojo extends AbstractFlattenMojo {
         return child;
     }
 
+    private void injectActiveProfiles(Model model, Path pomPath, ModelBuildingRequest request) {
+        DefaultProfileActivationContext context = new DefaultProfileActivationContext();
+        context.setActiveProfileIds(request.getActiveProfileIds());
+        context.setInactiveProfileIds(request.getInactiveProfileIds());
+        context.setSystemProperties(request.getSystemProperties());
+        context.setUserProperties(request.getUserProperties());
+        context.setProjectDirectory(pomPath.toAbsolutePath().getParent().toFile());
+
+        LoggingModelProblemCollector problems = new LoggingModelProblemCollector(getLog());
+        List<Profile> activeProfiles = this.profileSelector.getActiveProfiles(model.getProfiles(), context, problems);
+        for (Profile profile : activeProfiles) {
+            this.profileInjector.injectProfile(model, profile, request, problems);
+        }
+        model.setProfiles(Collections.emptyList());
+    }
+
     private boolean hasMatchingCoordinates(Parent reference, Model localParent) {
-        return Objects.equals(reference.getGroupId(), localParent.getGroupId())
+        return Objects.equals(reference.getGroupId(), getGroupId(localParent))
                 && Objects.equals(reference.getArtifactId(), localParent.getArtifactId())
-                && Objects.equals(reference.getVersion(), localParent.getVersion());
+                && Objects.equals(reference.getVersion(), getVersion(localParent));
+    }
+
+    private String getGroupId(Model model) {
+        if (model.getGroupId() != null) {
+            return model.getGroupId();
+        }
+        return model.getParent() == null ? null : model.getParent().getGroupId();
+    }
+
+    private String getVersion(Model model) {
+        if (model.getVersion() != null) {
+            return model.getVersion();
+        }
+        return model.getParent() == null ? null : model.getParent().getVersion();
     }
 
     Model createEffectivePom(ModelBuildingRequest buildingRequest) throws MojoExecutionException {

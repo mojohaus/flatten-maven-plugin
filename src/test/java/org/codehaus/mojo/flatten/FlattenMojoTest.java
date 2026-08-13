@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
@@ -130,14 +131,8 @@ public class FlattenMojoTest {
 
     @Test
     public void flattensLocalParentChain() throws Exception {
-        MavenProject project = rule.readMavenProject(new File(FLATTEN_LOCAL_PARENT_PATH));
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
-
-        flattenMojo.execute();
-
-        Model flattenedPom = readPom(FLATTEN_LOCAL_PARENT_FLATTENED);
+        Model flattenedPom = flatten(FLATTEN_LOCAL_PARENT_PATH, FLATTEN_LOCAL_PARENT_FLATTENED);
         assertThat(flattenedPom.getVersion()).isEqualTo("1.2.3.4");
-        assertThat(flattenedPom.getParent()).isNull();
         assertThat(flattenedPom.getProperties())
                 .containsEntry("grandparent.property", "grandparent")
                 .containsEntry("shared.property", "shared")
@@ -156,9 +151,65 @@ public class FlattenMojoTest {
                 .isNull();
     }
 
+    @Test
+    public void inheritsActiveLocalParentProfiles() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_LOCAL_PARENT_PATH, FLATTEN_LOCAL_PARENT_FLATTENED);
+
+        assertThat(flattenedPom.getProperties()).containsEntry("active.parent.property", "profile-value");
+    }
+
+    @Test
+    public void removesFlattenRelativePathParentFromProfiles() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_LOCAL_PARENT_PATH, FLATTEN_LOCAL_PARENT_FLATTENED);
+
+        Profile profile = flattenedPom.getProfiles().stream()
+                .filter(candidate -> "inactive-control-profile".equals(candidate.getId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        Plugin flattenPlugin = profile.getBuild().getPlugins().stream()
+                .filter(plugin -> "flatten-maven-plugin".equals(plugin.getArtifactId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        assertThat(flattenPlugin.getConfiguration()).isNull();
+    }
+
     @After
     public void removeFlattenRelativePathParentFlattenedPom() throws IOException {
         File flattenedPom = new File(FLATTEN_LOCAL_PARENT_FLATTENED);
+        if (flattenedPom.exists() && !flattenedPom.delete()) {
+            throw new IOException("Can't delete " + flattenedPom);
+        }
+    }
+
+    private static final String FLATTEN_INHERITED_LOCAL_PARENT_PATH =
+            "src/test/resources/flatten-inherited-local-parent/";
+    private static final String FLATTEN_INHERITED_LOCAL_PARENT_FLATTENED =
+            FLATTEN_INHERITED_LOCAL_PARENT_PATH + ".flattened-pom.xml";
+
+    @Test
+    public void flattensLocalParentWithInheritedCoordinates() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_INHERITED_LOCAL_PARENT_PATH, FLATTEN_INHERITED_LOCAL_PARENT_FLATTENED);
+
+        assertThat(flattenedPom.getProperties()).containsEntry("repository.property", "repository-value");
+        assertThat(flattenedPom.getParent()).isNull();
+    }
+
+    @After
+    public void removeFlattenInheritedLocalParentFlattenedPom() throws IOException {
+        deleteIfPresent(FLATTEN_INHERITED_LOCAL_PARENT_FLATTENED);
+    }
+
+    private Model flatten(String projectPath, String flattenedPomPath) throws Exception {
+        MavenProject project = rule.readMavenProject(new File(projectPath));
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
+
+        flattenMojo.execute();
+
+        return readPom(flattenedPomPath);
+    }
+
+    private static void deleteIfPresent(String path) throws IOException {
+        File flattenedPom = new File(path);
         if (flattenedPom.exists() && !flattenedPom.delete()) {
             throw new IOException("Can't delete " + flattenedPom);
         }

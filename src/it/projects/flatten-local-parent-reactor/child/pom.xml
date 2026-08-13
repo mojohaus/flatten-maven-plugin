@@ -5,17 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.mojo.flatten.its</groupId>
-    <artifactId>local-common-parent</artifactId>
+    <artifactId>module-common-parent</artifactId>
     <version>LOCAL</version>
-    <relativePath>common-pom.xml</relativePath>
+    <relativePath>../module-parent/pom.xml</relativePath>
   </parent>
-  <artifactId>flatten-local-parent</artifactId>
+  <artifactId>published-child</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
-  <properties>
-    <revision>1.2.3.4</revision>
-    <line.property>line</line.property>
-  </properties>
   <profiles>
     <profile>
       <id>inactive-control-profile</id>

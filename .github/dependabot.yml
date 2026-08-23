@@ -2,6 +2,9 @@ version: 2
 updates:
   - package-ecosystem: "maven"
     directory: "/"
+    exclude-paths:
+      - "src/it/**"
+      - "src/test/resources/**"
     schedule:
       interval: "daily"
   - package-ecosystem: "github-actions"

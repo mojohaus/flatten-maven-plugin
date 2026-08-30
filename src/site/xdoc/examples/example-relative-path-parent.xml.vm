@@ -8,9 +8,11 @@
     <section name="Publishing release-specific POMs from local parent templates">
       <p>
         A local parent can be more than a place to share static configuration. It can be a build-time template whose
-        dependencies, imported BOMs, plugins, compiler settings, and source roots are parameterized by a thin leaf POM.
-        Different leaves can select different Java and library generations while the common configuration remains in
-        one place. Set <code>flattenRelativePathParent</code> to bake each selection into its installed or deployed POM.
+        dependencies, imported BOMs, plugins, compiler settings, and source roots have valid defaults. Thin leaf POMs
+        record the values for their release line, while model-critical values that differ from the defaults are also
+        supplied to the whole Maven invocation. Different lines can select different Java and library generations
+        while the common configuration remains in one place. Set <code>flattenRelativePathParent</code> to bake each
+        selection into its installed or deployed POM.
       </p>
       <p>
         The Maven reactor still builds the original hierarchy from disk. For publication, the plugin merges the raw
@@ -30,8 +32,8 @@ repository parent (local template)                      |
 module parent (local template)              + inherited dependencies and plugins
   shared dependencies/plugins
             ^
-thin release-line leaf
-  supplies Java, framework and library versions
+thin release-line leaf                    Maven invocation
+  records Java, framework and library versions  -D selects differing model-critical values
 
 The source hierarchy and reactor do not change. Only each published child POM is collapsed.
       ]]></source>
@@ -62,8 +64,21 @@ version 1.4                version v5-1.4   version v51-1.4
               with concrete, mutually compatible versions
         ]]></source>
         <p>
-          The template may use properties declared only by the leaf. It does not have to resolve as an independent
-          published model because the plugin merges the raw models before flattening the selected line.
+          The template must resolve as an independent Maven model because Maven constructs parent projects before the
+          flatten goal runs. Give every model-critical property a compatible default in the template. For a
+          non-default line, pass each differing model-critical value as a Maven user property for the complete
+          invocation. A value declared only in the leaf is too late to rebuild its parent model. This is especially
+          important for imported BOM and plugin versions, which Maven validates while it builds the parent.
+        </p>
+        <source><![CDATA[
+mvn -f pom-v5.xml clean verify \
+  -Dframework.version=5.0.6 \
+  -Dframework.plugin.version=5.0.6
+        ]]></source>
+        <p>
+          Do not promote every property ending in <code>.version</code>. Maven user properties are global and may
+          override an unrelated property with the same name inside an imported BOM. Promote only the model-critical
+          values used by the source-parent chain, and only when the selected line differs from the parent's default.
         </p>
       </subsection>
 
@@ -156,6 +171,8 @@ Build-only verification modules can still opt out of install or deploy normally.
 
   <properties>
     <repository.property>repository-value</repository.property>
+    <!-- Keeps this parent independently resolvable in Maven's reactor. -->
+    <platform.version>4.1.0</platform.version>
   </properties>
 
   <dependencyManagement>
@@ -287,8 +304,8 @@ Build-only verification modules can still opt out of install or deploy normally.
           The flattened child does not reference either repository-only parent, and the
           <code>flattenRelativePathParent</code> control flag is removed from every flattened POM. An empty
           <code>relativePath</code>, a missing local POM, or mismatched local coordinates ends the local chain and leaves
-          that parent for repository resolution. This also allows the inherited execution to run safely on the
-          repository-only parents when they are included in the reactor.
+          that parent for repository resolution. Because each repository-only parent supplies valid defaults, the
+          inherited execution can also run safely when those parents are included in the reactor.
         </p>
       </subsection>
     </section>

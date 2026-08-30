@@ -282,14 +282,15 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * parent, the plugin follows {@code relativePath} while it resolves to a POM whose coordinates match the parent
      * reference. Each matching local parent's raw model is inherited into its child.
      * <p>
-     * This lets a local parent act as a build-time template. Thin leaf POMs can supply different Java, platform, BOM,
-     * plugin, or source-root properties for several release lines while sharing the dependencies and build logic that
-     * consume those properties. Each line is flattened into a self-contained consumer POM:
+     * This lets a local parent act as a build-time template. Thin leaf POMs can record Java, platform, BOM, plugin, or
+     * source-root properties for several release lines while sharing the dependencies and build logic that consume
+     * those properties. Each line is flattened into a self-contained consumer POM:
      *
      * <pre>
      * Build-time source models                       Installed or deployed POMs
      *
-     * local parent uses ${line.properties}
+     * Maven invocation selects model-critical ${line.properties}
+     * local parent uses the same values
      *   +-- leaf: Java 21 / framework 4   -- flatten --> library:1.4
      *   +-- leaf: Java 25 / framework 5.0 -- flatten --> library:v5-1.4
      *   +-- leaf: Java 25 / framework 5.1 -- flatten --> library:v51-1.4
@@ -307,11 +308,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * an empty {@code relativePath}, a missing POM, or mismatched coordinates terminates the local chain. This allows
      * the setting and its execution to be inherited by every project in a reactor, including the highest local parent.
      * <p>
-     * A repository-only parent does not need to form an independently resolvable effective model. It may reference
-     * properties declared only by the published child, for example release-line versions used by imported BOMs. The
-     * plugin merges the raw parent models into the raw child first. The flattened POM therefore contains both the
-     * child's property definition and the inherited reference, allowing the published leaf to resolve normally even
-     * though the repository-only parent cannot resolve independently.
+     * Every repository-only parent must form an independently resolvable effective model. Maven builds the reactor and
+     * its parent projects before this goal can run, so a property needed to import a BOM or validate a plugin version
+     * cannot be declared only by a child. Declare a compatible default in the local parent. For a non-default release
+     * line, supply each differing model-critical value as a Maven user property ({@code -Dname=value}) for the whole
+     * invocation before reactor collection. The leaf may repeat the value as source metadata; it is not relied on to
+     * rebuild its parent's model. The plugin preserves the invocation's selection in the flattened child POM.
      * <p>
      * Active profiles in local parents are injected before inheritance and their profile definitions are not copied.
      * Otherwise only raw local parent models are inherited. Settings properties, super-POM defaults, and model-builder
@@ -812,6 +814,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
             return child;
         }
 
+        validateIndependentLocalParent(parentPath);
+
         ModelBuildingRequest parentRequest = createModelBuildingRequest(parentPath.toFile());
         injectActiveProfiles(localParent, parentPath, parentRequest);
         Model collapsedParent = collapseRelativePathParent(localParent, parentPath);
@@ -829,6 +833,19 @@ public class FlattenMojo extends AbstractFlattenMojo {
             child.setParent(promotedParent);
         }
         return child;
+    }
+
+    private void validateIndependentLocalParent(Path parentPath) throws MojoExecutionException {
+        try {
+            createEffectivePom(createModelBuildingRequest(parentPath.toFile()));
+        } catch (MojoExecutionException e) {
+            throw new MojoExecutionException(
+                    "Local parent " + parentPath
+                            + " is not independently resolvable. Maven builds parent projects before flatten runs; "
+                            + "declare defaults in the parent for properties used by imported BOMs and versioned "
+                            + "plugins, then override those defaults in release-line children.",
+                    e);
+        }
     }
 
     private void injectActiveProfiles(Model model, Path pomPath, ModelBuildingRequest request) {

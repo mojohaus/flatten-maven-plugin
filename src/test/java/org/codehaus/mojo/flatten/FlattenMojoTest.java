@@ -72,4 +72,12 @@ class FlattenMojoTest {
             return new MavenXpp3Reader().read(input);
         }
     }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/resolve-ci-friendlies-only-with-pom-elements/pom.xml")
+    void resolveCiFriendliesOnlyWithPomElementsDoesNotThrow(FlattenMojo flattenMojo) throws Exception {
+        flattenMojo.execute();
+
+        assertThat(readPom(flattenMojo.getFlattenedPomFile()).getVersion()).isEqualTo("1.2.3.4");
+    }
 }

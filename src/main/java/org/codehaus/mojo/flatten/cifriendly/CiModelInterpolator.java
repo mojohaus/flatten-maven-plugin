@@ -21,7 +21,6 @@ package org.codehaus.mojo.flatten.cifriendly;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -65,7 +64,6 @@ import org.codehaus.plexus.interpolation.util.ValueSourceUtils;
  * Based on StringSearchModelInterpolator in maven-model-builder.
  */
 @Named
-@Singleton
 public class CiModelInterpolator implements CiInterpolator {
 
     private static final List<String> PROJECT_PREFIXES = Arrays.asList("pom.", "project.");

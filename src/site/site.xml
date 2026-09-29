@@ -18,6 +18,7 @@
       <item name="Simple Project" href="examples/example-simple-project.html"/>
       <item name="Central Version" href="examples/example-central-version.html"/>
       <item name="Multiple Versions" href="examples/example-multiple-versions.html"/>
+      <item name="Release-Specific POMs" href="examples/example-relative-path-parent.html"/>
     </menu>
   </body>
 </site>

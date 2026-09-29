@@ -24,9 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.After;
 import org.junit.Rule;
@@ -86,6 +89,129 @@ public class FlattenMojoTest {
             if (!flattenedPom.delete()) {
                 throw new IOException("Can't delete " + flattenedPom);
             }
+        }
+    }
+
+    private static final String CI_WITH_POM_ELEMENTS_PATH =
+            "src/test/resources/resolve-ci-friendlies-only-with-pom-elements/";
+    private static final String CI_WITH_POM_ELEMENTS_FLATTENED = CI_WITH_POM_ELEMENTS_PATH + ".flattened-pom.xml";
+
+    /**
+     * flattenMode=resolveCiFriendliesOnly combined with a non-null pomElements skips the
+     * resolveCiFriendliesOnly fast path (see the {@code pomElements == null} guard in
+     * {@link FlattenMojo#execute()}) and falls through to {@link FlattenMojo#createInterpolatedPom}, which calls
+     * the same {@code modelCiFriendlyInterpolator} without ever calling
+     * {@code setRevisionVariablePattern} on it first. That leaves the pattern null, and
+     * {@code CiModelInterpolator#interpolateInternal} NPEs on {@code src.contains(null)} for any POM text.
+     *
+     * @throws Exception if something goes wrong.
+     */
+    @Test
+    public void resolveCiFriendliesOnlyWithPomElementsDoesNotThrow() throws Exception {
+        MavenProject project = rule.readMavenProject(new File(CI_WITH_POM_ELEMENTS_PATH));
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
+
+        flattenMojo.execute();
+
+        assertThat(readPom(CI_WITH_POM_ELEMENTS_FLATTENED).getVersion()).isEqualTo("1.2.3.4");
+    }
+
+    @After
+    public void removeCiWithPomElementsFlattenedPom() throws IOException {
+        File flattenedPom = new File(CI_WITH_POM_ELEMENTS_FLATTENED);
+        if (flattenedPom.exists()) {
+            if (!flattenedPom.delete()) {
+                throw new IOException("Can't delete " + flattenedPom);
+            }
+        }
+    }
+
+    private static final String FLATTEN_LOCAL_PARENT_PATH = "src/test/resources/flatten-local-parent/";
+    private static final String FLATTEN_LOCAL_PARENT_FLATTENED = FLATTEN_LOCAL_PARENT_PATH + ".flattened-pom.xml";
+
+    @Test
+    public void flattensLocalParentChain() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_LOCAL_PARENT_PATH, FLATTEN_LOCAL_PARENT_FLATTENED);
+        assertThat(flattenedPom.getVersion()).isEqualTo("1.2.3.4");
+        assertThat(flattenedPom.getProperties())
+                .containsEntry("grandparent.property", "grandparent")
+                .containsEntry("shared.property", "shared")
+                .containsEntry("line.property", "line");
+        assertThat(flattenedPom.getDependencyManagement().getDependencies()).anySatisfy(dependency -> {
+            assertThat(dependency.getArtifactId()).isEqualTo("managed-dependency");
+            assertThat(dependency.getVersion()).isEqualTo("${line.property}");
+        });
+        assertThat(flattenedPom.getBuild().getPlugins())
+                .anySatisfy(plugin -> assertThat(plugin.getArtifactId()).isEqualTo("maven-compiler-plugin"));
+        Plugin flattenPlugin = flattenedPom.getBuild().getPlugins().stream()
+                .filter(plugin -> "flatten-maven-plugin".equals(plugin.getArtifactId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        assertThat(((Xpp3Dom) flattenPlugin.getConfiguration()).getChild("flattenRelativePathParent"))
+                .isNull();
+    }
+
+    @Test
+    public void inheritsActiveLocalParentProfiles() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_LOCAL_PARENT_PATH, FLATTEN_LOCAL_PARENT_FLATTENED);
+
+        assertThat(flattenedPom.getProperties()).containsEntry("active.parent.property", "profile-value");
+    }
+
+    @Test
+    public void removesFlattenRelativePathParentFromProfiles() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_LOCAL_PARENT_PATH, FLATTEN_LOCAL_PARENT_FLATTENED);
+
+        Profile profile = flattenedPom.getProfiles().stream()
+                .filter(candidate -> "inactive-control-profile".equals(candidate.getId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        Plugin flattenPlugin = profile.getBuild().getPlugins().stream()
+                .filter(plugin -> "flatten-maven-plugin".equals(plugin.getArtifactId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        assertThat(flattenPlugin.getConfiguration()).isNull();
+    }
+
+    @After
+    public void removeFlattenRelativePathParentFlattenedPom() throws IOException {
+        File flattenedPom = new File(FLATTEN_LOCAL_PARENT_FLATTENED);
+        if (flattenedPom.exists() && !flattenedPom.delete()) {
+            throw new IOException("Can't delete " + flattenedPom);
+        }
+    }
+
+    private static final String FLATTEN_INHERITED_LOCAL_PARENT_PATH =
+            "src/test/resources/flatten-inherited-local-parent/";
+    private static final String FLATTEN_INHERITED_LOCAL_PARENT_FLATTENED =
+            FLATTEN_INHERITED_LOCAL_PARENT_PATH + ".flattened-pom.xml";
+
+    @Test
+    public void flattensLocalParentWithInheritedCoordinates() throws Exception {
+        Model flattenedPom = flatten(FLATTEN_INHERITED_LOCAL_PARENT_PATH, FLATTEN_INHERITED_LOCAL_PARENT_FLATTENED);
+
+        assertThat(flattenedPom.getProperties()).containsEntry("repository.property", "repository-value");
+        assertThat(flattenedPom.getParent()).isNull();
+    }
+
+    @After
+    public void removeFlattenInheritedLocalParentFlattenedPom() throws IOException {
+        deleteIfPresent(FLATTEN_INHERITED_LOCAL_PARENT_FLATTENED);
+    }
+
+    private Model flatten(String projectPath, String flattenedPomPath) throws Exception {
+        MavenProject project = rule.readMavenProject(new File(projectPath));
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
+
+        flattenMojo.execute();
+
+        return readPom(flattenedPomPath);
+    }
+
+    private static void deleteIfPresent(String path) throws IOException {
+        File flattenedPom = new File(path);
+        if (flattenedPom.exists() && !flattenedPom.delete()) {
+            throw new IOException("Can't delete " + flattenedPom);
         }
     }
 }

@@ -127,7 +127,7 @@
   </scm>
 
   <properties>
-    <mavenVersion>3.9.16</mavenVersion>
+    <mavenVersion>3.10.0</mavenVersion>
     <minimalMavenBuildVersion>3.9</minimalMavenBuildVersion>
     <project.build.outputTimestamp>2026-07-24T14:58:14Z</project.build.outputTimestamp>
   </properties>

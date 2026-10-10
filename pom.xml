@@ -129,7 +129,7 @@
   <properties>
     <!-- run the ITs in parallel -->
     <invoker.parallelThreads>0.75C</invoker.parallelThreads>
-    <mavenVersion>3.9.16</mavenVersion>
+    <mavenVersion>3.10.0</mavenVersion>
     <minimalMavenBuildVersion>3.9</minimalMavenBuildVersion>
     <project.build.outputTimestamp>2026-07-24T14:58:14Z</project.build.outputTimestamp>
   </properties>

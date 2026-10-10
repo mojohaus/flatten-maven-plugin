@@ -74,6 +74,20 @@ public class FlattenMojoTest {
         }
     }
 
+    private static final String CI_WITH_POM_ELEMENTS_PATH =
+            "src/test/resources/resolve-ci-friendlies-only-with-pom-elements/";
+    private static final String CI_WITH_POM_ELEMENTS_FLATTENED = CI_WITH_POM_ELEMENTS_PATH + ".flattened-pom.xml";
+
+    @Test
+    public void resolveCiFriendliesOnlyWithPomElementsDoesNotThrow() throws Exception {
+        MavenProject project = rule.readMavenProject(new File(CI_WITH_POM_ELEMENTS_PATH));
+        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
+
+        flattenMojo.execute();
+
+        assertThat(readPom(CI_WITH_POM_ELEMENTS_FLATTENED).getVersion()).isEqualTo("1.2.3.4");
+    }
+
     /**
      * After test method. Removes flattened-pom.xml file which is created during test.
      *
@@ -81,11 +95,14 @@ public class FlattenMojoTest {
      */
     @After
     public void removeFlattenedPom() throws IOException {
-        File flattenedPom = new File(FLATTENED_POM);
-        if (flattenedPom.exists()) {
-            if (!flattenedPom.delete()) {
-                throw new IOException("Can't delete " + flattenedPom);
-            }
+        removeFlattenedPom(FLATTENED_POM);
+        removeFlattenedPom(CI_WITH_POM_ELEMENTS_FLATTENED);
+    }
+
+    private static void removeFlattenedPom(String path) throws IOException {
+        File flattenedPom = new File(path);
+        if (flattenedPom.exists() && !flattenedPom.delete()) {
+            throw new IOException("Can't delete " + flattenedPom);
         }
     }
 }

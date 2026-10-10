@@ -9,6 +9,7 @@ updates:
       interval: "monthly"
     groups:
       maven:
+        patterns: ["*"]
         update-types: ["minor", "patch"]
     ignore:
       # plexus-xml 4.x is the Maven 4 line (depends on maven-xml-impl 4.0.0-alpha)

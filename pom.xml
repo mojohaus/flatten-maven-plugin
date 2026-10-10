@@ -127,6 +127,8 @@
   </scm>
 
   <properties>
+    <!-- run the ITs in parallel -->
+    <invoker.parallelThreads>0.75C</invoker.parallelThreads>
     <mavenVersion>3.9.16</mavenVersion>
     <minimalMavenBuildVersion>3.9</minimalMavenBuildVersion>
     <project.build.outputTimestamp>2026-07-24T14:58:14Z</project.build.outputTimestamp>
@@ -263,6 +265,10 @@
               <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
               <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
               <settingsFile>src/it/mrm/settings.xml</settingsFile>
+              <environmentVariables>
+                <!-- each IT is a short-lived JVM: C2 compilation and parallel GC only add startup time -->
+                <JAVA_TOOL_OPTIONS>-XX:TieredStopAtLevel=1 -XX:+UseSerialGC</JAVA_TOOL_OPTIONS>
+              </environmentVariables>
               <properties>
                 <settingsFile>${project.build.directory}/it/interpolated-settings.xml</settingsFile>
               </properties>

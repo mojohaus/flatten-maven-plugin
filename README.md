@@ -12,6 +12,11 @@ This plugin generates a flattened version of your pom.xml and makes maven to ins
 
 Please refer to the [Usage page](https://www.mojohaus.org/flatten-maven-plugin/usage.html) for simple example.
 
+## Contributing
+
+[AGENTS.md](AGENTS.md) records the build gates, how the unit and integration tests are set up,
+and the conventions for fixtures and pull requests.
+
 ## Releasing
 
 * Make sure `gpg-agent` is running.

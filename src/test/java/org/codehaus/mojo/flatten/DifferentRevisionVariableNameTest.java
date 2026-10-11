@@ -19,53 +19,27 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import org.apache.maven.plugin.testing.MojoRule;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoParameter;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DifferentRevisionVariableNameTest {
-    private static final String PATH = "src/test/resources/differentrevisionvariablename/";
-    private static final String TEST_TARGET_PATH = "target/test/resources/differentrevisionvariablename/";
-    private static final String FLATTENED_POM = TEST_TARGET_PATH + ".flattened-pom.xml";
-    private static final String EXPECTED_FLATTENED_POM = PATH + "expected-flattened-pom.xml";
-
-    @Rule
-    public MojoRule rule = new MojoRule();
-
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @Before
-    public void setup() {
-        new File(TEST_TARGET_PATH).mkdirs();
-    }
+@ProjectMojoTest
+class DifferentRevisionVariableNameTest {
 
     @Test
-    public void differentRevisionVariableNameTest() throws Exception {
-        MavenProject project = rule.readMavenProject(new File(PATH));
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
-
-        DefaultPlexusConfiguration tempPluginConfiguration = new DefaultPlexusConfiguration("test");
-        tempPluginConfiguration.addChild("outputDirectory", TEST_TARGET_PATH);
-        tempPluginConfiguration.addChild("keepCommentsInPom", "true");
-        rule.configureMojo(flattenMojo, tempPluginConfiguration);
-
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/differentrevisionvariablename/pom.xml")
+    @MojoParameter(name = "keepCommentsInPom", value = "true")
+    void differentRevisionVariableNameTest(FlattenMojo flattenMojo) throws Exception {
         // execute writes new FLATTENED_POM
         flattenMojo.execute();
 
-        Path expectedContentFile = Paths.get(EXPECTED_FLATTENED_POM);
-        Path actualContentFile = Paths.get(FLATTENED_POM);
+        Path actualContentFile = flattenMojo.getFlattenedPomFile();
+        Path expectedContentFile = actualContentFile.resolveSibling("expected-flattened-pom.xml");
         assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile, StandardCharsets.UTF_8);
     }
 }

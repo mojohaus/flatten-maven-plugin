@@ -19,10 +19,12 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.io.File;
+import javax.inject.Inject;
+
 import java.util.Collections;
 import java.util.Properties;
 
+import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuilderFactory;
@@ -32,11 +34,10 @@ import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingResult;
 import org.apache.maven.model.profile.ProfileInjector;
 import org.apache.maven.model.profile.ProfileSelector;
-import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
-import org.junit.Rule;
-import org.junit.Test;
+import org.codehaus.plexus.util.ReflectionUtils;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,9 +46,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author hohwille
  */
-public class CreateEffectivePomTest {
-    @Rule
-    public MojoRule rule = new MojoRule();
+@ProjectMojoTest
+class CreateEffectivePomTest {
+
+    @Inject
+    private MavenSession session;
+
+    @Inject
+    private MavenProject mavenProject;
 
     /**
      * Tests method to create effective POM.
@@ -55,16 +61,13 @@ public class CreateEffectivePomTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testCreateEffectivePom() throws Exception {
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/cmdpropertysubstituion/pom.xml")
+    void testCreateEffectivePom(FlattenMojo tested) throws Exception {
 
         String magicValue = "magic-value";
         Properties userProperties = new Properties();
         userProperties.setProperty("cmd.test.property", magicValue);
 
-        File pomFile = new File("src/test/resources/cmdpropertysubstituion/pom.xml");
-        MavenProject mavenProject = rule.readMavenProject(pomFile.getParentFile());
-
-        MavenSession session = rule.newMavenSession(mavenProject);
         FlattenModelResolver resolver = new FlattenModelResolver(
                 session.getRepositorySession(),
                 null,
@@ -73,12 +76,11 @@ public class CreateEffectivePomTest {
                 Collections.emptyList(),
                 Collections.singletonList(mavenProject));
         ModelBuildingRequest buildingRequest = new DefaultModelBuildingRequest()
-                .setPomFile(pomFile)
+                .setPomFile(mavenProject.getFile())
                 .setModelResolver(resolver)
                 .setUserProperties(userProperties);
 
-        FlattenMojo tested = (FlattenMojo) rule.lookupConfiguredMojo(mavenProject, "flatten");
-        rule.setVariableValueToObject(
+        ReflectionUtils.setVariableValueInObject(
                 tested, "modelBuilderThreadSafetyWorkaround", buildModelBuilderThreadSafetyWorkaroundForTest());
         Model effectivePom = tested.createEffectivePom(buildingRequest);
         assertThat(effectivePom.getName()).isEqualTo(magicValue);

@@ -19,18 +19,19 @@ package org.codehaus.mojo.flatten;
  * under the License.
  */
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.inject.Inject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,15 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author dehasi
  */
-public class FlattenMojoTest {
+@ProjectMojoTest
+class FlattenMojoTest {
 
-    private static final String PATH =
-            "src/test/resources/resolve-properties-ci-do-not-interpolate-profile-activation-file/";
-    private static final String POM = PATH + "pom.xml";
-    private static final String FLATTENED_POM = PATH + ".flattened-pom.xml";
-
-    @Rule
-    public MojoRule rule = new MojoRule();
+    @Inject
+    private MavenProject project;
 
     /**
      * Test method to check that profile activation file is not interpolated.
@@ -55,37 +52,24 @@ public class FlattenMojoTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void keepsProfileActivationFile() throws Exception {
-        MavenProject project = rule.readMavenProject(new File(PATH));
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
+    @InjectMojo(
+            goal = "flatten",
+            pom = "src/test/resources/resolve-properties-ci-do-not-interpolate-profile-activation-file/pom.xml")
+    void keepsProfileActivationFile(FlattenMojo flattenMojo) throws Exception {
+        Path pom = project.getFile().toPath();
 
         flattenMojo.execute();
 
-        assertThat(profileActivationFile(FLATTENED_POM)).isEqualTo(profileActivationFile(POM));
+        assertThat(profileActivationFile(flattenMojo.getFlattenedPomFile())).isEqualTo(profileActivationFile(pom));
     }
 
-    private static String profileActivationFile(String pom) throws Exception {
+    private static String profileActivationFile(Path pom) throws Exception {
         return readPom(pom).getProfiles().get(0).getActivation().getFile().getExists();
     }
 
-    private static Model readPom(String pomFilePath) throws IOException, XmlPullParserException {
-        try (FileInputStream input = new FileInputStream(new File(pomFilePath))) {
+    private static Model readPom(Path pomFile) throws IOException, XmlPullParserException {
+        try (InputStream input = Files.newInputStream(pomFile)) {
             return new MavenXpp3Reader().read(input);
-        }
-    }
-
-    /**
-     * After test method. Removes flattened-pom.xml file which is created during test.
-     *
-     * @throws IOException if can't remove file.
-     */
-    @After
-    public void removeFlattenedPom() throws IOException {
-        File flattenedPom = new File(FLATTENED_POM);
-        if (flattenedPom.exists()) {
-            if (!flattenedPom.delete()) {
-                throw new IOException("Can't delete " + flattenedPom);
-            }
         }
     }
 }

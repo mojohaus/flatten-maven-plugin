@@ -22,43 +22,28 @@ package org.codehaus.mojo.flatten;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import org.apache.maven.plugin.testing.MojoRule;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoParameter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test-Case for {@link FlattenMojo}.
  */
-public class KeepCommentsInPomTest {
-
-    private static final String PATH = "src/test/resources/keep-comments-in-pom/";
-    private static final String TEST_TARGET_PATH = "target/test/resources/keep-comments-in-pom/";
-    private static final String FLATTENED_POM = TEST_TARGET_PATH + ".flattened-pom.xml";
-    private static final String EXPECTED_FLATTENED_POM = PATH + "expected-flattened-pom.xml";
+@ProjectMojoTest
+class KeepCommentsInPomTest {
 
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n|\\r\\n?");
 
-    @Rule
-    public MojoRule rule = new MojoRule();
-
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @Before
-    public void setup() {
-        new File(TEST_TARGET_PATH).mkdirs();
-    }
+    @TempDir
+    Path temporaryFolder;
 
     /**
      * Test method to check that profile activation file is not interpolated.
@@ -66,30 +51,24 @@ public class KeepCommentsInPomTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void keepsProfileActivationFile() throws Exception {
-        MavenProject project = rule.readMavenProject(new File(PATH));
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
-
-        DefaultPlexusConfiguration tempPluginConfiguration = new DefaultPlexusConfiguration("test");
-        tempPluginConfiguration.addChild("outputDirectory", TEST_TARGET_PATH);
-        tempPluginConfiguration.addChild("keepCommentsInPom", "true");
-        rule.configureMojo(flattenMojo, tempPluginConfiguration);
-
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/keep-comments-in-pom/pom.xml")
+    @MojoParameter(name = "keepCommentsInPom", value = "true")
+    void keepsProfileActivationFile(FlattenMojo flattenMojo) throws Exception {
         // execute writes new FLATTENED_POM
         flattenMojo.execute();
 
-        Path expectedContentFile = Paths.get(EXPECTED_FLATTENED_POM);
-        Path actualContentFile = Paths.get(FLATTENED_POM);
+        Path actualContentFile = flattenMojo.getFlattenedPomFile();
+        Path expectedContentFile = actualContentFile.resolveSibling("expected-flattened-pom.xml");
         assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile, StandardCharsets.UTF_8);
         assertHasLineSeparator(actualContentFile, System.lineSeparator());
     }
 
     @Test
-    public void allNewLineSeparatorShouldBeNormalized() throws Exception {
+    void allNewLineSeparatorShouldBeNormalized() throws Exception {
 
         FlattenMojo flattenMojo = new FlattenMojo();
 
-        File tempFile = temporaryFolder.newFile();
+        File tempFile = Files.createTempFile(temporaryFolder, null, null).toFile();
         flattenMojo.writeStringToFile("line 1\n" + "line 2\r\n" + "line 3\r", tempFile.toPath(), "UTF-8");
 
         String lf = System.lineSeparator();

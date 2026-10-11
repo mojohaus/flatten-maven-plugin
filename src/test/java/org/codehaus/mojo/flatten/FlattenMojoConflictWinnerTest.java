@@ -1,48 +1,34 @@
 package org.codehaus.mojo.flatten;
 
+import javax.inject.Inject;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.DefaultMavenExecutionResult;
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionResult;
+import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuildingResult;
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
-import org.eclipse.aether.repository.LocalRepository;
-import org.eclipse.aether.repository.LocalRepositoryManager;
-import org.eclipse.aether.repository.NoLocalRepositoryManagerException;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test-Case for {@link FlattenMojo}.
+ * Test-Case for {@link FlattenMojo}. The local repository is the {@code repository} directory of the fixture.
  */
-public class FlattenMojoConflictWinnerTest {
+@ProjectMojoTest
+class FlattenMojoConflictWinnerTest {
 
-    private static final String PATH = "src/test/resources/conflict-winner/";
-    private static final String POM = PATH + "pom.xml";
-    private static final String FLATTENED_POM = PATH + ".flattened-pom.xml";
+    @Inject
+    private MavenSession session;
 
-    private static final String REPO_PATH = "src/test/resources/conflict-winner/repository/";
-
-    @Rule
-    public MojoRule rule = new MojoRule();
+    @Inject
+    private ProjectBuilder projectBuilder;
 
     /**
      * Test method to check that version conflicts are correctly honored. Two levels
@@ -70,16 +56,13 @@ public class FlattenMojoConflictWinnerTest {
      * @throws Exception if something goes wrong.
      */
     @Test
-    public void testConflictResolutionIsEnforced() throws Exception {
-
-        MavenSession session = newMavenSession(REPO_PATH);
-        MavenProject project = loadResolvedProject(session, new File(POM));
-        FlattenMojo flattenMojo = (FlattenMojo) rule.lookupConfiguredMojo(project, "flatten");
-        rule.setVariableValueToObject(flattenMojo, "session", session);
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/conflict-winner/pom.xml")
+    void testConflictResolutionIsEnforced(FlattenMojo flattenMojo) throws Exception {
 
         flattenMojo.execute();
 
-        MavenProject flattenedProject = loadResolvedProject(session, new File(FLATTENED_POM));
+        MavenProject flattenedProject =
+                loadResolvedProject(flattenMojo.getFlattenedPomFile().toFile());
 
         List<Dependency> bDependencies = flattenedProject.getDependencies().stream()
                 .filter(dep -> dep.getArtifactId().equals("b"))
@@ -95,56 +78,16 @@ public class FlattenMojoConflictWinnerTest {
 
     /**
      * Load a maven project with resolved dependencies (same as standard maven execution).
-     * By default dependencies are not resolved by MojoRule and project.getArtifacts is empty
-     * @param session the Maven session to use for building the project
      * @param pomFile the POM file to load and resolve dependencies for
      * @return the resolved MavenProject instance with dependencies
-     * @throws ComponentLookupException if the ProjectBuilder component cannot be found
      * @throws ProjectBuildingException if an error occurs while building the project
      */
-    private MavenProject loadResolvedProject(MavenSession session, File pomFile)
-            throws ComponentLookupException, ProjectBuildingException {
-        ProjectBuilder projectBuilder = rule.lookup(ProjectBuilder.class);
-
-        ProjectBuildingRequest buildingRequest = session.getProjectBuildingRequest();
+    private MavenProject loadResolvedProject(File pomFile) throws ProjectBuildingException {
+        ProjectBuildingRequest buildingRequest = session.getRequest().getProjectBuildingRequest();
+        buildingRequest.setRepositorySession(session.getRepositorySession());
         buildingRequest.setResolveDependencies(true);
 
         ProjectBuildingResult result = projectBuilder.build(pomFile, buildingRequest);
         return result.getProject();
-    }
-
-    /**
-     * Create a new maven session with a local repository at the given path.
-     * @param repoPath the path to the local repository to use for the session
-     * @return a new MavenSession instance configured with the specified local repository
-     * @throws NoLocalRepositoryManagerException if the local repository manager cannot be created
-     */
-    protected MavenSession newMavenSession(String repoPath) throws NoLocalRepositoryManagerException {
-        MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-        MavenExecutionResult result = new DefaultMavenExecutionResult();
-
-        MavenSession session =
-                new MavenSession(rule.getContainer(), MavenRepositorySystemUtils.newSession(), request, result);
-        LocalRepository testRepo = new LocalRepository(repoPath);
-        LocalRepositoryManager lrm =
-                new SimpleLocalRepositoryManagerFactory().newInstance(session.getRepositorySession(), testRepo);
-
-        ((DefaultRepositorySystemSession) session.getRepositorySession()).setLocalRepositoryManager(lrm);
-        return session;
-    }
-
-    /**
-     * After test method. Removes flattened-pom.xml file which is created during test.
-     *
-     * @throws IOException if can't remove file.
-     */
-    @After
-    public void removeFlattenedPom() throws IOException {
-        File flattenedPom = new File(FLATTENED_POM);
-        if (flattenedPom.exists()) {
-            if (!flattenedPom.delete()) {
-                throw new IOException("Can't delete " + flattenedPom);
-            }
-        }
     }
 }

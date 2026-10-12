@@ -57,7 +57,7 @@ class FlattenMojoConflictWinnerTest {
      */
     @Test
     @InjectMojo(goal = "flatten", pom = "src/test/resources/conflict-winner/pom.xml")
-    void testConflictResolutionIsEnforced(FlattenMojo flattenMojo) throws Exception {
+    void conflictResolutionIsEnforced(FlattenMojo flattenMojo) throws Exception {
 
         flattenMojo.execute();
 

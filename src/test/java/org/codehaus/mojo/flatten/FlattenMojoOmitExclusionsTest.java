@@ -26,7 +26,7 @@ class FlattenMojoOmitExclusionsTest {
      */
     @Test
     @InjectMojo(goal = "flatten", pom = "src/test/resources/omit-exclusions/pom.xml")
-    void testOmitExclusions(FlattenMojo flattenMojo) throws Exception {
+    void omitExclusions(FlattenMojo flattenMojo) throws Exception {
         // -- When...
         //
         flattenMojo.execute();

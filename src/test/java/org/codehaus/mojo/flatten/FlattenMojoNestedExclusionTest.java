@@ -46,7 +46,7 @@ class FlattenMojoNestedExclusionTest {
      */
     @Test
     @InjectMojo(goal = "flatten", pom = "src/test/resources/nested-exclusion/pom.xml")
-    void testNestedExclusionAreEnforced(FlattenMojo flattenMojo) throws Exception {
+    void nestedExclusionAreEnforced(FlattenMojo flattenMojo) throws Exception {
 
         flattenMojo.execute();
 

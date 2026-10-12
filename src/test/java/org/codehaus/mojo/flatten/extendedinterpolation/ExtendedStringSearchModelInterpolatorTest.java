@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ExtendedStringSearchModelInterpolatorTest {
 
     @Test
-    void testExtendedStringSearchModelInterpolator() throws Exception {
+    void extendedStringSearchModelInterpolator() throws Exception {
         ExtendedStringSearchModelInterpolator interpolator = new ExtendedStringSearchModelInterpolator();
         interpolator.setVersionPropertiesProcessor(new DefaultModelVersionProcessor());
 

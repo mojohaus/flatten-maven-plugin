@@ -62,7 +62,7 @@ class CreateEffectivePomTest {
      */
     @Test
     @InjectMojo(goal = "flatten", pom = "src/test/resources/cmdpropertysubstituion/pom.xml")
-    void testCreateEffectivePom(FlattenMojo tested) throws Exception {
+    void createEffectivePom(FlattenMojo tested) throws Exception {
 
         String magicValue = "magic-value";
         Properties userProperties = new Properties();

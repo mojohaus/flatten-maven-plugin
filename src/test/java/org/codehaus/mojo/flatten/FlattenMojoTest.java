@@ -27,9 +27,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoParameter;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 
@@ -71,5 +75,83 @@ class FlattenMojoTest {
         try (InputStream input = Files.newInputStream(pomFile)) {
             return new MavenXpp3Reader().read(input);
         }
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/resolve-ci-friendlies-only-with-pom-elements/pom.xml")
+    void resolveCiFriendliesOnlyWithPomElementsDoesNotThrow(FlattenMojo flattenMojo) throws Exception {
+        flattenMojo.execute();
+
+        assertThat(readPom(flattenMojo.getFlattenedPomFile()).getVersion()).isEqualTo("1.2.3.4");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/flatten-local-parent/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    @MojoParameter(name = "flattenRelativePathParent", value = "true")
+    void flattensLocalParentChain(FlattenMojo flattenMojo) throws Exception {
+        Model flattenedPom = flatten(flattenMojo);
+        assertThat(flattenedPom.getVersion()).isEqualTo("1.2.3.4");
+        assertThat(flattenedPom.getProperties())
+                .containsEntry("grandparent.property", "grandparent")
+                .containsEntry("shared.property", "shared")
+                .containsEntry("line.property", "line");
+        assertThat(flattenedPom.getDependencyManagement().getDependencies()).anySatisfy(dependency -> {
+            assertThat(dependency.getArtifactId()).isEqualTo("managed-dependency");
+            assertThat(dependency.getVersion()).isEqualTo("${line.property}");
+        });
+        assertThat(flattenedPom.getBuild().getPlugins())
+                .anySatisfy(plugin -> assertThat(plugin.getArtifactId()).isEqualTo("maven-compiler-plugin"));
+        Plugin flattenPlugin = flattenedPom.getBuild().getPlugins().stream()
+                .filter(plugin -> "flatten-maven-plugin".equals(plugin.getArtifactId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        assertThat(((Xpp3Dom) flattenPlugin.getConfiguration()).getChild("flattenRelativePathParent"))
+                .isNull();
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/flatten-local-parent/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    @MojoParameter(name = "flattenRelativePathParent", value = "true")
+    void inheritsActiveLocalParentProfiles(FlattenMojo flattenMojo) throws Exception {
+        Model flattenedPom = flatten(flattenMojo);
+
+        assertThat(flattenedPom.getProperties()).containsEntry("active.parent.property", "profile-value");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/flatten-local-parent/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    @MojoParameter(name = "flattenRelativePathParent", value = "true")
+    void removesFlattenRelativePathParentFromProfiles(FlattenMojo flattenMojo) throws Exception {
+        Model flattenedPom = flatten(flattenMojo);
+
+        Profile profile = flattenedPom.getProfiles().stream()
+                .filter(candidate -> "inactive-control-profile".equals(candidate.getId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        Plugin flattenPlugin = profile.getBuild().getPlugins().stream()
+                .filter(plugin -> "flatten-maven-plugin".equals(plugin.getArtifactId()))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        assertThat(flattenPlugin.getConfiguration()).isNull();
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/flatten-inherited-local-parent/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    @MojoParameter(name = "flattenRelativePathParent", value = "true")
+    void flattensLocalParentWithInheritedCoordinates(FlattenMojo flattenMojo) throws Exception {
+        Model flattenedPom = flatten(flattenMojo);
+
+        assertThat(flattenedPom.getProperties()).containsEntry("repository.property", "repository-value");
+        assertThat(flattenedPom.getParent()).isNull();
+    }
+
+    private static Model flatten(FlattenMojo flattenMojo) throws Exception {
+        flattenMojo.execute();
+
+        return readPom(flattenMojo.getFlattenedPomFile());
     }
 }

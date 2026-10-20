@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>repository-parent</artifactId>
+  <version>LOCAL</version>
+  <packaging>pom</packaging>
+  <properties>
+    <repository.property>repository-value</repository.property>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <configuration>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          <flattenRelativePathParent>true</flattenRelativePathParent>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -454,6 +454,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 
+        // Always set, not just on the resolveCiFriendliesOnly fast path below: createInterpolatedPom and
+        // createExtendedInterpolatedPom also call modelCiFriendlyInterpolator.interpolateModel(...) directly
+        // (this is the flattenMode==resolveCiFriendliesOnly branch taken when pomElements != null), and without
+        // this the pattern stays null, so CiModelInterpolator#interpolateInternal NPEs on src.contains(null).
+        ((CiModelInterpolator) this.modelCiFriendlyInterpolator)
+                .setRevisionVariablePattern(String.format("${%s}", revisionVariableName));
+
         File originalPomFile = this.project.getFile();
         Path flattenedPomFile = getFlattenedPomFile();
         Model flattenedPom;

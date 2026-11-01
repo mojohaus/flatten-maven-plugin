@@ -111,7 +111,7 @@
 
   <!-- this one is only required for maven-plugin packaging type -->
   <prerequisites>
-    <maven>3.0</maven>
+    <maven>3.9.0</maven>
   </prerequisites>
 
   <properties>

@@ -20,7 +20,11 @@ package org.codehaus.mojo.flatten.model.resolution;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
@@ -36,6 +40,7 @@ import org.eclipse.aether.RequestTrace;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeRequest;
@@ -60,6 +65,8 @@ public class FlattenModelResolver implements ModelResolver {
 
     private final List<RemoteRepository> repositories;
 
+    private final Set<String> repositoryIds;
+
     /** The modules of the project being built. */
     private final ReactorModelPool reactorModelPool;
 
@@ -77,7 +84,8 @@ public class FlattenModelResolver implements ModelResolver {
         this.repositorySystem = repositorySystem;
         this.trace = trace;
         this.context = context;
-        this.repositories = repositories;
+        this.repositories = new ArrayList<>(repositories);
+        this.repositoryIds = new HashSet<>();
 
         this.reactorModelPool = new ReactorModelPool();
         reactorModelPool.addProjects(reactorModels);
@@ -88,7 +96,8 @@ public class FlattenModelResolver implements ModelResolver {
         this.repositorySystem = other.repositorySystem;
         this.trace = other.trace;
         this.context = other.context;
-        this.repositories = other.repositories;
+        this.repositories = new ArrayList<>(other.repositories);
+        this.repositoryIds = new HashSet<>(other.repositoryIds);
         this.reactorModelPool = other.reactorModelPool;
     }
 
@@ -118,7 +127,7 @@ public class FlattenModelResolver implements ModelResolver {
      * {@inheritDoc}
      */
     public void addRepository(Repository repository) {
-        // ignoring... artifact resolution via repository should already have happened before by maven core.
+        addRepository(repository, false);
     }
 
     /**
@@ -183,6 +192,40 @@ public class FlattenModelResolver implements ModelResolver {
      * @since Apache-Maven-3.2.3 (MNG-5663)
      */
     public void addRepository(Repository repository, boolean replace) {
-        // ignoring... artifact resolution via repository should already have happened before by maven core.
+        if (!repositoryIds.add(repository.getId())) {
+            if (!replace) {
+                return;
+            }
+            repositories.removeIf(r -> r.getId().equals(repository.getId()));
+        }
+
+        RemoteRepository remoteRepository = new RemoteRepository.Builder(
+                        repository.getId(), repository.getLayout(), repository.getUrl())
+                .setReleasePolicy(toRepositoryPolicy(repository.getReleases()))
+                .setSnapshotPolicy(toRepositoryPolicy(repository.getSnapshots()))
+                .build();
+        // applies the mirrors, proxies and authentication of the settings
+        for (RemoteRepository resolutionRepository :
+                repositorySystem.newResolutionRepositories(session, Collections.singletonList(remoteRepository))) {
+            if (repositories.stream().noneMatch(r -> r.getId().equals(resolutionRepository.getId()))) {
+                repositories.add(resolutionRepository);
+            }
+        }
+    }
+
+    private static RepositoryPolicy toRepositoryPolicy(org.apache.maven.model.RepositoryPolicy policy) {
+        boolean enabled = true;
+        String updatePolicy = RepositoryPolicy.UPDATE_POLICY_DAILY;
+        String checksumPolicy = RepositoryPolicy.CHECKSUM_POLICY_WARN;
+        if (policy != null) {
+            enabled = policy.isEnabled();
+            if (policy.getUpdatePolicy() != null) {
+                updatePolicy = policy.getUpdatePolicy();
+            }
+            if (policy.getChecksumPolicy() != null) {
+                checksumPolicy = policy.getChecksumPolicy();
+            }
+        }
+        return new RepositoryPolicy(enabled, updatePolicy, checksumPolicy);
     }
 }

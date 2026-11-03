@@ -37,6 +37,7 @@ import org.apache.maven.model.profile.ProfileSelector;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.ReflectionUtils;
+import org.eclipse.aether.RepositorySystem;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +56,9 @@ class CreateEffectivePomTest {
     @Inject
     private MavenProject mavenProject;
 
+    @Inject
+    private RepositorySystem repositorySystem;
+
     /**
      * Tests method to create effective POM.
      *
@@ -70,7 +74,7 @@ class CreateEffectivePomTest {
 
         FlattenModelResolver resolver = new FlattenModelResolver(
                 session.getRepositorySession(),
-                null,
+                repositorySystem,
                 null,
                 null,
                 Collections.emptyList(),

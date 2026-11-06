@@ -1,17 +1,15 @@
-<?xml version="1.0"?>
-<!-- $Id: example-simple-project.xml 19714 2014-05-05 19:20:06Z joerg.hohwiller $ -->
-<document>
-  <properties>
-    <title>Using flatten-maven-plugin in a simple project</title>
-  </properties>
+title: Using flatten-maven-plugin in a simple project
 
-  <body>
-    <section name="Using flatten-maven-plugin in a simple project">
-      Actually flatten-maven-plugin is designed for (large) multi-module-projects it can also be used
-      for simple projects.
-      <subsection name="Single POM">
-        If you have just a single POM add flatten-maven-plugin in the build section:
-        <source><![CDATA[
+# Using flatten-maven-plugin in a simple project
+
+Actually flatten-maven-plugin is designed for (large) multi-module-projects it can also be used for simple projects.
+
+Single POM
+----------
+
+If you have just a single POM add flatten-maven-plugin in the build section:
+
+```xml
 <!-- Licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt -->
 <project>
   <modelVersion>4.0.0</modelVersion>
@@ -67,7 +65,7 @@
   <developers>
     <developer>
       <id>hohwille</id>
-      <name>J&#246;rg Hohwiller</name>
+      <name>Jörg Hohwiller</name>
       <email>hohwille@users.sourceforge.net</email>
     </developer>
   </developers>
@@ -79,9 +77,11 @@
     </license>
   </licenses>
 </project>
-        ]]></source>
-        If you install or deploy the project the flattened POM of whizbang that goes into the repository will look like this:
-        <source><![CDATA[
+```
+
+If you install or deploy the project the flattened POM of whizbang that goes into the repository will look like this:
+
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt -->
 <project>
@@ -110,8 +110,4 @@
     </license>
   </licenses>
 </project>
-        ]]></source>
-      </subsection>
-    </section>
-  </body>
-</document>
+```

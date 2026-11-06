@@ -1,14 +1,10 @@
-<?xml version="1.0"?>
-<!-- $Id: usage.xml 19757 2014-05-29 20:45:48Z joerg.hohwiller $ -->
-<document>
-  <properties>
-    <title>Usage</title>
-  </properties>
+title: Usage
 
-  <body>
-    <section name="Usage">
-      Simply add the plugin to the build section of your top-level POM as following.
-      <source><![CDATA[
+# Usage
+
+Simply add the plugin to the build section of your top-level POM as following.
+
+```xml
   <build>
     <plugins>
       ...
@@ -38,27 +34,24 @@
       </plugin>
     </plugins>
   </build>
-      ]]></source>
+```
 
-      <subsection name="NOTICE">
-        <p>The generated flattened POM will be set as POM file to the current project only for projects with packaging other than <code>pom</code>.
-        You may want to also do this for <code>pom</code> packaging projects by setting the parameter <code>updatePomFile</code> to <code>true</code>.</p>
+NOTICE
+------
 
-        <p>If <code>flattenMode</code> is set to <code>bom</code> the generated flattened POM will be set as a project POM file also for <code>pom</code> packaging.</p>
+The generated flattened POM will be set as POM file to the current project only for projects with packaging other than `pom`. You may want to also do this for `pom` packaging projects by setting the parameter `updatePomFile` to `true`.
 
-        <p>Setting generated flattened POM as a project POM file will allow to install/deploy the generated POM instead of actual project POM file.</p>
-      </subsection>
+If `flattenMode` is set to `bom` the generated flattened POM will be set as a project POM file also for `pom` packaging.
 
-      <subsection name="Keep developer information">
-        If you want to keep additional development information in your POM you can configure predefined modes via the <code>flattenMode</code> parameter.
-        For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "resolveCiFriendliesOnly".
-        Here is an example configuration:
-      <source><![CDATA[
-        <configuration>
-          <flattenMode>resolveCiFriendliesOnly</flattenMode>
-        </configuration>
-      ]]></source>
-      </subsection>
-    </section>
-  </body>
-</document>
+Setting generated flattened POM as a project POM file will allow to install/deploy the generated POM instead of actual project POM file.
+
+Keep developer information
+--------------------------
+
+If you want to keep additional development information in your POM you can configure predefined modes via the `flattenMode` parameter. For typical open-source-projects you can choose "oss". To keep all additional POM elements and flatten only to a bare minimum use "resolveCiFriendliesOnly". Here is an example configuration:
+
+```xml
+<configuration>
+  <flattenMode>resolveCiFriendliesOnly</flattenMode>
+</configuration>
+```

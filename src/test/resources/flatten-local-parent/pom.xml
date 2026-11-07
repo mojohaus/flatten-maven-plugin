@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.codehaus.mojo.flatten.its</groupId>
+    <artifactId>local-common-parent</artifactId>
+    <version>LOCAL</version>
+    <relativePath>common-pom.xml</relativePath>
+  </parent>
+  <artifactId>flatten-local-parent</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
+  <properties>
+    <revision>1.2.3.4</revision>
+    <line.property>line</line.property>
+  </properties>
+  <profiles>
+    <profile>
+      <id>inactive-control-profile</id>
+      <activation>
+        <property>
+          <name>never.activate.flatten.control.profile</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>flatten-maven-plugin</artifactId>
+            <configuration>
+              <flattenRelativePathParent>true</flattenRelativePathParent>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

@@ -790,6 +790,13 @@ public class FlattenMojo extends AbstractFlattenMojo {
                             if (parsedDep.getOptional() == null) {
                                 parsedDep.setOptional("false");
                             }
+                            // like Maven, take the managed exclusions unless the dependency declares its own
+                            if (parsedDep.getExclusions().isEmpty()) {
+                                for (Exclusion managedExclusion :
+                                        managedDependencies.resolve(parsedDep).getExclusions()) {
+                                    parsedDep.addExclusion(managedExclusion.clone());
+                                }
+                            }
                         }
                         Dependency flattenedDep = createFlattenedDependency(parsedDep);
                         if (flattenedDep != null) {

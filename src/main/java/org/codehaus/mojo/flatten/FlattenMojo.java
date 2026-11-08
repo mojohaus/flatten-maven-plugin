@@ -299,8 +299,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * <tr>
      * <td>ossrh</td>
      * <td>Keeps all {@link FlattenDescriptor optional POM elements} that are required for
-     * <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide">OSS
-     * Repository-Hosting</a>.</td>
+     * <a href="https://central.sonatype.org/publish/requirements/">publishing to Maven Central</a> through the
+     * Central Portal.</td>
      * </tr>
      * <tr>
      * <td>bom</td>

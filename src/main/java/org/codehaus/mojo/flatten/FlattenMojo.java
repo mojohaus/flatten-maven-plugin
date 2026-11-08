@@ -1093,7 +1093,20 @@ public class FlattenMojo extends AbstractFlattenMojo {
             Model projectModel = this.project.getModel();
             Dependencies modelDependencies = new Dependencies();
             modelDependencies.addAll(projectModel.getDependencies());
+            Set<String> activeProfileIds = new HashSet<>();
+            for (Profile activeProfile : this.project.getActiveProfiles()) {
+                activeProfileIds.add(activeProfile.getId());
+            }
+            Set<String> addedDependencyKeys = new HashSet<>();
+            for (Dependency flattenedDependency : flattenedDependencies) {
+                addedDependencyKeys.add(flattenedDependency.getManagementKey());
+            }
             for (Profile profile : projectModel.getProfiles()) {
+                // only the active profiles contributed their dependencies to the project model, the dependencies
+                // of the other profiles must not be looked up there as they may share their key
+                if (!activeProfileIds.contains(profile.getId())) {
+                    continue;
+                }
                 // build-time driven activation (by property or file)?
                 if (isBuildTimeDriven(profile.getActivation())) {
                     List<Dependency> profileDependencies = profile.getDependencies();
@@ -1105,6 +1118,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
                             // and
                             // allow dynamic dependencies due to OS or JDK.
                             Dependency resolvedProfileDependency = modelDependencies.resolve(profileDependency);
+                            if (!addedDependencyKeys.add(resolvedProfileDependency.getManagementKey())) {
+                                continue;
+                            }
                             if (omitExclusions) {
                                 resolvedProfileDependency.setExclusions(Collections.emptyList());
                             }

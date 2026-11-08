@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         child.project.url.inherit.append.path="false">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>child-project-url-inherit-append-path</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <url>https://example.org/project</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <flattenMode>ossrh</flattenMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

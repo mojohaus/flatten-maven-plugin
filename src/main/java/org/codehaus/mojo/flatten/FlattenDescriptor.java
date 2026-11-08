@@ -183,6 +183,24 @@ public class FlattenDescriptor {
     }
 
     /**
+     * @return {@link ElementHandling} for {@link Model#getChildProjectUrlInheritAppendPath()
+     * childProjectUrlInheritAppendPath}.
+     * @since 1.9.1
+     */
+    public ElementHandling getChildProjectUrlInheritAppendPath() {
+        return getHandling(PomProperty.CHILD_PROJECT_URL_INHERIT_APPEND_PATH);
+    }
+
+    /**
+     * @param childProjectUrlInheritAppendPath the {@link #getChildProjectUrlInheritAppendPath()
+     * childProjectUrlInheritAppendPath} to set.
+     * @since 1.9.1
+     */
+    public void setChildProjectUrlInheritAppendPath(ElementHandling childProjectUrlInheritAppendPath) {
+        setHandling(PomProperty.CHILD_PROJECT_URL_INHERIT_APPEND_PATH, childProjectUrlInheritAppendPath);
+    }
+
+    /**
      * @return {@link ElementHandling} for {@link Model#getInceptionYear() inceptionYear}.
      */
     public ElementHandling getInceptionYear() {

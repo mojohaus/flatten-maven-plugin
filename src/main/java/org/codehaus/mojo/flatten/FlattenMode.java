@@ -45,8 +45,8 @@ public enum FlattenMode {
 
     /**
      * Keeps all {@link FlattenDescriptor optional POM elements} that are required for
-     * <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide">OSS
-     * Repository-Hosting</a>.
+     * <a href="https://central.sonatype.org/publish/requirements/">publishing to Maven Central</a> through the
+     * Central Portal.
      */
     ossrh,
 

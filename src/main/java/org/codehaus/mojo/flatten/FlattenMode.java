@@ -39,7 +39,9 @@ public enum FlattenMode {
 
     /**
      * For Open-Source-Software projects that want to keep all {@link FlattenDescriptor optional POM elements} except
-     * for {@link Model#getRepositories() repositories} and {@link Model#getPluginRepositories() pluginRepositories}.
+     * for {@link Model#getPluginRepositories() pluginRepositories}. The {@link Model#getRepositories() repositories}
+     * are kept; to remove them, configure
+     * <code>&lt;pomElements&gt;&lt;repositories&gt;remove&lt;/repositories&gt;&lt;/pomElements&gt;</code>.
      */
     oss,
 

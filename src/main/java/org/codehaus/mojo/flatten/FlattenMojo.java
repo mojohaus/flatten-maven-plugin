@@ -990,6 +990,11 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 merged.putAll(profile.getProperties());
                 model.setProperties(merged);
 
+                // The profile is dominant when both declare a repository with the same id, as in Maven core.
+                model.setRepositories(mergeRepositories(model.getRepositories(), profile.getRepositories()));
+                model.setPluginRepositories(
+                        mergeRepositories(model.getPluginRepositories(), profile.getPluginRepositories()));
+
                 // Copied from org.apache.maven.model.profile.DefaultProfileInjector
                 DependencyManagement profileDependencyManagement = profile.getDependencyManagement();
                 if (profileDependencyManagement != null) {
@@ -1035,6 +1040,29 @@ public class FlattenMojo extends AbstractFlattenMojo {
         // remove Repositories from super POM (central)
         effectivePom.setRepositories(createFlattenedRepositories(effectivePom.getRepositories()));
         return effectivePom;
+    }
+
+    /**
+     * Merges the repositories of an active {@link Profile} into those of the {@link Model}, de-duplicated by
+     * {@link Repository#getId() id}. The repository of the profile replaces a model repository with the same id.
+     *
+     * @param modelRepositories the repositories of the {@link Model}.
+     * @param profileRepositories the repositories of the {@link Profile}.
+     * @return the merged repositories, in the order of first appearance of their ids.
+     */
+    private static List<Repository> mergeRepositories(
+            List<Repository> modelRepositories, List<Repository> profileRepositories) {
+        if (profileRepositories == null || profileRepositories.isEmpty()) {
+            return modelRepositories;
+        }
+        Map<String, Repository> merged = new LinkedHashMap<>();
+        for (Repository repository : modelRepositories) {
+            merged.put(repository.getId(), repository);
+        }
+        for (Repository repository : profileRepositories) {
+            merged.put(repository.getId(), repository.clone());
+        }
+        return new ArrayList<>(merged.values());
     }
 
     /**

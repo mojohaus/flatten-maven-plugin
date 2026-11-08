@@ -294,8 +294,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * <tr>
      * <td>oss</td>
      * <td>For Open-Source-Software projects that want to keep all {@link FlattenDescriptor optional POM elements}
-     * except for {@link Model#getRepositories() repositories} and {@link Model#getPluginRepositories()
-     * pluginRepositories}.</td>
+     * except for {@link Model#getPluginRepositories() pluginRepositories}. The {@link Model#getRepositories()
+     * repositories} are kept; to remove them, configure
+     * <code>&lt;pomElements&gt;&lt;repositories&gt;remove&lt;/repositories&gt;&lt;/pomElements&gt;</code>.</td>
      * <tr>
      * <td>ossrh</td>
      * <td>Keeps all {@link FlattenDescriptor optional POM elements} that are required for

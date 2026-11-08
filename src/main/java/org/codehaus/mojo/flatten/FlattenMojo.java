@@ -924,7 +924,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         return new DefaultModelBuildingRequest()
                 .setUserProperties(userAndActiveExternalProfilesProperties)
-                .setSystemProperties(System.getProperties())
+                .setSystemProperties(this.session.getSystemProperties())
                 .setPomFile(pomFile)
                 .setModelResolver(resolver)
                 .setActiveProfileIds(activeProfiles)

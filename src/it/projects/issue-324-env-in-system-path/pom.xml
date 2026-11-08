@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <!-- https://github.com/mojohaus/flatten-maven-plugin/issues/324 -->
+  <artifactId>issue-324-env-in-system-path</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+      <groupId>jdk.internal</groupId>
+      <artifactId>jrt-fs</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${env.JAVA_HOME}/lib/jrt-fs.jar</systemPath>
+    </dependency>
+  </dependencies>
+  <build>
+    <defaultGoal>verify</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <flattenMode>oss</flattenMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

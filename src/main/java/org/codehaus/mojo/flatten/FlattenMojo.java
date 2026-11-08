@@ -58,6 +58,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.Repository;
@@ -662,7 +663,29 @@ public class FlattenMojo extends AbstractFlattenMojo {
             }
         }
 
+        dropCoordinatesInheritedFromParent(flattenedPom);
+
         return flattenedPom;
+    }
+
+    /**
+     * Removes the {@link Model#getGroupId() groupId} and {@link Model#getVersion() version} of the given POM if they
+     * are identical to those of its {@link Model#getParent() parent}, so that they are inherited as in a hand-written
+     * POM.
+     *
+     * @param pom is the {@link Model} to simplify.
+     */
+    private static void dropCoordinatesInheritedFromParent(Model pom) {
+        Parent parent = pom.getParent();
+        if (parent == null) {
+            return;
+        }
+        if (parent.getGroupId() != null && parent.getGroupId().equals(pom.getGroupId())) {
+            pom.setGroupId(null);
+        }
+        if (parent.getVersion() != null && parent.getVersion().equals(pom.getVersion())) {
+            pom.setVersion(null);
+        }
     }
 
     Model createEffectivePom(ModelBuildingRequest buildingRequest) throws MojoExecutionException {

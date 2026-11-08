@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>profile-with-dependencies-inactive-same-key</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>profile1</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.mojo.flatten.its</groupId>
+          <artifactId>dep</artifactId>
+          <version>1.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>profile2</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.mojo.flatten.its</groupId>
+          <artifactId>dep</artifactId>
+          <version>2.0</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>profile3</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.mojo.flatten.its</groupId>
+          <artifactId>dep</artifactId>
+          <version>3.0</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+</project>

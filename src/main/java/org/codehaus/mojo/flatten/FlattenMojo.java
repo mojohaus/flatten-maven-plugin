@@ -244,7 +244,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * this is only done for projects with packaging other than <code>pom</code>. You may want to also do this for
      * <code>pom</code> packages projects by setting this parameter to <code>true</code> or you can use
      * <code>false</code> in order to only generate the flattened POM but never set it as POM file. If
-     * <code>flattenMode</code> is set to bom the default value will be <code>true</code>.
+     * <code>flattenMode</code> is set to <code>bom</code> or <code>resolveCiFriendliesOnly</code> the default value
+     * will be <code>true</code>, also for projects with packaging <code>pom</code>.
      */
     @Parameter(property = "updatePomFile")
     private Boolean updatePomFile;
@@ -1370,7 +1371,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
     public boolean isUpdatePomFile() {
 
         if (this.updatePomFile == null) {
-            if (this.flattenMode == FlattenMode.bom) {
+            if (this.flattenMode == FlattenMode.bom || this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
                 return true;
             }
             if (this.project.getPackaging().equals("pom")) {

@@ -491,6 +491,20 @@ public abstract class PomProperty<V> {
         }
     };
 
+    /** @see Model#getChildProjectUrlInheritAppendPath() */
+    public static final PomProperty<String> CHILD_PROJECT_URL_INHERIT_APPEND_PATH =
+            new PomProperty<String>("childProjectUrlInheritAppendPath", String.class) {
+                @Override
+                public String get(Model model) {
+                    return model.getChildProjectUrlInheritAppendPath();
+                }
+
+                @Override
+                public void set(Model model, String value) {
+                    model.setChildProjectUrlInheritAppendPath(value);
+                }
+            };
+
     /** @see Model#getVersion() */
     public static final PomProperty<String> VERSION = new PomProperty<String>("version", String.class) {
         @Override
@@ -507,6 +521,7 @@ public abstract class PomProperty<V> {
     private static final PomProperty<?>[] POM_PROPERTIES_ARRAY = new PomProperty<?>[] {
         ARTIFACT_ID,
         BUILD,
+        CHILD_PROJECT_URL_INHERIT_APPEND_PATH,
         CI_MANAGEMENT,
         CONTRIBUTORS,
         DEPENDENCIES,

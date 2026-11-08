@@ -109,6 +109,7 @@ public enum FlattenMode {
                 descriptor.setName(ElementHandling.expand);
                 descriptor.setDescription(ElementHandling.expand);
                 descriptor.setUrl(ElementHandling.expand);
+                descriptor.setChildProjectUrlInheritAppendPath(ElementHandling.expand);
                 descriptor.setScm(ElementHandling.expand);
                 descriptor.setDevelopers(ElementHandling.expand);
             // $FALL-THROUGH$
@@ -146,6 +147,7 @@ public enum FlattenMode {
                 descriptor.setRepositories(ElementHandling.interpolate);
                 descriptor.setScm(ElementHandling.interpolate);
                 descriptor.setUrl(ElementHandling.interpolate);
+                descriptor.setChildProjectUrlInheritAppendPath(ElementHandling.interpolate);
                 descriptor.setVersion(ElementHandling.resolve);
                 break;
             case clean:

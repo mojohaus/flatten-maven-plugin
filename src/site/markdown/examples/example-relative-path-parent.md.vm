@@ -112,6 +112,8 @@ How the local parent chain is collapsed
 
 The following complete example shows the underlying mechanism with a repository-wide parent, a module-specific parent, and one published child.
 
+The flattened POM keeps the retained external parent reference without a `relativePath`, so consumers always resolve that parent from a repository.
+
 Repository-wide parent
 ----------------------
 

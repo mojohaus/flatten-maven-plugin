@@ -41,7 +41,7 @@ NOTICE
 
 The generated flattened POM will be set as POM file to the current project only for projects with packaging other than `pom`. You may want to also do this for `pom` packaging projects by setting the parameter `updatePomFile` to `true`.
 
-If `flattenMode` is set to `bom` or `resolveCiFriendliesOnly` the generated flattened POM will be set as a project POM file also for `pom` packaging.
+If `flattenMode` is set to `bom` or `resolveCiFriendliesOnly`, or to `byPackaging` on a `pom` packaging project, the generated flattened POM will be set as a project POM file also for `pom` packaging.
 
 Setting generated flattened POM as a project POM file will allow to install/deploy the generated POM instead of actual project POM file.
 
@@ -55,3 +55,16 @@ If you want to keep additional development information in your POM you can confi
   <flattenMode>resolveCiFriendliesOnly</flattenMode>
 </configuration>
 ```
+
+Choose the mode by packaging
+----------------------------
+
+A shared parent often has two kinds of descendants. Parent POMs must keep the build and management their own children inherit, which calls for "resolveCiFriendliesOnly". Artifacts such as jars are better served by a minimal consumer POM, which "defaults" produces. The mode "byPackaging" picks per project: "resolveCiFriendliesOnly" for `pom` packaging and "defaults" for every other packaging. Configured once in the shared parent, it spares each descendant from overriding the mode.
+
+```xml
+<configuration>
+  <flattenMode>byPackaging</flattenMode>
+</configuration>
+```
+
+As with "resolveCiFriendliesOnly", a `pom` packaging project then installs and deploys its flattened POM without setting `updatePomFile`.

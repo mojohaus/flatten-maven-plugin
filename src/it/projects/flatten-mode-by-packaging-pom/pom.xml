@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- byPackaging on pom packaging keeps the source formatting, without flattenRelativePathParent. -->
+  <groupId>org.codehaus.mojo.flatten.its</groupId>
+  <artifactId>flatten-mode-by-packaging-pom</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
+  <properties>
+    <revision>1.2.3.4</revision>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <flattenMode>byPackaging</flattenMode>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

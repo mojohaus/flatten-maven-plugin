@@ -78,7 +78,22 @@ public enum FlattenMode {
     /** Only resolves variables revision, sha1 and changelist. Keeps everything else.
      * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.
      */
-    resolveCiFriendliesOnly;
+    resolveCiFriendliesOnly,
+
+    /**
+     * {@link #resolveCiFriendliesOnly} for <code>pom</code> packaging, {@link #defaults} for every other packaging.
+     * A parent POM keeps the build and management its children inherit; an artifact publishes a minimal consumer
+     * POM. One setting in a shared parent then suits both kinds of child.
+     */
+    byPackaging;
+
+    /**
+     * @param packaging the project's packaging.
+     * @return the mode {@link #byPackaging} selects for that packaging.
+     */
+    public static FlattenMode forPackaging(String packaging) {
+        return "pom".equals(packaging) ? resolveCiFriendliesOnly : defaults;
+    }
 
     /**
      * @return the {@link FlattenDescriptor} defined by this {@link FlattenMode}.

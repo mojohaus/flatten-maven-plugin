@@ -16,6 +16,7 @@
   <modules>
     <module>module-parent</module>
     <module>child</module>
+    <module>directory-parent-child</module>
   </modules>
   <properties>
     <repository.property>repository-value</repository.property>

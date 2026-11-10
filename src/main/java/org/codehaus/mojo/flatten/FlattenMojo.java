@@ -25,6 +25,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -90,6 +91,7 @@ import org.codehaus.mojo.flatten.extendedinterpolation.ExtendedModelInterpolator
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositoryException;
@@ -301,9 +303,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * The source POMs and Maven reactor remain unchanged; only the POM used for installation or deployment is
      * flattened.
      * <p>
-     * The first parent that is not resolved from the filesystem is retained as the flattened POM's parent, with its
-     * {@code relativePath} removed so consumers resolve it from a repository. If the local chain ends without another
-     * parent, the flattened POM has no parent.
+     * The first parent that is not resolved from the filesystem is retained as the flattened POM's parent, with an
+     * explicitly empty {@code relativePath} so consumers resolve it from a repository. If the local chain ends without
+     * another parent, the flattened POM has no parent.
      * <p>
      * Enable this for build-only parent POMs that must not appear in installed or deployed child POMs. An absent parent,
      * an empty {@code relativePath}, a missing POM, or mismatched coordinates terminates the local chain. This allows
@@ -323,7 +325,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * <p>
      * Enabling this parameter rebuilds the flattened POM in full. In combination with
      * {@link FlattenMode#resolveCiFriendliesOnly} it replaces the otherwise non-destructive interpolation-only
-     * update, losing original formatting. The retained external parent reference is written without a
+     * update, losing original formatting. The retained external parent reference is written with an empty
      * {@code relativePath} so consumers resolve it from a repository.
      *
      * @since 1.9.1
@@ -813,12 +815,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
         Model child = createOriginalPom(pomFile.toPath());
         Model collapsed = collapseRelativePathParent(child, pomFile.toPath(), new HashSet<>());
         if (collapsed.getParent() != null) {
-            collapsed.getParent().setRelativePath(null);
+            collapsed.getParent().setRelativePath("");
         }
         return collapsed;
     }
 
-    private Model collapseRelativePathParent(Model child, Path pomPath, Set<Path> visitedParents)
+    Model collapseRelativePathParent(Model child, Path pomPath, Set<Path> visitedParents)
             throws MojoExecutionException {
         if (!visitedParents.add(pomPath.toAbsolutePath().normalize())) {
             throw new MojoExecutionException("Cyclic local parent chain detected at " + pomPath
@@ -848,10 +850,16 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         Model localParent = createOriginalPom(parentPath);
         if (!hasMatchingCoordinates(parentReference, localParent)) {
-            getLog().warn("The POM at " + parentPath + " has coordinates " + getGroupId(localParent) + ":"
+            String message = "The POM at " + parentPath + " referenced by " + pomPath
+                    + " has coordinates " + getGroupId(localParent) + ":"
                     + localParent.getArtifactId() + ":" + getVersion(localParent) + ", which do not match the "
                     + "expected parent " + parentReference.getGroupId() + ":" + parentReference.getArtifactId()
-                    + ":" + parentReference.getVersion() + "; the flattened POM keeps that parent reference.");
+                    + ":" + parentReference.getVersion() + "; the flattened POM keeps that parent reference.";
+            if (hasExplicitRelativePath(pomPath)) {
+                getLog().warn(message);
+            } else {
+                getLog().debug(message);
+            }
             return child;
         }
 
@@ -870,10 +878,19 @@ public class FlattenMojo extends AbstractFlattenMojo {
             child.setParent(null);
         } else {
             promotedParent = promotedParent.clone();
-            promotedParent.setRelativePath(null);
+            promotedParent.setRelativePath("");
             child.setParent(promotedParent);
         }
         return child;
+    }
+
+    private boolean hasExplicitRelativePath(Path pomPath) throws MojoExecutionException {
+        try (InputStream input = Files.newInputStream(pomPath)) {
+            Xpp3Dom parent = Xpp3DomBuilder.build(input, null).getChild("parent");
+            return parent != null && parent.getChild("relativePath") != null;
+        } catch (IOException | XmlPullParserException e) {
+            throw new MojoExecutionException("Error reading parent relativePath in " + pomPath, e);
+        }
     }
 
     private void validateIndependentLocalParent(Path parentPath) throws MojoExecutionException {

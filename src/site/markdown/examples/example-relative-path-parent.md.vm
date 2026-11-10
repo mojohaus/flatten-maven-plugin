@@ -112,7 +112,7 @@ How the local parent chain is collapsed
 
 The following complete example shows the underlying mechanism with a repository-wide parent, a module-specific parent, and one published child.
 
-The flattened POM keeps the retained external parent reference without a `relativePath`, so consumers always resolve that parent from a repository.
+The flattened POM keeps an empty `relativePath` on the retained external parent reference, so consumers resolve that parent from a repository.
 
 Repository-wide parent
 ----------------------
@@ -241,6 +241,7 @@ The installed or deployed POM contains both inherited property sets and the publ
     <groupId>com.example</groupId>
     <artifactId>published-parent</artifactId>
     <version>2.0.0</version>
+    <relativePath></relativePath>
   </parent>
 
   <groupId>com.example</groupId>

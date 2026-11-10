@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoParameter;
@@ -32,12 +34,14 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Test-Case for {@link FlattenMojo}.
@@ -147,6 +151,20 @@ class FlattenMojoTest {
 
         assertThat(flattenedPom.getProperties()).containsEntry("repository.property", "repository-value");
         assertThat(flattenedPom.getParent()).isNull();
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/flatten-local-parent/pom.xml")
+    void rejectsPreviouslyVisitedLocalParent(FlattenMojo flattenMojo) throws Exception {
+        Path pom = project.getFile().toPath().toAbsolutePath().normalize();
+        Set<Path> visited = new HashSet<>();
+        visited.add(pom);
+        Model model = readPom(pom);
+
+        assertThatThrownBy(() -> flattenMojo.collapseRelativePathParent(model, pom, visited))
+                .isInstanceOf(MojoExecutionException.class)
+                .hasMessage("Cyclic local parent chain detected at " + pom
+                        + "; local parents must not reference each other in a loop through relativePath.");
     }
 
     private static Model flatten(FlattenMojo flattenMojo) throws Exception {

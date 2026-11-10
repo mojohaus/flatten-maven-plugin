@@ -828,6 +828,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         Path projectDirectory = pomPath.toAbsolutePath().getParent();
         Path parentPath = projectDirectory.resolve(relativePath).normalize();
+        if (Files.isDirectory(parentPath)) {
+            parentPath = parentPath.resolve("pom.xml");
+        }
         if (!Files.isRegularFile(parentPath)) {
             return child;
         }

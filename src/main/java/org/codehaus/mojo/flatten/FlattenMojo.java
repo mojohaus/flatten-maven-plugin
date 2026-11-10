@@ -250,8 +250,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * this is only done for projects with packaging other than <code>pom</code>. You may want to also do this for
      * <code>pom</code> packages projects by setting this parameter to <code>true</code> or you can use
      * <code>false</code> in order to only generate the flattened POM but never set it as POM file. If
-     * <code>flattenMode</code> is set to <code>bom</code> or <code>resolveCiFriendliesOnly</code> the default value
-     * will be <code>true</code>, also for projects with packaging <code>pom</code>.
+     * <code>flattenMode</code> is set to <code>bom</code> or <code>resolveCiFriendliesOnly</code> (including
+     * <code>byPackaging</code> on <code>pom</code> packaging) the default value will be <code>true</code>, also for
+     * projects with packaging <code>pom</code>.
      */
     @Parameter(property = "updatePomFile")
     private Boolean updatePomFile;
@@ -399,6 +400,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * <td>Only resolves variables revision, sha1 and changelist. Keeps everything else.
      * See <a href="https://maven.apache.org/maven-ci-friendly.html">Maven CI Friendly</a> for further details.</td>
      * </tr>
+     * <tr>
+     * <td>byPackaging</td>
+     * <td><code>resolveCiFriendliesOnly</code> for <code>pom</code> packaging, <code>defaults</code> otherwise.</td>
+     * </tr>
      * </tbody>
      * </table>
      */
@@ -525,6 +530,10 @@ public class FlattenMojo extends AbstractFlattenMojo {
         }
 
         getLog().info("Generating flattened POM of project " + this.project.getId() + "...");
+
+        if (this.flattenMode == FlattenMode.byPackaging) {
+            this.flattenMode = FlattenMode.forPackaging(this.project.getPackaging());
+        }
 
         inheritanceAssembler.flattenDependencyMode = this.flattenDependencyMode;
 

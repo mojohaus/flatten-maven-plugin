@@ -19,25 +19,18 @@
 import groovy.xml.XmlSlurper
 
 def project = new XmlSlurper().parse( new File( basedir, 'child/.flattened-pom.xml' ) )
-def explicitProject = new XmlSlurper().parse( new File( basedir, 'explicit-child/.flattened-pom.xml' ) )
 def emptyProject = new XmlSlurper().parse( new File( basedir, 'empty-child/.flattened-pom.xml' ) )
 assert 'parent-depMngt' == project.parent.artifactId.text()
 assert '2' == project.parent.version.text()
 assert 1 == project.parent.relativePath.size()
 assert '' == project.parent.relativePath.text()
-assert 'parent-depMngt' == explicitProject.parent.artifactId.text()
-assert '2' == explicitProject.parent.version.text()
-assert 1 == explicitProject.parent.relativePath.size()
-assert '' == explicitProject.parent.relativePath.text()
 assert 'parent-depMngt' == emptyProject.parent.artifactId.text()
 assert '2' == emptyProject.parent.version.text()
 assert 1 == emptyProject.parent.relativePath.size()
 assert '' == emptyProject.parent.relativePath.text()
 
 def buildLog = new File( basedir, 'build.log' ).text
-def mismatchWarnings = buildLog.readLines().findAll { it.contains( '[WARNING] The POM at ' ) }
-assert mismatchWarnings.size() == 1
-assert mismatchWarnings[0].contains( 'explicit-child' )
+assert !buildLog.readLines().any { it.contains( '[WARNING] The POM at ' ) }
 def mismatchMessages = buildLog.readLines().findAll { it.contains( 'The POM at ' ) }
 assert !mismatchMessages.any { it.contains( 'empty-child' ) }
 assert buildLog.contains( 'org.codehaus.mojo.flatten.its:unrelated-aggregator:1' )

@@ -9,7 +9,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>child</module>
-    <module>explicit-child</module>
     <module>empty-child</module>
   </modules>
 </project>

@@ -267,3 +267,10 @@ The installed or deployed POM contains both inherited property sets and the publ
 ```
 
 The flattened child does not reference either repository-only parent, and the `flattenRelativePathParent` control flag is removed from every flattened POM. An empty `relativePath`, a missing local POM, or mismatched local coordinates ends the local chain and leaves that parent for repository resolution. Because each repository-only parent supplies valid defaults, the inherited execution can also run safely when those parents are included in the reactor.
+
+Parent versions resolved by Maven
+---------------------------------
+
+A core extension can resolve a parent version using properties that are absent from the source POM. For example, an extension may supply `platform.parent.version=2.0.0` from a composite POM while the source parent version remains `${platform.parent.version}`. With `flattenRelativePathParent` enabled, an expression left in the published parent version is replaced with Maven's resolved reactor parent version, so the published POM contains `2.0.0`. The property need not be duplicated in the source POM or supplied with `-D` for this reconciliation.
+
+This substitution requires the published parent's groupId and artifactId to match the parents in both Maven's original and effective project models. A different external parent promoted from a collapsed local chain is not replaced. Before writing the flattened POM, the plugin rejects any retained parent whose version is missing or still contains an expression, including promoted external parents. The reconciliation and validation are only enabled by `flattenRelativePathParent`; the requirement for independently resolvable local parents and their defaults still applies.

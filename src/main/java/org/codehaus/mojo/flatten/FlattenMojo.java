@@ -307,6 +307,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * explicitly empty {@code relativePath} so consumers resolve it from a repository. If the local chain ends without
      * another parent, the flattened POM has no parent.
      * <p>
+     * If the retained parent's version still contains an expression, its groupId and artifactId are compared with
+     * the parents in Maven's original and effective project models. When both match, the already resolved reactor
+     * parent version is used. This supports parent versions supplied by core extensions without copying their
+     * properties into the published POM. A different external parent promoted from a collapsed local chain is not
+     * replaced. Any retained parent whose version is missing or still contains an expression causes the goal to fail.
+     * <p>
      * Enable this for build-only parent POMs that must not appear in installed or deployed child POMs. An absent parent,
      * an empty {@code relativePath}, a missing POM, or mismatched coordinates terminates the local chain. This allows
      * the setting and its execution to be inherited by every project in a reactor, including the highest local parent.
@@ -740,12 +746,57 @@ public class FlattenMojo extends AbstractFlattenMojo {
             }
         }
 
+        if (this.flattenRelativePathParent) {
+            resolveParentVersionFromReactor(flattenedPom);
+            validatePublishedParentVersion(flattenedPom.getParent());
+        }
         dropCoordinatesInheritedFromParent(flattenedPom);
         if (this.flattenRelativePathParent) {
             removeFlattenRelativePathParentConfiguration(flattenedPom);
         }
 
         return flattenedPom;
+    }
+
+    private void resolveParentVersionFromReactor(Model flattenedPom) throws MojoExecutionException {
+        Parent published = flattenedPom.getParent();
+        Model originalModel = this.project.getOriginalModel();
+        Parent original = originalModel == null ? null : originalModel.getParent();
+        Parent resolved = this.project.getModel().getParent();
+
+        if (published == null || original == null || resolved == null) {
+            return;
+        }
+
+        // A collapsed local parent may have promoted a different external parent.
+        if (!sameParent(published, original) || !sameParent(published, resolved)) {
+            return;
+        }
+
+        String version = published.getVersion();
+        if (version == null || !version.contains("${")) {
+            return;
+        }
+
+        String resolvedVersion = resolved.getVersion();
+        if (resolvedVersion == null || resolvedVersion.contains("${")) {
+            throw new MojoExecutionException("Unresolved reactor parent version: " + resolvedVersion);
+        }
+
+        published.setVersion(resolvedVersion);
+    }
+
+    private static boolean sameParent(Parent left, Parent right) {
+        return Objects.equals(left.getGroupId(), right.getGroupId())
+                && Objects.equals(left.getArtifactId(), right.getArtifactId());
+    }
+
+    private static void validatePublishedParentVersion(Parent parent) throws MojoExecutionException {
+        if (parent != null
+                && (parent.getVersion() == null || parent.getVersion().contains("${"))) {
+            throw new MojoExecutionException("Unresolved published parent version for " + parent.getGroupId() + ":"
+                    + parent.getArtifactId() + ": " + parent.getVersion());
+        }
     }
 
     /**

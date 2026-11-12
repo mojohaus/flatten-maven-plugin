@@ -87,7 +87,7 @@ public final class CompositeOnlyParentModelProcessor implements ModelProcessor {
         }
         Object source = options.get(ModelProcessor.SOURCE);
         if (source instanceof FileModelSource) {
-            return ((FileModelSource) source).getPomFile().toPath();
+            return ((FileModelSource) source).getFile().toPath();
         }
         return null;
     }

@@ -26,6 +26,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,6 +85,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.settings.Settings;
 import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator;
@@ -326,7 +328,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * Active profiles in local parents are injected before inheritance and their profile definitions are not copied.
      * Otherwise only raw local parent models are inherited. Settings properties, super-POM defaults, and model-builder
      * expansion of imported BOMs are therefore not copied into the source model merely because a local parent is
-     * collapsed. The {@code flattenRelativePathParent} setting itself is removed from the flattened POM.
+     * collapsed. After a local parent is collapsed, the {@code flattenRelativePathParent} setting is removed from
+     * the flattened POM. A project with no matching local parent retains its setting for its own consumers.
      * <p>
      * Enabling this parameter rebuilds the flattened POM in full. In combination with
      * {@link FlattenMode#resolveCiFriendliesOnly} it replaces the otherwise non-destructive interpolation-only
@@ -337,6 +340,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      */
     @Parameter(property = "flatten.flattenRelativePathParent", defaultValue = "false")
     private boolean flattenRelativePathParent;
+
+    private boolean localParentCollapsed;
 
     /**
      * Dictates whether dependency exclusions stanzas should be included in the flattened POM. By default exclusions
@@ -495,6 +500,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
     private ModelBuilderThreadSafetyWorkaround modelBuilderThreadSafetyWorkaround;
 
     @Inject
+    private RuntimeInformation runtimeInformation;
+
+    @Inject
     private ArtifactHandlerManager artifactHandlerManager;
 
     @Inject
@@ -535,6 +543,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
                 .setRevisionVariablePattern(String.format("${%s}", revisionVariableName));
 
         File originalPomFile = this.project.getFile();
+        Model processedOriginalPom = getProcessedOriginalPom(originalPomFile);
         Path flattenedPomFile = getFlattenedPomFile();
         Model flattenedPom;
         /*
@@ -548,7 +557,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
          */
         if (flattenMode == FlattenMode.resolveCiFriendliesOnly
                 && this.pomElements == null
-                && !this.flattenRelativePathParent) {
+                && !this.flattenRelativePathParent
+                && processedOriginalPom == null) {
             ModelsFactory modelsFactory = new ModelsFactory(originalPomFile);
             String modelEncoding = getModelEncoding(modelsFactory.getEffectivePom());
             String revisionVariablePattern = String.format("${%s}", revisionVariableName);
@@ -580,8 +590,9 @@ public class FlattenMojo extends AbstractFlattenMojo {
             if (keepCommentsInPom) {
                 commentsOfOriginalPomFile = KeepCommentsInPom.create(getLog(), originalPomFile);
             }
-            Model sourcePom =
-                    this.flattenRelativePathParent ? createPomWithFlattenedRelativePathParent(originalPomFile) : null;
+            Model sourcePom = this.flattenRelativePathParent
+                    ? createPomWithFlattenedRelativePathParent(originalPomFile, processedOriginalPom)
+                    : processedOriginalPom;
             flattenedPom = createFlattenedPom(originalPomFile, sourcePom);
             String headerComment = extractHeaderComment(originalPomFile);
 
@@ -750,7 +761,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             validatePublishedParentVersion(flattenedPom.getParent());
         }
         dropCoordinatesInheritedFromParent(flattenedPom);
-        if (this.flattenRelativePathParent) {
+        if (this.localParentCollapsed) {
             removeFlattenRelativePathParentConfiguration(flattenedPom);
         }
 
@@ -861,9 +872,12 @@ public class FlattenMojo extends AbstractFlattenMojo {
         return dom.getChildCount() == 0 ? null : dom;
     }
 
-    private Model createPomWithFlattenedRelativePathParent(File pomFile) throws MojoExecutionException {
-        Model child = createOriginalPom(pomFile.toPath());
-        Model collapsed = collapseRelativePathParent(child, pomFile.toPath(), new HashSet<>());
+    private Model createPomWithFlattenedRelativePathParent(File pomFile, Model processedOriginalPom)
+            throws MojoExecutionException {
+        Model child = processedOriginalPom == null ? createOriginalPom(pomFile.toPath()) : processedOriginalPom;
+        Set<Path> visitedParents = new HashSet<>();
+        Model collapsed = collapseRelativePathParent(child, pomFile.toPath(), visitedParents);
+        localParentCollapsed = visitedParents.size() > 1;
         if (collapsed.getParent() != null) {
             collapsed.getParent().setRelativePath("");
         }
@@ -1035,6 +1049,41 @@ public class FlattenMojo extends AbstractFlattenMojo {
         }
 
         return extendedInterpolatedPom;
+    }
+
+    /**
+     * Retain model-processor contributions without replacing the source-format-preserving path for
+     * ordinary POMs. The original model precedes inheritance and interpolation, so consumer-relative
+     * build paths and property expressions remain portable. The result is re-read from its XML so that
+     * runtime-only values (such as a {@link Path}) never reach the interpolator.
+     * <p>
+     * Only Maven 3 is compared: Maven 4 normalises its original model itself (for example by adding the default
+     * parent {@code relativePath} or interpolating CI-friendly versions), so a difference is not evidence of a
+     * model-processor contribution. Under Maven 4 the source model is used and contributions made by Maven 4
+     * model transformers are not preserved.
+     */
+    private Model getProcessedOriginalPom(File pomFile) throws MojoExecutionException {
+        Model original = this.project.getOriginalModel();
+        if (original == null || !isMaven3()) {
+            return null;
+        }
+        MavenXpp3Writer writer = new MavenXpp3Writer();
+        StringWriter processed = new StringWriter();
+        StringWriter source = new StringWriter();
+        try {
+            writer.write(processed, original);
+            writer.write(source, createOriginalPom(pomFile.toPath()));
+            if (processed.toString().equals(source.toString())) {
+                return null;
+            }
+            return new MavenXpp3Reader().read(new StringReader(processed.toString()));
+        } catch (IOException | XmlPullParserException e) {
+            throw new MojoExecutionException("Error comparing the processed original model.", e);
+        }
+    }
+
+    private boolean isMaven3() {
+        return runtimeInformation.getMavenVersion().startsWith("3.");
     }
 
     private Model createOriginalPom(Path pomFile) throws MojoExecutionException {

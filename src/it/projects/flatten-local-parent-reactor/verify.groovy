@@ -52,6 +52,7 @@ assert '1.2.3.4' == childProject.version.text()
 assert 'repository-value' == childProject.properties.'repository.property'.text()
 assert 'module-value' == childProject.properties.'module.property'.text()
 assert 'profile-value' == childProject.properties.'active.parent.property'.text()
-assert !repositoryPom.text.contains( '<flattenRelativePathParent>' )
+assert repositoryProject.build.plugins.plugin.find { it.artifactId.text() == 'flatten-maven-plugin' }
+    .configuration.flattenRelativePathParent.text() == 'true'
 assert !modulePom.text.contains( '<flattenRelativePathParent>' )
 assert !childPom.text.contains( '<flattenRelativePathParent>' )

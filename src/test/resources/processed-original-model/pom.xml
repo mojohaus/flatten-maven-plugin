@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- Preserve this comment and the source formatting for an unchanged model. -->
+  <groupId>localhost</groupId>
+  <artifactId>processed-original-model</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
+  <properties>
+    <revision>1.2.3.4</revision>
+  </properties>
+  <build/>
+</project>

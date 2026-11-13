@@ -266,7 +266,9 @@ The installed or deployed POM contains both inherited property sets and the publ
 </project>
 ```
 
-The flattened child does not reference either repository-only parent, and the `flattenRelativePathParent` control flag is removed from every flattened POM. An empty `relativePath`, a missing local POM, or mismatched local coordinates ends the local chain and leaves that parent for repository resolution. Because each repository-only parent supplies valid defaults, the inherited execution can also run safely when those parents are included in the reactor.
+The flattened child does not reference either repository-only parent. The `flattenRelativePathParent` control flag is removed when a local parent chain is collapsed. Otherwise, a published parent POM that retains its build configuration also retains the flag for downstream consumers. An empty `relativePath`, a missing local POM, or mismatched local coordinates ends the local chain and leaves that parent for repository resolution. Because each repository-only parent supplies valid defaults, the inherited execution can also run safely when those parents are included in the reactor.
+
+Contributions from Maven 3 model processors are preserved in the published parent POMs. Maven 4 flattens from the source model instead, so such contributions are not preserved there.
 
 Parent versions resolved by Maven
 ---------------------------------

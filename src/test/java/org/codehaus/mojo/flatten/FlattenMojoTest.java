@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -30,7 +31,10 @@ import java.util.Set;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoParameter;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -87,6 +91,100 @@ class FlattenMojoTest {
         flattenMojo.execute();
 
         assertThat(readPom(flattenMojo.getFlattenedPomFile()).getVersion()).isEqualTo("1.2.3.4");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/processed-original-model/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    void preservesModelProcessorContributions(FlattenMojo flattenMojo) throws Exception {
+        contributeOriginalModel();
+
+        Model flattened = flatten(flattenMojo);
+        assertContributions(flattened);
+        assertThat(flattened.getParent().getArtifactId()).isEqualTo("published-parent");
+        assertThat(flattened.getParent().getVersion()).isEqualTo("1");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/resolve-ci-friendlies-only-with-pom-elements/pom.xml")
+    void preservesModelProcessorContributionsWithPomElements(FlattenMojo flattenMojo) throws Exception {
+        contributeOriginalModel();
+
+        Model flattened = flatten(flattenMojo);
+        assertContributions(flattened);
+        assertThat(flattened.getParent()).isNull();
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/processed-original-model/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    void preservesSourceFormattingWithoutModelProcessorContributions(FlattenMojo flattenMojo) throws Exception {
+        String source = new String(Files.readAllBytes(project.getFile().toPath()), StandardCharsets.UTF_8);
+
+        flattenMojo.execute();
+
+        assertThat(new String(Files.readAllBytes(flattenMojo.getFlattenedPomFile()), StandardCharsets.UTF_8))
+                .isEqualTo(source.replace("${revision}", "1.2.3.4"));
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/flatten-local-parent/pom.xml")
+    @MojoParameter(name = "flattenMode", value = "resolveCiFriendliesOnly")
+    @MojoParameter(name = "flattenRelativePathParent", value = "true")
+    void preservesModelProcessorContributionsWhenCollapsingLocalParents(FlattenMojo flattenMojo) throws Exception {
+        project.getOriginalModel().getProperties().setProperty("processor.property", "shared");
+
+        Model flattened = flatten(flattenMojo);
+
+        assertThat(flattened.getProperties())
+                .containsEntry("processor.property", "shared")
+                .containsEntry("grandparent.property", "grandparent");
+    }
+
+    private void contributeOriginalModel() {
+        Model original = project.getOriginalModel();
+        original.getProperties().setProperty("shared.version", "2");
+        Dependency dependency = new Dependency();
+        dependency.setGroupId("localhost");
+        dependency.setArtifactId("shared-api");
+        dependency.setVersion("${shared.version}");
+        original.addDependency(dependency);
+        DependencyManagement management = new DependencyManagement();
+        management.addDependency(dependency.clone());
+        original.setDependencyManagement(management);
+        Plugin plugin = new Plugin();
+        plugin.setGroupId("localhost");
+        plugin.setArtifactId("shared-plugin");
+        plugin.setVersion("${shared.version}");
+        Xpp3Dom configuration = new Xpp3Dom("configuration");
+        Xpp3Dom output = new Xpp3Dom("output");
+        output.setValue("${project.build.directory}/shared");
+        configuration.addChild(output);
+        plugin.setConfiguration(configuration);
+        original.getBuild().addPlugin(plugin);
+        Parent parent = new Parent();
+        parent.setGroupId("localhost");
+        parent.setArtifactId("published-parent");
+        parent.setVersion("1");
+        parent.setRelativePath("");
+        original.setParent(parent);
+        project.getModel().setParent(parent.clone());
+    }
+
+    private static void assertContributions(Model flattened) {
+        assertThat(flattened.getVersion()).isEqualTo("1.2.3.4");
+        assertThat(flattened.getProperties()).containsEntry("shared.version", "2");
+        assertThat(flattened.getDependencies()).anySatisfy(dependency -> {
+            assertThat(dependency.getArtifactId()).isEqualTo("shared-api");
+            assertThat(dependency.getVersion()).isEqualTo("${shared.version}");
+        });
+        assertThat(flattened.getDependencyManagement().getDependencies())
+                .anySatisfy(dependency -> assertThat(dependency.getArtifactId()).isEqualTo("shared-api"));
+        assertThat(flattened.getBuild().getPlugins()).anySatisfy(plugin -> {
+            assertThat(plugin.getArtifactId()).isEqualTo("shared-plugin");
+            assertThat(((Xpp3Dom) plugin.getConfiguration()).getChild("output").getValue())
+                    .isEqualTo("${project.build.directory}/shared");
+        });
     }
 
     @Test

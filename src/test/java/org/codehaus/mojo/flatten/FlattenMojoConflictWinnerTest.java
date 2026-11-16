@@ -65,14 +65,14 @@ class FlattenMojoConflictWinnerTest {
                 loadResolvedProject(flattenMojo.getFlattenedPomFile().toFile());
 
         List<Dependency> bDependencies = flattenedProject.getDependencies().stream()
-                .filter(dep -> dep.getArtifactId().equals("b"))
+                .filter(dep -> "b".equals(dep.getArtifactId()))
                 .collect(Collectors.toList());
 
         assertThat(bDependencies)
                 .hasSize(1)
                 .withFailMessage("There must be only one B dependency in flattened POM.")
                 .allMatch(
-                        dep -> dep.getVersion().equals("0.0.2"),
+                        dep -> "0.0.2".equals(dep.getVersion()),
                         "B dependency version 0.0.2 must win the conflicting version match in flattened POM.");
     }
 

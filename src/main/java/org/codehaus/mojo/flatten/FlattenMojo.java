@@ -89,7 +89,6 @@ import org.codehaus.mojo.flatten.cifriendly.CiInterpolator;
 import org.codehaus.mojo.flatten.cifriendly.CiModelInterpolator;
 import org.codehaus.mojo.flatten.extendedinterpolation.ExtendedModelInterpolator;
 import org.codehaus.mojo.flatten.model.resolution.FlattenModelResolver;
-import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -644,7 +643,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             throw new MojoExecutionException("Internal I/O error!", e);
         }
         StringBuffer buffer = stringWriter.getBuffer();
-        if (!StringUtils.isEmpty(headerComment)) {
+        if (!(headerComment == null || headerComment.isEmpty())) {
             int projectStartIndex = buffer.indexOf("<project");
             if (projectStartIndex >= 0) {
                 buffer.insert(projectStartIndex, "<!--" + headerComment + "-->\n");
@@ -1216,7 +1215,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
     private static String getModelEncoding(Model pom) {
         // keep original encoding (we could also normalize to UTF-8 here)
         String modelEncoding = pom.getModelEncoding();
-        if (StringUtils.isEmpty(modelEncoding)) {
+        if (modelEncoding == null || modelEncoding.isEmpty()) {
             modelEncoding = "UTF-8";
         }
         return modelEncoding;
@@ -1408,7 +1407,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         if (activation == null) {
             return true;
         }
-        return StringUtils.isEmpty(activation.getJdk()) && activation.getOs() == null;
+        return (activation.getJdk() == null || activation.getJdk().isEmpty()) && activation.getOs() == null;
     }
 
     /**

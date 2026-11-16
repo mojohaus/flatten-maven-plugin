@@ -64,6 +64,7 @@ public class CleanMojo extends AbstractFlattenMojo {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (shouldSkip()) {
             getLog().info("Clean skipped.");

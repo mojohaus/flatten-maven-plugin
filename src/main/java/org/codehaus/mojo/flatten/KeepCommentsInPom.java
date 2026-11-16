@@ -77,10 +77,12 @@ class KeepCommentsInPom {
             tempDB = tempDBF.newDocumentBuilder();
             Document tempPom = tempDB.parse(anOriginalPomFile);
             Node tempNode = tempPom.getDocumentElement();
-            walkOverNodes(tempNode, ".", (node, nodePath) -> {
-                // collectNodesByPathNames
-                commentsPaths.put(nodePath, node);
-            });
+            walkOverNodes(
+                    tempNode,
+                    ".",
+                    (node, nodePath) ->
+                            // collectNodesByPathNames
+                            commentsPaths.put(nodePath, node));
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new MojoExecutionException("Cannot load comments from " + anOriginalPomFile, e);
         }

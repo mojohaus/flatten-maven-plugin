@@ -54,7 +54,7 @@ class FlattenMojoNestedExclusionTest {
                 loadResolvedProject(flattenMojo.getFlattenedPomFile().toFile());
 
         flattenedProject.getDependencies().stream()
-                .filter(dep -> dep.getArtifactId().equals("c"))
+                .filter(dep -> "c".equals(dep.getArtifactId()))
                 .findAny()
                 .ifPresent(dep -> fail(
                         "As B dependency in A is excluding C, no C dependency should be present in flattened POM."));

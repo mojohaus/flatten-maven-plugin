@@ -1665,7 +1665,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
     private String getKey(org.eclipse.aether.graph.Dependency dependency) {
         final org.eclipse.aether.artifact.Artifact a = dependency.getArtifact();
         return a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getExtension()
-                + (!a.getClassifier().isEmpty() ? ":" + a.getClassifier() : "");
+                + (a.getClassifier().isEmpty() ? "" : ":" + a.getClassifier());
     }
 
     /**
@@ -1727,7 +1727,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
             if (this.flattenMode == FlattenMode.bom || this.flattenMode == FlattenMode.resolveCiFriendliesOnly) {
                 return true;
             }
-            if (this.project.getPackaging().equals("pom")) {
+            if ("pom".equals(this.project.getPackaging())) {
                 getLog().info("Project POM file not updated to point to the flattened POM due to 'pom' packaging");
                 return false;
             } else {
@@ -1788,7 +1788,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         transformer.transformGraph(root, transformationContext);
     }
 
-    private class ModelsFactory {
+    private final class ModelsFactory {
         private final File pomFile;
         private Model effectivePom;
         private Model originalPom;

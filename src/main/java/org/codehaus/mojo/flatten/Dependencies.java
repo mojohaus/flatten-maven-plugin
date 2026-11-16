@@ -103,7 +103,6 @@ public class Dependencies {
      */
     public List<Dependency> toList() {
 
-        List<Dependency> result = new ArrayList<>(this.key2DependencyMap.values());
-        return result;
+        return new ArrayList<>(this.key2DependencyMap.values());
     }
 }

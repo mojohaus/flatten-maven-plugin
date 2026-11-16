@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import org.codehaus.plexus.interpolation.ValueSource;
 
-public class FilteringValueSourceWrapper {
+public final class FilteringValueSourceWrapper {
 
     private static ClassLoader classLoader;
     private final Object delegate;
@@ -45,7 +45,7 @@ public class FilteringValueSourceWrapper {
     public Object asProxy() {
 
         return Proxy.newProxyInstance(classLoader, new Class[] {this.valueSourceClass}, (proxy, method, args) -> {
-            if (method.getName().equals("getValue")) {
+            if ("getValue".equals(method.getName())) {
                 if ((args.length != 1 && args.length != 3) || (args[0] != null && !(args[0] instanceof String))) {
                     throw new InternalError(
                             "The class " + valueSourceClass.getName() + " got a changed getValue method: " + method);

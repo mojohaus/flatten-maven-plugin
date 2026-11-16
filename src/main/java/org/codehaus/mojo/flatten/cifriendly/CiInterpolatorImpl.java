@@ -47,7 +47,7 @@ public class CiInterpolatorImpl implements Interpolator {
 
     private final List<InterpolationPostProcessor> postProcessors = new ArrayList<>();
 
-    private boolean cacheAnswers = false;
+    private boolean cacheAnswers;
 
     public static final String DEFAULT_START_EXPR = "${";
 

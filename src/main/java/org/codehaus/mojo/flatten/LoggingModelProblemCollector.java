@@ -46,6 +46,7 @@ public class LoggingModelProblemCollector implements ModelProblemCollector {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add(ModelProblemCollectorRequest req) {
         this.logger.warn(req.getMessage(), req.getException());
     }

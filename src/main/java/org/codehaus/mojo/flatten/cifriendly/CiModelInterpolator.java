@@ -540,6 +540,7 @@ public class CiModelInterpolator implements CiInterpolator {
         if (projectDir != null) {
             ValueSource basedirValueSource = new PrefixedValueSourceWrapper(
                     new AbstractValueSource(false) {
+                        @Override
                         public Object getValue(String expression) {
                             if ("basedir".equals(expression)) {
                                 return projectDir.getAbsolutePath();
@@ -553,6 +554,7 @@ public class CiModelInterpolator implements CiInterpolator {
 
             ValueSource baseUriValueSource = new PrefixedValueSourceWrapper(
                     new AbstractValueSource(false) {
+                        @Override
                         public Object getValue(String expression) {
                             if ("baseUri".equals(expression)) {
                                 return projectDir.getAbsoluteFile().toURI().toString();
@@ -575,6 +577,7 @@ public class CiModelInterpolator implements CiInterpolator {
         valueSources.add(new MapBasedValueSource(config.getSystemProperties()));
 
         valueSources.add(new AbstractValueSource(false) {
+            @Override
             public Object getValue(String expression) {
                 return config.getSystemProperties().getProperty("env." + expression);
             }
@@ -616,6 +619,7 @@ public class CiModelInterpolator implements CiInterpolator {
             this.mavenBuildTimestamp = new MavenBuildTimestamp(startTime, properties);
         }
 
+        @Override
         public Object getValue(String expression) {
             if ("build.timestamp".equals(expression) || "maven.build.timestamp".equals(expression)) {
                 return mavenBuildTimestamp.formattedTimestamp();
@@ -642,6 +646,7 @@ public class CiModelInterpolator implements CiInterpolator {
             this.problems = problems;
         }
 
+        @Override
         public Object getValue(String expression) {
             Object value = valueSource.getValue(expression);
 
@@ -656,11 +661,13 @@ public class CiModelInterpolator implements CiInterpolator {
             return value;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public List getFeedback() {
             return valueSource.getFeedback();
         }
 
+        @Override
         public void clearFeedback() {
             valueSource.clearFeedback();
         }
@@ -684,6 +691,7 @@ public class CiModelInterpolator implements CiInterpolator {
             this.pathTranslator = pathTranslator;
         }
 
+        @Override
         public Object execute(String expression, Object value) {
             if (value != null) {
                 expression = ValueSourceUtils.trimPrefix(expression, expressionPrefixes, true);
@@ -705,6 +713,7 @@ public class CiModelInterpolator implements CiInterpolator {
             this.normalizer = normalizer;
         }
 
+        @Override
         public Object execute(String expression, Object value) {
             Set<String> expressions = new HashSet<>();
             expressions.add("project.url");

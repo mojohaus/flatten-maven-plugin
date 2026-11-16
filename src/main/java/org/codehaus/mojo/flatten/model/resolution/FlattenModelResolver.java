@@ -104,6 +104,7 @@ public class FlattenModelResolver implements ModelResolver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModelSource resolveModel(String groupId, String artifactId, String version)
             throws UnresolvableModelException {
         File pomFile = reactorModelPool.find(groupId, artifactId, version);
@@ -126,6 +127,7 @@ public class FlattenModelResolver implements ModelResolver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addRepository(Repository repository) {
         addRepository(repository, false);
     }
@@ -133,6 +135,7 @@ public class FlattenModelResolver implements ModelResolver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModelResolver newCopy() {
         return new FlattenModelResolver(this);
     }
@@ -144,6 +147,7 @@ public class FlattenModelResolver implements ModelResolver {
      * @return The source of the requested POM, never {@code null}
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
+    @Override
     public ModelSource resolveModel(Parent parent) throws UnresolvableModelException {
         parent.setVersion(resolveVersion(parent.getGroupId(), parent.getArtifactId(), parent.getVersion()));
         return resolveModel(parent.getGroupId(), parent.getArtifactId(), parent.getVersion());
@@ -191,6 +195,7 @@ public class FlattenModelResolver implements ModelResolver {
      * @param replace {true} when repository with same id should be replaced, otherwise {@code false}.
      * @since Apache-Maven-3.2.3 (MNG-5663)
      */
+    @Override
     public void addRepository(Repository repository, boolean replace) {
         if (!repositoryIds.add(repository.getId())) {
             if (!replace) {

@@ -1341,11 +1341,6 @@ public class FlattenMojo extends AbstractFlattenMojo {
 
         Model effectivePom = buildingResult.getEffectiveModel();
 
-        // LoggingModelProblemCollector problems = new LoggingModelProblemCollector( getLog() );
-        // Model interpolatedModel =
-        // this.modelInterpolator.interpolateModel( this.project.getOriginalModel(),
-        // effectivePom.getProjectDirectory(), buildingRequest, problems );
-
         // remove Repositories from super POM (central)
         effectivePom.setRepositories(createFlattenedRepositories(effectivePom.getRepositories()));
         return effectivePom;

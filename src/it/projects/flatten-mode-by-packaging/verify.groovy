@@ -19,7 +19,7 @@
 import groovy.xml.XmlSlurper
 
 // pom packaging resolves to resolveCiFriendliesOnly: the parent keeps its build for its children.
-def parent = new XmlSlurper().parse( new File( basedir, '.flattened-pom.xml' ) )
+def parent = new XmlSlurper().parse( new File( basedir, 'target/.flattened-pom.xml' ) )
 assert '1.2.3.4' == parent.version.text()
 assert 1 == parent.build.size()
 assert 1 == parent.properties.size()
@@ -28,7 +28,7 @@ def flattenPlugin = parent.build.plugins.plugin.find { it.artifactId.text() == '
 assert 'true' == flattenPlugin.configuration.flattenRelativePathParent.text()
 
 // jar packaging resolves to defaults: a minimal consumer POM without parent or build.
-def module = new XmlSlurper().parse( new File( basedir, 'module/.flattened-pom.xml' ) )
+def module = new XmlSlurper().parse( new File( basedir, 'module/target/.flattened-pom.xml' ) )
 assert '1.2.3.4' == module.version.text()
 assert 0 == module.parent.size()
 assert 0 == module.build.size()

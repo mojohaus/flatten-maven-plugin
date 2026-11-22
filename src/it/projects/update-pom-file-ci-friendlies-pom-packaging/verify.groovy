@@ -18,7 +18,7 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPomFile = new File( basedir, '.flattened-pom.xml' )
+File flattenedPomFile = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPomFile.exists()
 assert '0.0.1' == new XmlSlurper().parse( flattenedPomFile ).version.text()
 

@@ -22,7 +22,7 @@ def source = new XmlSlurper().parse( new File( basedir, 'pom.xml' ) )
 assert '${it.parent.version}' == source.parent.version.text()
 assert 0 == source.properties.'it.parent.version'.size()
 
-File flattenedPom = new File( basedir, '.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPom.isFile()
 def published = new XmlSlurper().parse( flattenedPom )
 assert '2' == published.parent.version.text()

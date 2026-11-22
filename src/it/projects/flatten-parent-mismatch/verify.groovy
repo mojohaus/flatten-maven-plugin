@@ -18,8 +18,8 @@
  */
 import groovy.xml.XmlSlurper
 
-def project = new XmlSlurper().parse( new File( basedir, 'child/.flattened-pom.xml' ) )
-def emptyProject = new XmlSlurper().parse( new File( basedir, 'empty-child/.flattened-pom.xml' ) )
+def project = new XmlSlurper().parse( new File( basedir, 'child/target/.flattened-pom.xml' ) )
+def emptyProject = new XmlSlurper().parse( new File( basedir, 'empty-child/target/.flattened-pom.xml' ) )
 assert 'parent-depMngt' == project.parent.artifactId.text()
 assert '2' == project.parent.version.text()
 assert 1 == project.parent.relativePath.size()

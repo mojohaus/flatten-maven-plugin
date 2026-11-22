@@ -50,7 +50,7 @@ assert 1 == originalProject.scm.size()
 assert 1 == originalProject.url.size()
 
 // Parent module
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )
@@ -62,7 +62,7 @@ assert '1.2.3.4' == flattendProject.version.text()
 assert 'pom' == originalProject.packaging.text()
 
 // Child module: module
-File flattendChildPom = new File( basedir, 'module/.flattened-pom.xml' )
+File flattendChildPom = new File( basedir, 'module/target/.flattened-pom.xml' )
 assert flattendChildPom.exists()
 
 def flattendChildProject = new XmlSlurper().parse( flattendChildPom )
@@ -74,7 +74,7 @@ assert '1.2.3.4' == flattendChildProject.version.text()
 assert '1.2.3.4' == flattendChildProject.dependencies.dependency[0].version.text()
 
 // Child module: module-with-parent
-File flattendChildWithParentPom = new File( basedir, 'module-with-parent/.flattened-pom.xml' )
+File flattendChildWithParentPom = new File( basedir, 'module-with-parent/target/.flattened-pom.xml' )
 assert flattendChildWithParentPom.exists()
 
 def flattendChildWithParentProject = new XmlSlurper().parse( flattendChildWithParentPom )

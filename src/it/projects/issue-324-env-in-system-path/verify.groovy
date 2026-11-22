@@ -18,7 +18,7 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPom = new File( basedir, '.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPom.exists()
 
 def flattenedProject = new XmlSlurper().parse( flattenedPom )

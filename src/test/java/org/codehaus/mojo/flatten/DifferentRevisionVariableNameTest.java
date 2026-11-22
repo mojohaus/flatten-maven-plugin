@@ -39,7 +39,7 @@ class DifferentRevisionVariableNameTest {
         flattenMojo.execute();
 
         Path actualContentFile = flattenMojo.getFlattenedPomFile();
-        Path expectedContentFile = actualContentFile.resolveSibling("expected-flattened-pom.xml");
+        Path expectedContentFile = actualContentFile.getParent().resolveSibling("expected-flattened-pom.xml");
         assertThat(actualContentFile).hasSameTextualContentAs(expectedContentFile, StandardCharsets.UTF_8);
     }
 }

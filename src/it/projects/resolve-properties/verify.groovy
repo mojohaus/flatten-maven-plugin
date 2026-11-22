@@ -25,7 +25,7 @@ def originalProject = new XmlSlurper().parse( originalPom )
 assert '${depVersion}' == originalProject.dependencies.dependency.version.text()
 assert '${utilVersion}' == originalProject.profiles.profile.dependencies.dependency.version.text()
 
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )

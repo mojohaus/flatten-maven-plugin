@@ -34,7 +34,7 @@ import groovy.xml.XmlSlurper
     assert '${version.springboot}' == bomOriginal.properties.'interpolated-version-springboot'.text()
 }
 {
-    final File flattenedBomPomFile = new File(basedir, 'bom/.flattened-pom.xml')
+    final File flattenedBomPomFile = new File(basedir, 'bom/target/.flattened-pom.xml')
     assert flattenedBomPomFile.exists()
 
     final flattenedBom = new XmlSlurper().parse(flattenedBomPomFile)

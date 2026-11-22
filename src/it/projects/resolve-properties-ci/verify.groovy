@@ -28,7 +28,7 @@ def originalProject = new XmlSlurper().parse( originalPom )
 assert '${revision}' == originalProject.dependencies.dependency[0].version.text()
 assert '${small}' == originalProject.dependencies.dependency[0].classifier.text()
 
-File flattenedPom = new File( basedir, '.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPom.exists()
 def flattenedProject = new XmlSlurper().parse( flattenedPom )
 

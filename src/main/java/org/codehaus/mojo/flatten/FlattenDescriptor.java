@@ -185,7 +185,7 @@ public class FlattenDescriptor {
     /**
      * @return {@link ElementHandling} for {@link Model#getChildProjectUrlInheritAppendPath()
      * childProjectUrlInheritAppendPath}.
-     * @since 1.9.1
+     * @since 1.10.0
      */
     public ElementHandling getChildProjectUrlInheritAppendPath() {
         return getHandling(PomProperty.CHILD_PROJECT_URL_INHERIT_APPEND_PATH);
@@ -194,7 +194,7 @@ public class FlattenDescriptor {
     /**
      * @param childProjectUrlInheritAppendPath the {@link #getChildProjectUrlInheritAppendPath()
      * childProjectUrlInheritAppendPath} to set.
-     * @since 1.9.1
+     * @since 1.10.0
      */
     public void setChildProjectUrlInheritAppendPath(ElementHandling childProjectUrlInheritAppendPath) {
         setHandling(PomProperty.CHILD_PROJECT_URL_INHERIT_APPEND_PATH, childProjectUrlInheritAppendPath);

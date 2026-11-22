@@ -224,6 +224,9 @@ import org.xml.sax.ext.DefaultHandler2;
 @Mojo(name = "flatten", requiresDependencyCollection = ResolutionScope.RUNTIME, threadSafe = true)
 public class FlattenMojo extends AbstractFlattenMojo {
 
+    /** Project context key for the POM file and original model the project had before the first flatten. */
+    private static final String SOURCE_POM_KEY = FlattenMojo.class.getName() + ".sourcePom";
+
     private static final int INITIAL_POM_WRITER_SIZE = 4096;
 
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n|\\r\\n?");
@@ -551,6 +554,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
         ((CiModelInterpolator) this.modelCiFriendlyInterpolator)
                 .setRevisionVariablePattern(String.format("${%s}", revisionVariableName));
 
+        restoreSourcePomIfFlattenedPomIsGone();
         File originalPomFile = this.project.getFile();
         Model processedOriginalPom = getProcessedOriginalPom(originalPomFile);
         Path flattenedPomFile = getFlattenedPomFile();
@@ -608,9 +612,29 @@ public class FlattenMojo extends AbstractFlattenMojo {
             writePom(flattenedPom, flattenedPomFile, headerComment, commentsOfOriginalPomFile);
         }
         if (isUpdatePomFile()) {
+            if (this.project.getContextValue(SOURCE_POM_KEY) == null) {
+                this.project.setContextValue(
+                        SOURCE_POM_KEY, new Object[] {originalPomFile, this.project.getOriginalModel()});
+            }
             this.project.setPomFile(flattenedPomFile.toFile());
             this.project.setOriginalModel(flattenedPom);
         }
+    }
+
+    /**
+     * An earlier execution in this build may have set the flattened POM as the project's POM file. If that file was
+     * deleted since, typically by <code>clean</code> running after <code>flatten</code> in one invocation, flatten
+     * again from the POM the project was loaded from.
+     */
+    private void restoreSourcePomIfFlattenedPomIsGone() {
+        Object[] source = (Object[]) this.project.getContextValue(SOURCE_POM_KEY);
+        File pomFile = this.project.getFile();
+        if (source == null || pomFile == null || pomFile.exists()) {
+            return;
+        }
+        getLog().debug("Flattened POM " + pomFile + " is gone, flattening again from " + source[0]);
+        this.project.setPomFile((File) source[0]);
+        this.project.setOriginalModel((Model) source[1]);
     }
 
     @Override

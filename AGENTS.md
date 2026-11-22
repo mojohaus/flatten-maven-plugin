@@ -12,8 +12,8 @@ what the code and the POMs do not make obvious.
   `cifriendly` interpolates only the CI-friendly version properties, for the
   `resolveCiFriendliesOnly` mode. `extendedinterpolation` backs the `interpolate` and
   `extended_interpolate` element handling.
-- The site is built from `src/site`: xdoc pages (`usage.xml.vm` goes through Velocity) and the FAQ
-  in `src/site/fml/faq.fml`.
+- The site is built from `src/site/markdown`; `.md.vm` pages such as `usage.md.vm` go through
+  Velocity, and the FAQ is `faq.md`.
 
 ## Build gates
 

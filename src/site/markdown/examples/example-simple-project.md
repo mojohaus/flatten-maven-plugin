@@ -19,7 +19,7 @@ If you have just a single POM add flatten-maven-plugin in the build section:
   <packaging>jar</packaging>
 
   <properties>
-    <spring.version>4.0.2.RELEASE<spring.version>
+    <spring.version>4.0.2.RELEASE</spring.version>
   </properties>
 
   <build>
@@ -28,7 +28,6 @@ If you have just a single POM add flatten-maven-plugin in the build section:
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <version>${project.version}</version>
         <configuration>
         </configuration>
         <executions>
@@ -56,8 +55,9 @@ If you have just a single POM add flatten-maven-plugin in the build section:
       <version>${spring.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.14.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -71,7 +71,7 @@ If you have just a single POM add flatten-maven-plugin in the build section:
   </developers>
   <licenses>
     <license>
-      <name>Apache Software Licenese</name>
+      <name>Apache Software License</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <comments/>
     </license>
@@ -104,10 +104,11 @@ If you install or deploy the project the flattened POM of whizbang that goes int
   </dependencies>
   <licenses>
     <license>
-      <name>Apache Software Licenese</name>
+      <name>Apache Software License</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <comments/>
     </license>
   </licenses>
 </project>
 ```
+

@@ -409,7 +409,8 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * </tr>
      * <tr>
      * <td>byPackaging</td>
-     * <td><code>resolveCiFriendliesOnly</code> for <code>pom</code> packaging, <code>defaults</code> otherwise.</td>
+     * <td><code>resolveCiFriendliesOnly</code> for <code>pom</code> packaging, <code>defaults</code> otherwise.
+     * Available since 1.9.1.</td>
      * </tr>
      * </tbody>
      * </table>

@@ -12,22 +12,23 @@ what the code and the POMs do not make obvious.
   `cifriendly` interpolates only the CI-friendly version properties, for the
   `resolveCiFriendliesOnly` mode. `extendedinterpolation` backs the `interpolate` and
   `extended_interpolate` element handling.
-- The site is built from `src/site/markdown`; `.md.vm` pages such as `usage.md.vm` go through
-  Velocity, and the FAQ is `faq.md`.
+- The site is built from the plain Markdown pages in `src/site/markdown`, such as `usage.md` and
+  the FAQ `faq.md`.
 
 ## Build gates
 
 - Main code must use the Java 8 API: mojo-parent sets `maven.compiler.release` to 8. There is no
   animal-sniffer or Checkstyle execution, so building on JDK 8 is the only other check. CI builds
-  on JDK 8, 21 and 25.
+  on the oldest and the newest JDKs through the shared MojoHaus build workflow.
 - Spotless runs on JDK 17 and later only. It applies the formatting in `process-sources` on a local
   build and checks it when the `CI` environment variable is set. It formats Java with
   palantir-java-format, sorts the POM and also reformats Markdown, so run `mvn spotless:apply`
   after editing the README or this file.
-- The plugin compiles against Maven 3.9.16 (`mavenVersion`) and declares a
-  literal `<prerequisites><maven>3.9.0</maven>`; keep the two apart, so raising `mavenVersion`
-  does not raise the prerequisite. Building the plugin itself needs Maven 3.9
-  (`minimalMavenBuildVersion`). CI runs the integration tests on Maven 3.10.0 and 4.0.0-rc-7.
+- The plugin compiles against the Maven 3.9.x release in `mavenVersion` and declares a literal
+  `<prerequisites><maven>3.9.0</maven>`; keep the two apart, so raising `mavenVersion` does not
+  raise the prerequisite. Building the plugin itself needs the Maven version in
+  `minimalMavenBuildVersion`. The shared workflow runs the build and the integration tests on
+  Maven 3 and on Maven 4.
 
 ## Unit tests
 
@@ -76,6 +77,28 @@ what the code and the POMs do not make obvious.
   the `localhost` group ID, which keeps them out of security alerts.
 - Deliberate pins in `.github/dependabot.yml`: plexus-xml stays below 4 because 4.x is the Maven 4
   line, and slf4j below 2 because Maven 3.9 exports slf4j-api 1.7.36.
+
+## Documentation updates
+
+A change that users or contributors can notice ships with the documentation it affects, in the
+same pull request. A refactor with no visible effect needs none.
+
+- A new or changed parameter, flatten mode or element handling: the Javadoc of `FlattenMojo`,
+  `FlattenMode` or `ElementHandling`, which becomes the goal page, and the goal list in
+  `src/site/markdown/index.md`.
+- New or changed usage: `src/site/markdown/usage.md`, or an example under
+  `src/site/markdown/examples`. The site pages are plain Markdown; the
+  first plugin declaration in `usage.md` writes the version as
+  `<version><!-- latest release --></version>` and the examples leave it out, so they never go
+  stale. Keep the flattened POM shown in an example equal to what the plugin
+  writes.
+- Recurring questions: `src/site/markdown/faq.md`.
+- A page added, removed or renamed: the menu in `src/site/site.xml`. Never rename a published page;
+  its URL is linked from elsewhere.
+- The Maven or Java requirement, or how to build and release: `README.md`.
+- A new convention, build gate or test fixture: this file.
+
+Check the result with `mvn site` and open `target/site/index.html`.
 
 ## Pull requests
 

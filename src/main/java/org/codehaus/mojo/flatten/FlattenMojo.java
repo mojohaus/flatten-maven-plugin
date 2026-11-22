@@ -340,7 +340,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * update, losing original formatting. The retained external parent reference is written with an empty
      * {@code relativePath} so consumers resolve it from a repository.
      *
-     * @since 1.9.1
+     * @since 1.10.0
      */
     @Parameter(property = "flatten.flattenRelativePathParent", defaultValue = "false")
     private boolean flattenRelativePathParent;
@@ -410,7 +410,7 @@ public class FlattenMojo extends AbstractFlattenMojo {
      * <tr>
      * <td>byPackaging</td>
      * <td><code>resolveCiFriendliesOnly</code> for <code>pom</code> packaging, <code>defaults</code> otherwise.
-     * Available since 1.9.1.</td>
+     * Available since 1.10.0.</td>
      * </tr>
      * </tbody>
      * </table>

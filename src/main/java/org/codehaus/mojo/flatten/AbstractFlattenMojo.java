@@ -35,7 +35,7 @@ public abstract class AbstractFlattenMojo extends AbstractMojo {
     /**
      * The directory where the generated flattened POM file will be written to. The default is the build directory,
      * so the <code>clean</code> lifecycle removes the file and the <code>flatten:clean</code> goal is only needed for
-     * a directory outside of it. Earlier versions used <code>${project.basedir}</code>.
+     * a directory outside of it. Versions before 1.10.0 used <code>${project.basedir}</code>.
      */
     @Parameter(defaultValue = "${project.build.directory}")
     private File outputDirectory;

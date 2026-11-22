@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.api.plugin.testing.InjectMojo;
@@ -263,6 +264,154 @@ class FlattenMojoTest {
                 .isInstanceOf(MojoExecutionException.class)
                 .hasMessage("Cyclic local parent chain detected at " + pom
                         + "; local parents must not reference each other in a loop through relativePath.");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/legacy-property-support/pom.xml")
+    void resolvesTheLegacyArtifactIdProperty(FlattenMojo flattenMojo) throws Exception {
+        assertThat(project.getOriginalModel().getName()).isEqualTo("${artifactId}");
+
+        assertThat(flatten(flattenMojo).getName()).isEqualTo("legacy-property-support");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/xml-header-comment-present/pom.xml")
+    void keepsTheLicenseHeaderComment(FlattenMojo flattenMojo) throws Exception {
+        String sourceHeader = commentBeforeProject(project.getFile().toPath());
+
+        flattenMojo.execute();
+
+        assertThat(sourceHeader).contains("Licensed to the Apache Software Foundation (ASF)");
+        assertThat(commentBeforeProject(flattenMojo.getFlattenedPomFile())).isEqualTo(sourceHeader);
+    }
+
+    private static String commentBeforeProject(Path pom) throws IOException {
+        String content = new String(Files.readAllBytes(pom), StandardCharsets.UTF_8).replace("\r", "");
+        String beforeProject = content.substring(0, content.indexOf("<project"));
+        return beforeProject.substring(beforeProject.indexOf("<!--"), beforeProject.indexOf("-->"));
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/removing-pluginManagement-if-build-is-empty/pom.xml")
+    void removesPluginManagementWhenBuildIsEmpty(FlattenMojo flattenMojo) throws Exception {
+        assertThat(project.getOriginalModel().getBuild().getPluginManagement()).isNotNull();
+
+        assertThat(flatten(flattenMojo).getBuild()).isNull();
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/removing-pluginManagement-if-build-is-flatten/pom.xml")
+    void removesPluginManagementWhenBuildIsFlatten(FlattenMojo flattenMojo) throws Exception {
+        assertThat(project.getOriginalModel().getBuild().getPluginManagement()).isNotNull();
+
+        Model flattened = flatten(flattenMojo);
+
+        assertThat(flattened.getBuild() == null || flattened.getBuild().getPluginManagement() == null)
+                .isTrue();
+    }
+
+    @Test
+    @InjectMojo(
+            goal = "flatten",
+            pom = "src/test/resources/issue-383-project-basedir-and-baseUri-for-are-interpolated/pom.xml")
+    void interpolatesBaseUriButNotBasedirOrBuildPaths(FlattenMojo flattenMojo) throws Exception {
+        Properties properties = flatten(flattenMojo).getProperties();
+
+        assertCoordinatesAreInterpolated(properties);
+        assertThat(properties.getProperty("projectBasedir")).isEqualTo("x" + project.getBasedir() + "y");
+        assertThat(properties.getProperty("projectBaseUri"))
+                .startsWith("xfile:")
+                .endsWith("y");
+        assertBuildPathsAreKept(properties);
+    }
+
+    @Test
+    @InjectMojo(
+            goal = "flatten",
+            pom =
+                    "src/test/resources/issue-383-with-extended_interpolate-project-basedir-and-baseUri-for-are-not-interpolated/pom.xml")
+    void extendedInterpolationKeepsBasedirAndBaseUri(FlattenMojo flattenMojo) throws Exception {
+        Properties properties = flatten(flattenMojo).getProperties();
+
+        assertCoordinatesAreInterpolated(properties);
+        assertThat(properties.getProperty("projectBasedir")).isEqualTo("x${project.basedir}y");
+        assertThat(properties.getProperty("projectBaseUri")).isEqualTo("x${project.baseUri}y");
+        assertBuildPathsAreKept(properties);
+    }
+
+    private static void assertCoordinatesAreInterpolated(Properties properties) {
+        assertThat(properties.getProperty("projectArtifactId"))
+                .isEqualTo("xissue-383-project-basedir-and-baseUri-for-are-not-interpolatedy");
+        assertThat(properties.getProperty("projectGroupId")).isEqualTo("xorg.codehaus.mojo.flatten.itsy");
+        assertThat(properties.getProperty("projectVersion")).isEqualTo("x0.0.1-SNAPSHOTy");
+    }
+
+    private static void assertBuildPathsAreKept(Properties properties) {
+        assertThat(properties.getProperty("projectBuildDirectory")).isEqualTo("x${project.build.directory}y");
+        assertThat(properties.getProperty("projectBuildOutputDirectory"))
+                .isEqualTo("x${project.build.outputDirectory}y");
+        assertThat(properties.getProperty("projectBuildSourceDirectory"))
+                .isEqualTo("x${project.build.sourceDirectory}y");
+        assertThat(properties.getProperty("projectBuildScriptSourceDirectory"))
+                .isEqualTo("x${project.build.scriptSourceDirectory}y");
+        assertThat(properties.getProperty("projectBuildTestSourceDirectory"))
+                .isEqualTo("x${project.build.testSourceDirectory}y");
+        assertThat(properties.getProperty("projectReportingOutputDirectory"))
+                .isEqualTo("x${project.reporting.outputDirectory}y");
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/skip/flatten-skip-pom.xml")
+    void skippedFlattenWritesNothing(FlattenMojo flattenMojo) throws Exception {
+        flattenMojo.execute();
+
+        assertThat(flattenMojo.getFlattenedPomFile()).doesNotExist();
+    }
+
+    @Test
+    @InjectMojo(goal = "flatten", pom = "src/test/resources/skip/flatten-skip-pom.xml")
+    void skippedFlattenLeavesAnExistingFlattenedPomAlone(FlattenMojo flattenMojo) throws Exception {
+        Path flattenedPom = existingFlattenedPom(flattenMojo.getFlattenedPomFile());
+
+        flattenMojo.execute();
+
+        assertFlattenedPomUntouched(flattenedPom);
+    }
+
+    @Test
+    @InjectMojo(goal = "clean", pom = "src/test/resources/skip/clean-skip-pom.xml")
+    void skippedCleanKeepsTheFlattenedPom(CleanMojo cleanMojo) throws Exception {
+        Path flattenedPom = existingFlattenedPom(cleanMojo.getFlattenedPomFile());
+
+        cleanMojo.execute();
+
+        assertFlattenedPomUntouched(flattenedPom);
+    }
+
+    @Test
+    @InjectMojo(goal = "clean", pom = "src/test/resources/skip/clean-skip-pom.xml")
+    @MojoParameter(name = "skipClean", value = "false")
+    void cleanDeletesTheFlattenedPom(CleanMojo cleanMojo) throws Exception {
+        Path flattenedPom = existingFlattenedPom(cleanMojo.getFlattenedPomFile());
+
+        cleanMojo.execute();
+
+        assertThat(flattenedPom).doesNotExist();
+    }
+
+    private static final long OLD_TIMESTAMP = 1_000_000_000_000L;
+
+    /** Writes a flattened POM dated long before the test, so that a rewrite shows in its timestamp. */
+    private static Path existingFlattenedPom(Path flattenedPom) throws IOException {
+        Files.createDirectories(flattenedPom.getParent());
+        Files.write(flattenedPom, "<project/>".getBytes(StandardCharsets.UTF_8));
+        assertThat(flattenedPom.toFile().setLastModified(OLD_TIMESTAMP)).isTrue();
+        return flattenedPom;
+    }
+
+    private static void assertFlattenedPomUntouched(Path flattenedPom) throws IOException {
+        assertThat(flattenedPom).hasContent("<project/>");
+        assertThat(Files.getLastModifiedTime(flattenedPom).toMillis()).isEqualTo(OLD_TIMESTAMP);
     }
 
     private static Model flatten(FlattenMojo flattenMojo) throws Exception {

@@ -157,7 +157,7 @@ The repository-wide parent has fixed coordinates and inherits from a stable publ
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <version>\${project.version}</version>
+        <version>${project.version}</version>
         <configuration>
           <flattenMode>resolveCiFriendliesOnly</flattenMode>
           <flattenRelativePathParent>true</flattenRelativePathParent>

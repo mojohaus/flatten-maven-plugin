@@ -1,13 +1,13 @@
-title: Defining a central version for multi-module projects
+title: Defining versions of multiple modules in a central place
 
-# Defining a central version in multi-module projects
+# Defining versions of multiple modules in a central place
 
-Various projects have a multi-module setup while they release all modules under the same version. With flatten-maven-plugin you can define this central version in a single place.
+Various projects have a multi-module setup but typically want dependencies between modules of the same project to use the recent version. With flatten-maven-plugin you can define the versions in a single place.
 
 Top-level POM
 -------------
 
-In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and define a variable for your central project version:
+In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and define variables for the versions of your modules:
 
 ```xml
 <project>
@@ -17,7 +17,9 @@ In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and 
   <version>dev</version>
   <packaging>pom</packaging>
   <properties>
-    <whizbang.version>3.1.7-SP2<whizbang.version>
+    <whizbang.module1.version>3.1.7-SP2</whizbang.module1.version>
+    <whizbang.module2.version>1.4.1-GA</whizbang.module2.version>
+    ...
   </properties>
   <modules>
     <module>whizbang-module1</module>
@@ -30,7 +32,6 @@ In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <version>${project.version}</version>
         <configuration>
         </configuration>
         <executions>
@@ -47,10 +48,22 @@ In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and 
   </build>
   <dependencyManagement>
     <dependencies>
+      <!-- Internal dependencies -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.10</version>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>whizbang-module1</artifactId>
+        <version>${whizbang.module1.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>whizbang-module2</artifactId>
+        <version>${whizbang.module2.version}</version>
+      </dependency>
+      <!-- External dependencies -->
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.14.4</version>
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
@@ -65,7 +78,7 @@ In your top-level POM set a fixed version ("dev"), add flatten-maven-plugin and 
 Leaf POM
 --------
 
-In your leaf POM (child with packaging other than pom) you inherit the parent and use the central project version variable:
+In your leaf POM (child with packaging other than pom) you inherit the parent and use the corresponding version variable:
 
 ```xml
 <project>
@@ -76,14 +89,13 @@ In your leaf POM (child with packaging other than pom) you inherit the parent an
     <version>dev</version>
   </parent>
   <artifactId>whizbang-module1</artifactId>
-  <version>${whizbang.version}</version>
+  <version>${whizbang.module1.version}</version>
   <packaging>jar</packaging>
   <dependencies>
-    <!-- Internal dependencies with project version -->
+    <!-- Internal dependencies with managed version -->
     <dependency>
       <groupId>com.example.whizbang</groupId>
       <artifactId>whizbang-module2</artifactId>
-      <version>${whizbang.version}</version>
     </dependency>
 
     <!-- External dependencies with managed version -->
@@ -92,8 +104,8 @@ In your leaf POM (child with packaging other than pom) you inherit the parent an
       <artifactId>log4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -113,7 +125,7 @@ If you install or deploy the project the flattened POM of whizbang-module1 that 
     <dependency>
       <groupId>com.example.whizbang</groupId>
       <artifactId>whizbang-module2</artifactId>
-      <version>3.1.7-SP2</version>
+      <version>1.4.1-GA</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -123,3 +135,4 @@ If you install or deploy the project the flattened POM of whizbang-module1 that 
   </dependencies>
 </project>
 ```
+

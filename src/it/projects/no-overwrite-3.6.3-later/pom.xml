@@ -17,4 +17,18 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <configuration>
+          <!-- the flattened POM checked in next to pom.xml is the one under test -->
+          <outputDirectory>${project.basedir}</outputDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

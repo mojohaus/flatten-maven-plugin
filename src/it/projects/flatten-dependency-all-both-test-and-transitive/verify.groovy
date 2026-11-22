@@ -27,7 +27,7 @@ assert "dep" ==  originalProject.dependencies.dependency[1].artifactId.text()
 assert "3.2.1" ==  originalProject.dependencies.dependency[1].version.text()
 assert "test" ==  originalProject.dependencies.dependency[1].scope.text()
 
-File flattenedPom = new File( basedir, '.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPom.exists()
 
 def flattenedProject = new XmlSlurper().parse( flattenedPom )

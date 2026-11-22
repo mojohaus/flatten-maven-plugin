@@ -27,7 +27,7 @@ assert 1 == originalProject.profiles.size()
 assert 1 == originalProject.dependencyManagement.size()
 assert 1 == originalProject.modules.size()
 
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )
@@ -36,7 +36,7 @@ assert 1 ==  flattendProject.profiles.profile.dependencies.dependency.size()
 assert 'dep' ==  flattendProject.profiles.profile.dependencies.dependency.artifactId.text()
 assert '1.1' ==  flattendProject.profiles.profile.dependencies.dependency.version.text()
 
-File flattendChildPom = new File( basedir, 'child/.flattened-pom.xml' )
+File flattendChildPom = new File( basedir, 'child/target/.flattened-pom.xml' )
 assert flattendChildPom.exists()
 
 def flattendChildProject = new XmlSlurper().parse( flattendChildPom )

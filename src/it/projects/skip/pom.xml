@@ -22,6 +22,8 @@
         <version>@project.version@</version>
         <configuration>
           <skip>true</skip>
+          <!-- the flattened POM checked in next to pom.xml is the one under test -->
+          <outputDirectory>${project.basedir}</outputDirectory>
         </configuration>
       </plugin>
     </plugins>

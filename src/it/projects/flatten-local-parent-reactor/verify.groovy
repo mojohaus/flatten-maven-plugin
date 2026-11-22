@@ -18,10 +18,10 @@
  */
 import groovy.xml.XmlSlurper
 
-File repositoryPom = new File( basedir, '.flattened-pom.xml' )
-File modulePom = new File( basedir, 'module-parent/.flattened-pom.xml' )
-File childPom = new File( basedir, 'child/.flattened-pom.xml' )
-File directoryParentChildPom = new File( basedir, 'directory-parent-child/.flattened-pom.xml' )
+File repositoryPom = new File( basedir, 'target/.flattened-pom.xml' )
+File modulePom = new File( basedir, 'module-parent/target/.flattened-pom.xml' )
+File childPom = new File( basedir, 'child/target/.flattened-pom.xml' )
+File directoryParentChildPom = new File( basedir, 'directory-parent-child/target/.flattened-pom.xml' )
 assert repositoryPom.exists()
 assert modulePom.exists()
 assert childPom.exists()

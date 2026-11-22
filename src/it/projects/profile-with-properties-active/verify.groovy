@@ -26,7 +26,7 @@ assert 'myprofile' == originalProject.profiles.profile.id.text()
 assert 'DEFAULT-VALUE' == originalProject.properties.testProperty.text()
 assert 'PROFILE-VALUE' == originalProject.profiles.profile.properties.testProperty.text()
 
-File flattenedPom = new File( basedir, '.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattenedPom.exists()
 
 def flattenedProject = new XmlSlurper().parse( flattenedPom )

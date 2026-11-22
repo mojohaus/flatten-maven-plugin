@@ -25,14 +25,14 @@ def originalProject = new XmlSlurper().parse( originalPom )
 assert 0 == originalProject.dependencies.size()
 assert 1 == originalProject.dependencyManagement.size()
 
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )
 assert 0 == flattendProject.dependencies.size()
 assert 1 == flattendProject.dependencyManagement.size()
 
-def flattendModuleAPom = new File( basedir , 'module-a/.flattened-pom.xml' )
+def flattendModuleAPom = new File( basedir , 'module-a/target/.flattened-pom.xml' )
 assert flattendModuleAPom.exists()
 
 def flattendModuleAProject = new XmlSlurper().parse( flattendModuleAPom )
@@ -53,7 +53,7 @@ def dep = flattendModuleAProject.dependencies.dependency.find {
 assert null != dep
 assert '1.1' == dep.version.text()
 
-def flattendModuleBPom = new File( basedir, 'module-b/.flattened-pom.xml' )
+def flattendModuleBPom = new File( basedir, 'module-b/target/.flattened-pom.xml' )
 assert flattendModuleBPom.exists()
 
 def flattendModuleBProject = new XmlSlurper().parse( flattendModuleBPom )

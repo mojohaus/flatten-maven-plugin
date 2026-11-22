@@ -18,8 +18,8 @@
  */
 import groovy.xml.XmlSlurper
 
-File parentPom = new File( basedir, '.flattened-pom.xml' )
-File childPom = new File( basedir, 'child/.flattened-pom.xml' )
+File parentPom = new File( basedir, 'target/.flattened-pom.xml' )
+File childPom = new File( basedir, 'child/target/.flattened-pom.xml' )
 assert parentPom.exists()
 assert childPom.exists()
 

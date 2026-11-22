@@ -18,7 +18,7 @@
  */
 
 // Clean mojo is skipped so we should expect flattened pom to still exist
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattendPom.exists()
 
 

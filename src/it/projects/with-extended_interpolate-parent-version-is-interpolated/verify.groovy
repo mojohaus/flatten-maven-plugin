@@ -29,7 +29,7 @@ import groovy.xml.XmlSlurper
 }
 
 {
-    final File flattenedParentPomFile = new File(basedir, '.flattened-pom.xml')
+    final File flattenedParentPomFile = new File(basedir, 'target/.flattened-pom.xml')
     assert flattenedParentPomFile.exists()
 
     final flattenedParent = new XmlSlurper().parse(flattenedParentPomFile)
@@ -55,7 +55,7 @@ import groovy.xml.XmlSlurper
 }
 
 {
-    final File flattenedBomPomFile = new File(basedir, 'bom/.flattened-pom.xml')
+    final File flattenedBomPomFile = new File(basedir, 'bom/target/.flattened-pom.xml')
     assert flattenedBomPomFile.exists()
 
     final flattenedBom = new XmlSlurper().parse(flattenedBomPomFile)

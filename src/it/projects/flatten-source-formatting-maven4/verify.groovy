@@ -20,7 +20,7 @@
 def checks = [ '', 'child/' ]
 checks.each { dir ->
     def source = new File( basedir, "${dir}pom.xml" ).text
-    def flattened = new File( basedir, "${dir}.flattened-pom.xml" ).text
+    def flattened = new File( basedir, "${dir}target/.flattened-pom.xml" ).text
     assert flattened == source.replace( '${revision}', '1.2.3.4' ) : "source formatting changed for ${dir}pom.xml"
 }
 true

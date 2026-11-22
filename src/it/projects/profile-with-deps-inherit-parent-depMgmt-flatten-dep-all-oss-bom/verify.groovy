@@ -34,7 +34,7 @@ assert 1 ==  parentProject.dependencyManagement.size()
 assert 'parent-depMngt-properties' == parentProject.dependencyManagement.dependencies.dependency.artifactId.text()
 assert 'import' == parentProject.dependencyManagement.dependencies.dependency.scope.text()
 
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
 assert flattendPom.exists()
 
 def flattendProject = new XmlSlurper().parse( flattendPom )

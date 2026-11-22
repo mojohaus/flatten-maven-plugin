@@ -26,7 +26,7 @@ assert 'junit' == originalProject.dependencies.dependency.groupId.text()
 assert 'junit' == originalProject.dependencies.dependency.artifactId.text()
 assert '' == originalProject.dependencies.dependency.version.text()
 
-File flattenedPom = new File( basedir, 'jar/.flattened-pom.xml' )
+File flattenedPom = new File( basedir, 'jar/target/.flattened-pom.xml' )
 assert flattenedPom.exists()
 
 def flattenedProject = new XmlSlurper().parse( flattenedPom )

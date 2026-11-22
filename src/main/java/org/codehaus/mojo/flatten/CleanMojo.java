@@ -32,7 +32,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * This MOJO realizes the goal <code>flatten:clean</code> that deletes any files created by
  * <code>{@link FlattenMojo flatten:flatten}</code> (more specific the flattened POM file which is by default
- * <code>.flattened-pom.xml</code>).
+ * <code>.flattened-pom.xml</code>). With the default <code>outputDirectory</code> the file is in the build directory
+ * and the <code>clean</code> lifecycle already removes it, so this goal is only needed for another directory.
  *
  * @author Joerg Hohwiller (hohwille at users.sourceforge.net)
  * @since 1.0.0-beta-2

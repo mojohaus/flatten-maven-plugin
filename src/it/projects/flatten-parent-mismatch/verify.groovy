@@ -18,8 +18,8 @@
  */
 import groovy.xml.XmlSlurper
 
-def project = new XmlSlurper().parse( new File( basedir, 'child/target/.flattened-pom.xml' ) )
-def emptyProject = new XmlSlurper().parse( new File( basedir, 'empty-child/target/.flattened-pom.xml' ) )
+def project = new XmlSlurper().parse(new File(basedir, 'child/target/.flattened-pom.xml'))
+def emptyProject = new XmlSlurper().parse(new File(basedir, 'empty-child/target/.flattened-pom.xml'))
 assert 'parent-depMngt' == project.parent.artifactId.text()
 assert '2' == project.parent.version.text()
 assert 1 == project.parent.relativePath.size()
@@ -29,9 +29,11 @@ assert '2' == emptyProject.parent.version.text()
 assert 1 == emptyProject.parent.relativePath.size()
 assert '' == emptyProject.parent.relativePath.text()
 
-def buildLog = new File( basedir, 'build.log' ).text
-assert !buildLog.readLines().any { it.contains( '[WARNING] The POM at ' ) }
-def mismatchMessages = buildLog.readLines().findAll { it.contains( 'The POM at ' ) }
-assert !mismatchMessages.any { it.contains( 'empty-child' ) }
-assert buildLog.contains( 'org.codehaus.mojo.flatten.its:unrelated-aggregator:1' )
-assert buildLog.contains( 'expected parent org.codehaus.mojo.flatten.its:parent-depMngt:2' )
+def buildLog = new File(basedir, 'build.log').text
+assert !buildLog.readLines().any { it.contains('[WARNING] The POM at ') }
+def mismatchMessages = buildLog.readLines().findAll {
+    it.contains('The POM at ')
+}
+assert !mismatchMessages.any { it.contains('empty-child') }
+assert buildLog.contains('org.codehaus.mojo.flatten.its:unrelated-aggregator:1')
+assert buildLog.contains('expected parent org.codehaus.mojo.flatten.its:parent-depMngt:2')

@@ -17,20 +17,20 @@
  * under the License.
  */
 
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
- 
-def originalProject = new XmlSlurper().parse( originalPom )
+
+def originalProject = new XmlSlurper().parse(originalPom)
 assert '${revision}' == originalProject.dependencies.dependency[0].version.text()
 assert '${small}' == originalProject.dependencies.dependency[0].classifier.text()
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 
 
 assert '1.2.3.4' == flattenedProject.version.text()

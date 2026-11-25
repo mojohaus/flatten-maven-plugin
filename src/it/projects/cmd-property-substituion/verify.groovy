@@ -18,14 +18,14 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 assert '${cmd.test.property}' == originalProject.name.text()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 assert 'MagicValue42' == flattendProject.name.text()

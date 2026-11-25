@@ -18,12 +18,12 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 // required and maven-plugin specific elements
-assert '4.0.0' ==  originalProject.modelVersion.text()
+assert '4.0.0' == originalProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == originalProject.groupId.text()
 assert 'complete-multimodule-parent-pom-direct-dependencies' == originalProject.artifactId.text()
 assert '${revision}' == originalProject.version.text()
@@ -50,36 +50,36 @@ assert 1 == originalProject.scm.size()
 assert 1 == originalProject.url.size()
 
 // Parent module
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 // required elements
-assert '4.0.0' ==  flattendProject.modelVersion.text()
+assert '4.0.0' == flattendProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == flattendProject.groupId.text()
 assert 'complete-multimodule-parent-pom-direct-dependencies' == flattendProject.artifactId.text()
 assert '1.2.3.4' == flattendProject.version.text()
 assert 'pom' == originalProject.packaging.text()
 
 // Child module: module
-File flattendChildPom = new File( basedir, 'module/target/.flattened-pom.xml' )
+File flattendChildPom = new File(basedir, 'module/target/.flattened-pom.xml')
 assert flattendChildPom.exists()
 
-def flattendChildProject = new XmlSlurper().parse( flattendChildPom )
+def flattendChildProject = new XmlSlurper().parse(flattendChildPom)
 // required elements
-assert '4.0.0' ==  flattendChildProject.modelVersion.text()
+assert '4.0.0' == flattendChildProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == flattendChildProject.groupId.text()
 assert 'multimodule-module-direct-dependencies' == flattendChildProject.artifactId.text()
 assert '1.2.3.4' == flattendChildProject.version.text()
 assert '1.2.3.4' == flattendChildProject.dependencies.dependency[0].version.text()
 
 // Child module: module-with-parent
-File flattendChildWithParentPom = new File( basedir, 'module-with-parent/target/.flattened-pom.xml' )
+File flattendChildWithParentPom = new File(basedir, 'module-with-parent/target/.flattened-pom.xml')
 assert flattendChildWithParentPom.exists()
 
-def flattendChildWithParentProject = new XmlSlurper().parse( flattendChildWithParentPom )
+def flattendChildWithParentProject = new XmlSlurper().parse(flattendChildWithParentPom)
 // required elements
-assert '4.0.0' ==  flattendChildWithParentProject.modelVersion.text()
+assert '4.0.0' == flattendChildWithParentProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == flattendChildWithParentProject.groupId.text()
 assert 'multimodule-module-with-parent-direct-dependencies' == flattendChildWithParentProject.artifactId.text()
 assert '1.2.3.4' == flattendChildWithParentProject.version.text()

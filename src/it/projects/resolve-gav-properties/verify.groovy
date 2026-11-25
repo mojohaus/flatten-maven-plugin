@@ -18,10 +18,10 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
- 
-def originalProject = new XmlSlurper().parse( originalPom )
+
+def originalProject = new XmlSlurper().parse(originalPom)
 assert '${depGroupId}' == originalProject.dependencies.dependency.groupId.text()
 assert '${depArtifactId}' == originalProject.dependencies.dependency.artifactId.text()
 assert '${depVersion}' == originalProject.dependencies.dependency.version.text()
@@ -29,10 +29,10 @@ assert '${utilGroupId}' == originalProject.profiles.profile.dependencies.depende
 assert '${utilArtifactId}' == originalProject.profiles.profile.dependencies.dependency.artifactId.text()
 assert '${utilVersion}' == originalProject.profiles.profile.dependencies.dependency.version.text()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 assert 'org.codehaus.mojo.flatten.its' == flattendProject.dependencies.dependency.groupId.text()
 assert 'dep' == flattendProject.dependencies.dependency.artifactId.text()
 assert '1.1' == flattendProject.dependencies.dependency.version.text()

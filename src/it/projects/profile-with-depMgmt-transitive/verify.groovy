@@ -18,16 +18,16 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 assert 1 == originalProject.dependencies.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
-assert 1 ==  flattendProject.dependencies.size()
+def flattendProject = new XmlSlurper().parse(flattendPom)
+assert 1 == flattendProject.dependencies.size()
 assert '13.0.11.Final' == flattendProject.dependencies.dependency[0].version.text()
 

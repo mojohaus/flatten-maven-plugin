@@ -17,7 +17,7 @@
  * under the License.
  */
 // pom packaging resolves to resolveCiFriendliesOnly, so the flattened POM is the source with ${revision} resolved.
-def source = new File( basedir, 'pom.xml' ).text
-def flattened = new File( basedir, 'target/.flattened-pom.xml' ).text
-assert flattened == source.replace( '${revision}', '1.2.3.4' )
+def source = new File(basedir, 'pom.xml').text
+def flattened = new File(basedir, 'target/.flattened-pom.xml').text
+assert flattened == source.replace('${revision}', '1.2.3.4')
 true

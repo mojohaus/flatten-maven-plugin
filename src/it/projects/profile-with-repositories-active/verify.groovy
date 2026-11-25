@@ -18,14 +18,20 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 def repositories = flattenedProject.repositories.repository
 assert 2 == repositories.size()
-assert ['profile-repo', 'shared-repo'] == repositories.collect { it.id.text() }.sort()
-assert 'https://repo.example.org/profile-override' == repositories.find { it.id.text() == 'shared-repo' }.url.text()
+assert ['profile-repo', 'shared-repo'] == repositories.collect {
+    it.id.text()
+}.sort()
+assert 'https://repo.example.org/profile-override' == repositories.find {
+    it.id.text() == 'shared-repo'
+}.url.text()
 
 def pluginRepositories = flattenedProject.pluginRepositories.pluginRepository
-assert pluginRepositories.collect { it.id.text() }.contains('profile-plugin-repo')
+assert pluginRepositories.collect {
+    it.id.text()
+}.contains('profile-plugin-repo')

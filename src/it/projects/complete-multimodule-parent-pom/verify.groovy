@@ -18,12 +18,12 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 // required and maven-plugin specific elements
-assert '4.0.0' ==  originalProject.modelVersion.text()
+assert '4.0.0' == originalProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == originalProject.groupId.text()
 assert 'complete-multimodule-parent-pom' == originalProject.artifactId.text()
 assert '0.0.1-SNAPSHOT' == originalProject.version.text()
@@ -49,12 +49,12 @@ assert 1 == originalProject.reporting.size()
 assert 1 == originalProject.scm.size()
 assert 1 == originalProject.url.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 // required elements
-assert '4.0.0' ==  flattendProject.modelVersion.text()
+assert '4.0.0' == flattendProject.modelVersion.text()
 assert 'org.codehaus.mojo.flatten.its' == flattendProject.groupId.text()
 assert 'complete-multimodule-parent-pom' == flattendProject.artifactId.text()
 assert '0.0.1-SNAPSHOT' == flattendProject.version.text()

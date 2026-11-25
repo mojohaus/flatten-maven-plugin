@@ -19,16 +19,16 @@
 import groovy.xml.XmlSlurper
 
 // clean removes the flattened POM written in the validate phase; the validate phase of install writes it again
-File flattenedPomFile = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPomFile = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPomFile.exists()
 
-def flattenedPom = new XmlSlurper().parse( flattenedPomFile )
+def flattenedPom = new XmlSlurper().parse(flattenedPomFile)
 assert 0 == flattenedPom.build.size()
 assert '1.1' == flattenedPom.dependencies.dependency[0].version.toString()
 
 // Maven 4 installs the POM it builds itself, as flatten-deploy documents
-if ( mavenVersion.startsWith( '3.' ) ) {
-    File installedPomFile = new File( localRepositoryPath, 'org/codehaus/mojo/flatten/its/clean-after-flatten/0.0.1/clean-after-flatten-0.0.1.pom' )
+if (mavenVersion.startsWith('3.')) {
+    File installedPomFile = new File(localRepositoryPath, 'org/codehaus/mojo/flatten/its/clean-after-flatten/0.0.1/clean-after-flatten-0.0.1.pom')
     assert installedPomFile.exists()
     assert installedPomFile.text == flattenedPomFile.text
 }

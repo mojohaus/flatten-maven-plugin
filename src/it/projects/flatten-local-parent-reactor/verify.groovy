@@ -18,19 +18,19 @@
  */
 import groovy.xml.XmlSlurper
 
-File repositoryPom = new File( basedir, 'target/.flattened-pom.xml' )
-File modulePom = new File( basedir, 'module-parent/target/.flattened-pom.xml' )
-File childPom = new File( basedir, 'child/target/.flattened-pom.xml' )
-File directoryParentChildPom = new File( basedir, 'directory-parent-child/target/.flattened-pom.xml' )
+File repositoryPom = new File(basedir, 'target/.flattened-pom.xml')
+File modulePom = new File(basedir, 'module-parent/target/.flattened-pom.xml')
+File childPom = new File(basedir, 'child/target/.flattened-pom.xml')
+File directoryParentChildPom = new File(basedir, 'directory-parent-child/target/.flattened-pom.xml')
 assert repositoryPom.exists()
 assert modulePom.exists()
 assert childPom.exists()
 assert directoryParentChildPom.exists()
 
-def repositoryProject = new XmlSlurper().parse( repositoryPom )
-def moduleProject = new XmlSlurper().parse( modulePom )
-def childProject = new XmlSlurper().parse( childPom )
-def directoryParentChild = new XmlSlurper().parse( directoryParentChildPom )
+def repositoryProject = new XmlSlurper().parse(repositoryPom)
+def moduleProject = new XmlSlurper().parse(modulePom)
+def childProject = new XmlSlurper().parse(childPom)
+def directoryParentChild = new XmlSlurper().parse(directoryParentChildPom)
 
 assert 'parent-depMngt' == repositoryProject.parent.artifactId.text()
 assert 'parent-depMngt' == moduleProject.parent.artifactId.text()
@@ -52,7 +52,9 @@ assert '1.2.3.4' == childProject.version.text()
 assert 'repository-value' == childProject.properties.'repository.property'.text()
 assert 'module-value' == childProject.properties.'module.property'.text()
 assert 'profile-value' == childProject.properties.'active.parent.property'.text()
-assert repositoryProject.build.plugins.plugin.find { it.artifactId.text() == 'flatten-maven-plugin' }
-    .configuration.flattenRelativePathParent.text() == 'true'
-assert !modulePom.text.contains( '<flattenRelativePathParent>' )
-assert !childPom.text.contains( '<flattenRelativePathParent>' )
+assert repositoryProject.build.plugins.plugin.find {
+    it.artifactId.text() == 'flatten-maven-plugin'
+}
+.configuration.flattenRelativePathParent.text() == 'true'
+assert !modulePom.text.contains('<flattenRelativePathParent>')
+assert !childPom.text.contains('<flattenRelativePathParent>')

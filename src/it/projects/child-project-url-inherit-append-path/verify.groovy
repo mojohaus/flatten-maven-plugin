@@ -18,9 +18,9 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 assert 'https://example.org/project' == flattenedProject.url.text()
 assert 'false' == flattenedProject.@'child.project.url.inherit.append.path'.text()

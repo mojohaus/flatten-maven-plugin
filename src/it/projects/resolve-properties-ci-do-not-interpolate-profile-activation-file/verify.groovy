@@ -18,18 +18,18 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 assert 'file.txt' == originalProject.profiles.profile[0].activation.file.exists.text()
 assert '${basedir}/file.txt' == originalProject.profiles.profile[1].activation.file.exists.text()
 assert '${any.property}' == originalProject.profiles.profile[2].activation.file.exists.text()
 assert '${revision}' == originalProject.profiles.profile[3].activation.file.exists.text()
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 
 assert 'file.txt' == flattenedProject.profiles.profile[0].activation.file.exists.text()
 assert '${basedir}/file.txt' == flattenedProject.profiles.profile[1].activation.file.exists.text()

@@ -18,10 +18,10 @@
  */
 import groovy.xml.XmlSlurper
 
-def root = new XmlSlurper().parse( new File( basedir, 'target/.flattened-pom.xml' ) )
+def root = new XmlSlurper().parse(new File(basedir, 'target/.flattened-pom.xml'))
 assert 'parent-depMngt' == root.parent.artifactId.text()
 assert '2' == root.parent.version.text()
-assert !new File( basedir, 'child/target/.flattened-pom.xml' ).exists()
+assert !new File(basedir, 'child/target/.flattened-pom.xml').exists()
 
-def log = new File( basedir, 'build.log' ).text
-assert log.contains( 'Unresolved published parent version for org.codehaus.mojo.flatten.its:parent-depMngt: ${it.parent.version}' )
+def log = new File(basedir, 'build.log').text
+assert log.contains('Unresolved published parent version for org.codehaus.mojo.flatten.its:parent-depMngt: ${it.parent.version}')

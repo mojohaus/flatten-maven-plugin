@@ -18,11 +18,11 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 def systemPath = flattenedProject.dependencies.dependency.systemPath.text()
-assert !systemPath.contains( '${' )
-assert systemPath.endsWith( '/lib/jrt-fs.jar' )
-assert systemPath == System.getenv( 'JAVA_HOME' ) + '/lib/jrt-fs.jar'
+assert !systemPath.contains('${')
+assert systemPath.endsWith('/lib/jrt-fs.jar')
+assert systemPath == System.getenv('JAVA_HOME') + '/lib/jrt-fs.jar'

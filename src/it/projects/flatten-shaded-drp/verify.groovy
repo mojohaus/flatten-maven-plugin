@@ -18,19 +18,19 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
-assert 1 ==  originalProject.dependencies.size()
-assert 2 ==  originalProject.dependencies.dependency.size()
+def originalProject = new XmlSlurper().parse(originalPom)
+assert 1 == originalProject.dependencies.size()
+assert 2 == originalProject.dependencies.dependency.size()
 
-File flattendPom = new File( basedir, 'dependency-reduced-pom.xml' )
+File flattendPom = new File(basedir, 'dependency-reduced-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
-assert 1 ==  flattendProject.dependencies.size()
-assert 1 ==  flattendProject.dependencies.dependency.size()
+def flattendProject = new XmlSlurper().parse(flattendPom)
+assert 1 == flattendProject.dependencies.size()
+assert 1 == flattendProject.dependencies.dependency.size()
 
 def archiver = flattendProject.dependencies.dependency.find {
     it.groupId == 'org.apache.maven' && it.artifactId == 'maven-archiver'

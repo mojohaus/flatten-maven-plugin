@@ -18,15 +18,17 @@
  */
 import groovy.xml.XmlSlurper
 
-def project = new XmlSlurper().parse( new File( basedir, 'explicit-child/target/.flattened-pom.xml' ) )
+def project = new XmlSlurper().parse(new File(basedir, 'explicit-child/target/.flattened-pom.xml'))
 assert 'parent-depMngt' == project.parent.artifactId.text()
 assert '2' == project.parent.version.text()
 assert 1 == project.parent.relativePath.size()
 assert '' == project.parent.relativePath.text()
 
-def buildLog = new File( basedir, 'build.log' ).text
-def mismatchWarnings = buildLog.readLines().findAll { it.contains( '[WARNING] The POM at ' ) }
+def buildLog = new File(basedir, 'build.log').text
+def mismatchWarnings = buildLog.readLines().findAll {
+    it.contains('[WARNING] The POM at ')
+}
 assert mismatchWarnings.size() == 1
-assert mismatchWarnings[0].contains( 'explicit-child' )
-assert mismatchWarnings[0].contains( 'org.codehaus.mojo.flatten.its:unrelated-aggregator:1' )
-assert mismatchWarnings[0].contains( 'expected parent org.codehaus.mojo.flatten.its:parent-depMngt:2' )
+assert mismatchWarnings[0].contains('explicit-child')
+assert mismatchWarnings[0].contains('org.codehaus.mojo.flatten.its:unrelated-aggregator:1')
+assert mismatchWarnings[0].contains('expected parent org.codehaus.mojo.flatten.its:parent-depMngt:2')

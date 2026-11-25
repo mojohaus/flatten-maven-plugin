@@ -18,17 +18,17 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
-assert 0 ==  originalProject.dependencies.size()
+def originalProject = new XmlSlurper().parse(originalPom)
+assert 0 == originalProject.dependencies.size()
 assert 0 == originalProject.profiles.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 // expectation of PR #21 is actually wrong here
 // TODO create a feature to get this expectation, activate in POM and uncomment asserts
 // assert 1 ==  flattendProject.dependencies.size()

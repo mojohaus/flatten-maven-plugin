@@ -17,6 +17,6 @@
  * under the License.
  */
 
-File flattendPom = new File( basedir, '.flattened-pom.xml' )
+File flattendPom = new File(basedir, '.flattened-pom.xml')
 assert flattendPom.exists()
 assert context.get('flattend-lastModified') == flattendPom.lastModified()

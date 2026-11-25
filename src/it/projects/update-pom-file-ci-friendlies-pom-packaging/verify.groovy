@@ -18,12 +18,12 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPomFile = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPomFile = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPomFile.exists()
-assert '0.0.1' == new XmlSlurper().parse( flattenedPomFile ).version.text()
+assert '0.0.1' == new XmlSlurper().parse(flattenedPomFile).version.text()
 
 // the flattened POM is installed instead of the original one, also for packaging pom
-File installedPomFile = new File( localRepositoryPath, 'org/codehaus/mojo/flatten/its/update-pom-file-ci-friendlies-pom-packaging/0.0.1/update-pom-file-ci-friendlies-pom-packaging-0.0.1.pom' )
+File installedPomFile = new File(localRepositoryPath, 'org/codehaus/mojo/flatten/its/update-pom-file-ci-friendlies-pom-packaging/0.0.1/update-pom-file-ci-friendlies-pom-packaging-0.0.1.pom')
 assert installedPomFile.exists()
 assert installedPomFile.size() == flattenedPomFile.size()
-assert '0.0.1' == new XmlSlurper().parse( installedPomFile ).version.text()
+assert '0.0.1' == new XmlSlurper().parse(installedPomFile).version.text()

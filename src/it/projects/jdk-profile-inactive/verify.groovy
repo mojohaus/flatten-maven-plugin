@@ -18,12 +18,12 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 // profile elements to include
-assert 0 ==  originalProject.dependencies.size()
+assert 0 == originalProject.dependencies.size()
 assert 'jdk' == originalProject.profiles.profile.id.text()
 assert 1 == originalProject.profiles.profile.activation.size()
 assert 1 == originalProject.profiles.profile.dependencies.size()
@@ -37,12 +37,12 @@ assert 1 == originalProject.profiles.profile.pluginRepositories.size()
 assert 1 == originalProject.profiles.profile.properties.size()
 assert 1 == originalProject.profiles.profile.reporting.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 // profile elements to include
-assert 0 ==  flattendProject.dependencies.size()
+assert 0 == flattendProject.dependencies.size()
 assert 'jdk' == flattendProject.profiles.profile.id.text()
 assert 1 == flattendProject.profiles.profile.activation.size()
 assert 1 == flattendProject.profiles.profile.dependencies.size()

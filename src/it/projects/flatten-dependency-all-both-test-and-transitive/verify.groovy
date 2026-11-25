@@ -18,30 +18,30 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
-assert 2 ==  originalProject.dependencies.dependency.size()
-assert "dep" ==  originalProject.dependencies.dependency[1].artifactId.text()
-assert "3.2.1" ==  originalProject.dependencies.dependency[1].version.text()
-assert "test" ==  originalProject.dependencies.dependency[1].scope.text()
+def originalProject = new XmlSlurper().parse(originalPom)
+assert 2 == originalProject.dependencies.dependency.size()
+assert "dep" == originalProject.dependencies.dependency[1].artifactId.text()
+assert "3.2.1" == originalProject.dependencies.dependency[1].version.text()
+assert "test" == originalProject.dependencies.dependency[1].scope.text()
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 
 // core and dep should be there. It's because while the test-scope dep (the
 // direct dependency), core declares dep as compile-scope (default) dependency.
-assert 2 ==  flattenedProject.dependencies.dependency.size()
+assert 2 == flattenedProject.dependencies.dependency.size()
 
-assert "core" ==  flattenedProject.dependencies.dependency[0].artifactId.text()
-assert "3.2.1" ==  flattenedProject.dependencies.dependency[0].version.text()
-assert "compile" ==  flattenedProject.dependencies.dependency[0].scope.text()
+assert "core" == flattenedProject.dependencies.dependency[0].artifactId.text()
+assert "3.2.1" == flattenedProject.dependencies.dependency[0].version.text()
+assert "compile" == flattenedProject.dependencies.dependency[0].scope.text()
 
 // The flattened pom.xml should declare the dep under core as compile scope.
 // It's ok to ignore the one in the test-scope dependency.
-assert "dep" ==  flattenedProject.dependencies.dependency[1].artifactId.text()
-assert "3.2.1" ==  flattenedProject.dependencies.dependency[1].version.text()
-assert "compile" ==  flattenedProject.dependencies.dependency[1].scope.text()
+assert "dep" == flattenedProject.dependencies.dependency[1].artifactId.text()
+assert "3.2.1" == flattenedProject.dependencies.dependency[1].version.text()
+assert "compile" == flattenedProject.dependencies.dependency[1].scope.text()

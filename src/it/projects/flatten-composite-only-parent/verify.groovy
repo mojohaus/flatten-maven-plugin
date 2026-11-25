@@ -18,14 +18,14 @@
  */
 import groovy.xml.XmlSlurper
 
-def source = new XmlSlurper().parse( new File( basedir, 'child/pom.xml' ) )
+def source = new XmlSlurper().parse(new File(basedir, 'child/pom.xml'))
 assert '${it.parent.version}' == source.parent.version.text()
 assert 0 == source.properties.'it.parent.version'.size()
 
-File flattenedPom = new File( basedir, 'child/target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'child/target/.flattened-pom.xml')
 assert flattenedPom.isFile()
 
-def published = new XmlSlurper().parse( flattenedPom )
+def published = new XmlSlurper().parse(flattenedPom)
 assert 'parent-depMngt' == published.parent.artifactId.text()
 assert '2' == published.parent.version.text() : flattenedPom.text
 assert !flattenedPom.text.contains( '${it.parent.version}' )

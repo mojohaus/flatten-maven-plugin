@@ -18,19 +18,19 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
-assert 0 ==  originalProject.dependencies.size()
-assert 1 ==  originalProject.profiles.size()
-assert 1 ==  originalProject.profiles.profile.size()
+def originalProject = new XmlSlurper().parse(originalPom)
+assert 0 == originalProject.dependencies.size()
+assert 1 == originalProject.profiles.size()
+assert 1 == originalProject.profiles.profile.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
-assert 0 ==  flattendProject.dependencies.size()
+def flattendProject = new XmlSlurper().parse(flattendPom)
+assert 0 == flattendProject.dependencies.size()
 // https://github.com/mojohaus/flatten-maven-plugin/issues/14
 //assert 1 ==  flattendProject.profiles.size()
 //assert 2 ==  flattendProject.profiles.profile.size()

@@ -18,18 +18,18 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
-assert 1 ==  originalProject.dependencies.size()
+def originalProject = new XmlSlurper().parse(originalPom)
+assert 1 == originalProject.dependencies.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
-assert 1 ==  flattendProject.dependencies.size()
-assert 2 ==  flattendProject.dependencies.dependency.size()
+def flattendProject = new XmlSlurper().parse(flattendPom)
+assert 1 == flattendProject.dependencies.size()
+assert 2 == flattendProject.dependencies.dependency.size()
 
 def core = flattendProject.dependencies.dependency.find {
     it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'core'
@@ -37,7 +37,9 @@ def core = flattendProject.dependencies.dependency.find {
 assert '3.2.1' == core.version.text()
 assert 1 == core.exclusions.size()
 assert 1 == core.exclusions.exclusion.size()
-assert null != core.exclusions.exclusion.find { it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'dep' }
+assert null != core.exclusions.exclusion.find {
+    it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'dep'
+}
 
 def dep = flattendProject.dependencies.dependency.find {
     it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'dep'

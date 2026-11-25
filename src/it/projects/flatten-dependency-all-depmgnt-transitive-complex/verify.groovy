@@ -18,24 +18,24 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
+def originalProject = new XmlSlurper().parse(originalPom)
 assert 0 == originalProject.dependencies.size()
 assert 1 == originalProject.dependencyManagement.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattendProject = new XmlSlurper().parse( flattendPom )
+def flattendProject = new XmlSlurper().parse(flattendPom)
 assert 0 == flattendProject.dependencies.size()
 assert 1 == flattendProject.dependencyManagement.size()
 
-def flattendModuleAPom = new File( basedir , 'module-a/target/.flattened-pom.xml' )
+def flattendModuleAPom = new File(basedir, 'module-a/target/.flattened-pom.xml')
 assert flattendModuleAPom.exists()
 
-def flattendModuleAProject = new XmlSlurper().parse( flattendModuleAPom )
+def flattendModuleAProject = new XmlSlurper().parse(flattendModuleAPom)
 assert 1 == flattendModuleAProject.dependencies.size()
 assert 2 == flattendModuleAProject.dependencies.dependency.size()
 
@@ -45,7 +45,9 @@ def core = flattendModuleAProject.dependencies.dependency.find {
 assert '3.2.1' == core.version.text()
 assert 1 == core.exclusions.size()
 assert 1 == core.exclusions.exclusion.size()
-assert null != core.exclusions.exclusion.find { it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'dep' }
+assert null != core.exclusions.exclusion.find {
+    it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'dep'
+}
 
 def dep = flattendModuleAProject.dependencies.dependency.find {
     it.groupId == 'org.codehaus.mojo.flatten.its' && it.artifactId == 'dep'
@@ -53,9 +55,9 @@ def dep = flattendModuleAProject.dependencies.dependency.find {
 assert null != dep
 assert '1.1' == dep.version.text()
 
-def flattendModuleBPom = new File( basedir, 'module-b/target/.flattened-pom.xml' )
+def flattendModuleBPom = new File(basedir, 'module-b/target/.flattened-pom.xml')
 assert flattendModuleBPom.exists()
 
-def flattendModuleBProject = new XmlSlurper().parse( flattendModuleBPom )
+def flattendModuleBProject = new XmlSlurper().parse(flattendModuleBPom)
 assert 1 == flattendModuleBProject.dependencies.size()
 assert 1 == flattendModuleBProject.dependencies.dependency.size()

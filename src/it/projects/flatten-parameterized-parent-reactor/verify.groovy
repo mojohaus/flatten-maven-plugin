@@ -18,15 +18,15 @@
  */
 import groovy.xml.XmlSlurper
 
-File parentPom = new File( basedir, 'target/.flattened-pom.xml' )
-File childPom = new File( basedir, 'child/target/.flattened-pom.xml' )
+File parentPom = new File(basedir, 'target/.flattened-pom.xml')
+File childPom = new File(basedir, 'child/target/.flattened-pom.xml')
 assert parentPom.exists()
 assert childPom.exists()
 
-def childProject = new XmlSlurper().parse( childPom )
+def childProject = new XmlSlurper().parse(childPom)
 assert 0 == childProject.parent.size()
 assert '1.2' == childProject.dependencies.dependency.find {
     it.artifactId.text() == 'dep'
 }.version.text()
-assert !parentPom.text.contains( '<flattenRelativePathParent>' )
-assert !childPom.text.contains( '<flattenRelativePathParent>' )
+assert !parentPom.text.contains('<flattenRelativePathParent>')
+assert !childPom.text.contains('<flattenRelativePathParent>')

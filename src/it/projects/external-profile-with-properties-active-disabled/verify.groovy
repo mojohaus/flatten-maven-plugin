@@ -18,12 +18,12 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
-assert 'DEFAULT_VALUE' ==  flattenedProject.licenses.license.name.text()
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
+assert 'DEFAULT_VALUE' == flattenedProject.licenses.license.name.text()
 assert 0 == flattenedProject.profiles.profile.size()

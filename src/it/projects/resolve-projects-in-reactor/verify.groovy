@@ -18,18 +18,18 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'jar/pom.xml' )
+File originalPom = new File(basedir, 'jar/pom.xml')
 assert originalPom.exists()
- 
-def originalProject = new XmlSlurper().parse( originalPom )
+
+def originalProject = new XmlSlurper().parse(originalPom)
 assert 'junit' == originalProject.dependencies.dependency.groupId.text()
 assert 'junit' == originalProject.dependencies.dependency.artifactId.text()
 assert '' == originalProject.dependencies.dependency.version.text()
 
-File flattenedPom = new File( basedir, 'jar/target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'jar/target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 assert 'junit' == flattenedProject.dependencies.dependency.groupId.text()
 assert 'junit' == flattenedProject.dependencies.dependency.artifactId.text()
 assert '4.13.2' == flattenedProject.dependencies.dependency.version.text()

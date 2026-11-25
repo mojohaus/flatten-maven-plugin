@@ -18,19 +18,23 @@
  */
 import groovy.xml.XmlSlurper
 
-File flattenedPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattenedPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattenedPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattenedPom )
+def flattenedProject = new XmlSlurper().parse(flattenedPom)
 def dependencies = flattenedProject.profiles.profile.dependencies.dependency
 assert 2 == dependencies.size()
 
 // no exclusions declared in the profile: the managed ones are taken
 def dep = dependencies.find { it.artifactId.text() == 'dep' }
 assert '1.1' == dep.version.text()
-assert ['excluded-by-management'] == dep.exclusions.exclusion.artifactId.collect { it.text() }
+assert ['excluded-by-management'] == dep.exclusions.exclusion.artifactId.collect {
+    it.text()
+}
 
 // exclusions declared in the profile win over the managed ones
 def dep1 = dependencies.find { it.artifactId.text() == 'dep1' }
 assert '2.2' == dep1.version.text()
-assert ['excluded-by-profile'] == dep1.exclusions.exclusion.artifactId.collect { it.text() }
+assert ['excluded-by-profile'] == dep1.exclusions.exclusion.artifactId.collect {
+    it.text()
+}

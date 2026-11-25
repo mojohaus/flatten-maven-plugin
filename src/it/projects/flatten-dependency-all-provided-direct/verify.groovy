@@ -18,18 +18,18 @@
  */
 import groovy.xml.XmlSlurper
 
-File originalPom = new File( basedir, 'pom.xml' )
+File originalPom = new File(basedir, 'pom.xml')
 assert originalPom.exists()
 
-def originalProject = new XmlSlurper().parse( originalPom )
-assert 1 ==  originalProject.dependencies.size()
+def originalProject = new XmlSlurper().parse(originalPom)
+assert 1 == originalProject.dependencies.size()
 
-File flattendPom = new File( basedir, 'target/.flattened-pom.xml' )
+File flattendPom = new File(basedir, 'target/.flattened-pom.xml')
 assert flattendPom.exists()
 
-def flattenedProject = new XmlSlurper().parse( flattendPom )
-assert 1 ==  flattenedProject.dependencies.size()
-assert 1 ==  flattenedProject.dependencies.dependency.size()
+def flattenedProject = new XmlSlurper().parse(flattendPom)
+assert 1 == flattenedProject.dependencies.size()
+assert 1 == flattenedProject.dependencies.dependency.size()
 
 String scope = flattenedProject.dependencies.dependency.scope
 assert "provided" == scope

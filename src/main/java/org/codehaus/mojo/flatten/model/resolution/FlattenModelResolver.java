@@ -30,7 +30,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.FileModelSource;
-import org.apache.maven.model.building.ModelSource;
+import org.apache.maven.model.building.ModelSource2;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.project.MavenProject;
@@ -105,7 +105,7 @@ public class FlattenModelResolver implements ModelResolver {
      * {@inheritDoc}
      */
     @Override
-    public ModelSource resolveModel(String groupId, String artifactId, String version)
+    public ModelSource2 resolveModel(String groupId, String artifactId, String version)
             throws UnresolvableModelException {
         File pomFile = reactorModelPool.find(groupId, artifactId, version);
         if (pomFile == null) {
@@ -148,13 +148,13 @@ public class FlattenModelResolver implements ModelResolver {
      * @since Apache-Maven-3.2.2 (MNG-5639)
      */
     @Override
-    public ModelSource resolveModel(Parent parent) throws UnresolvableModelException {
+    public ModelSource2 resolveModel(Parent parent) throws UnresolvableModelException {
         parent.setVersion(resolveVersion(parent.getGroupId(), parent.getArtifactId(), parent.getVersion()));
         return resolveModel(parent.getGroupId(), parent.getArtifactId(), parent.getVersion());
     }
 
     @Override
-    public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
+    public ModelSource2 resolveModel(Dependency dependency) throws UnresolvableModelException {
         dependency.setVersion(
                 resolveVersion(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()));
         return resolveModel(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
